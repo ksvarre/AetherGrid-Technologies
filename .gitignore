@@ -35,3 +35,6 @@ Thumbs.db
 
 # Local Databases (Temporary or User specific)
 data/db/*.local.json
+
+# Agent
+.agents/

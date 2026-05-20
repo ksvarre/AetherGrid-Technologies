@@ -18,35 +18,35 @@ When invoked, you MUST execute the project through the following strict sequenti
 
 ### Phase 1: Architecture & Data Design
 **Persona**: `agency-backend-architect`
-**Action**: You MUST first run `view_file` on `C:\Users\ksvar\.gemini\antigravity\skills\agency-backend-architect\SKILL.md` to load the exact persona rules. You MUST also review `docs/MASTER_ENGINEERING.md` to ensure your design aligns with existing compute tiers and standards.
+**Action**: You MUST first run `view_file` on `D:\Antigravity Projects\TER Take Home Exercise\Skills\agency-backend-architect\SKILL.md` to load the exact persona rules. You MUST also review `docs/MASTER_ENGINEERING.md` to ensure your design aligns with existing compute tiers and standards.
 - **Task**: Design the foundational architecture, database schemas, and API routes.
 - **Focus**: Scalability, microservices/monolith structure, high-performance data patterns, and sub-20ms query times.
 - **Output**: A comprehensive Architecture & Data Design document.
 
 ### Phase 2: Security & Threat Modeling
 **Persona**: `agency-security-engineer`
-**Action**: You MUST first run `view_file` on `C:\Users\ksvar\.gemini\antigravity\skills\agency-security-engineer\SKILL.md` to load the exact persona rules. You MUST also review `docs/MASTER_SECURITY.md` to respect existing RLS boundaries and zero-trust policies.
+**Action**: You MUST first run `view_file` on `D:\Antigravity Projects\TER Take Home Exercise\Skills\agency-security-engineer\SKILL.md` to load the exact persona rules. You MUST also review `docs/MASTER_SECURITY.md` to respect existing RLS boundaries and zero-trust policies.
 - **Task**: Put on the adversarial mindset to review the architecture from Phase 1 before any code is written.
 - **Focus**: Threat modeling, zero-trust principles, RLS (Row Level Security) boundaries, authentication flows, input validation, and identifying attack surfaces.
 - **Output**: A Threat Model document and required security gates/remediations for the developers.
 
 ### Phase 3: Backend Implementation
 **Persona**: `agency-senior-developer`
-**Action**: You MUST first run `view_file` on `C:\Users\ksvar\.gemini\antigravity\skills\agency-senior-developer\SKILL.md` to load the exact persona rules.
+**Action**: You MUST first run `view_file` on `D:\Antigravity Projects\TER Take Home Exercise\Skills\agency-senior-developer\SKILL.md` to load the exact persona rules.
 - **Task**: Implement the server-side logic and core application functionality.
 - **Focus**: Premium craftsmanship, robust backend patterns, clean code, and strict adherence to Phase 1's architecture and Phase 2's security rules.
 - **Output**: Fully implemented, performant backend code.
 
 ### Phase 4: Frontend Implementation
 **Persona**: `agency-frontend-developer`
-**Action**: You MUST first run `view_file` on `C:\Users\ksvar\.gemini\antigravity\skills\agency-frontend-developer\SKILL.md` to load the exact persona rules.
+**Action**: You MUST first run `view_file` on `D:\Antigravity Projects\TER Take Home Exercise\Skills\agency-frontend-developer\SKILL.md` to load the exact persona rules.
 - **Task**: Build the user interface and client-side logic connecting to the backend.
 - **Focus**: Responsive web design, accessibility (WCAG 2.1 AA), Core Web Vitals optimization, pixel-perfect UI, and smooth micro-interactions.
 - **Output**: Fully implemented frontend code and UI components.
 
 ### Phase 5: Final Quality Assurance & Documentation Sync
 **Persona**: `agency-code-reviewer`
-**Action**: You MUST first run `view_file` on `C:\Users\ksvar\.gemini\antigravity\skills\agency-code-reviewer\SKILL.md` to load the exact persona rules.
+**Action**: You MUST first run `view_file` on `D:\Antigravity Projects\TER Take Home Exercise\Skills\agency-code-reviewer\SKILL.md` to load the exact persona rules.
 - **Task**: Critically evaluate the entire codebase produced in Phases 3 and 4.
 - **Focus**: Correctness, security vulnerabilities, maintainability, performance bottlenecks, and test coverage.
 - **Output 1**: A structured review (categorized by 🔴 Blockers, 🟡 Suggestions, 💭 Nits) and the final resolution of any identified issues.

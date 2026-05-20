@@ -36,5 +36,6 @@ Thumbs.db
 # Local Databases (Temporary or User specific)
 data/db/*.local.json
 
-# Agent
-.agents/
+# Agent Workspace Rules - Ignore locked system skills, track all custom skills
+.agents/skills/agency-*/
+.agents/skills/core-directives/

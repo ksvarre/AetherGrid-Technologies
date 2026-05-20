@@ -1,0 +1,28 @@
+{
+  "name": "aethergrid-backend",
+  "version": "1.0.0",
+  "description": "AetherGrid Technologies Knowledge API Server",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "nodemon --watch services --watch server.ts -e ts --exec ts-node server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "@google/genai": "^2.5.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mammoth": "^1.7.2",
+    "officeparser": "^4.1.1",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.12.7",
+    "nodemon": "^3.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}

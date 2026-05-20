@@ -1,0 +1,28 @@
+{
+  "name": "aethergrid-knowledge-tracer",
+  "version": "1.0.0",
+  "description": "Teradyne AI Enablement FDE Exercises: AI-Powered Corporate Knowledge Tracer",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "npm install --prefix src/backend && npm install --prefix src/frontend",
+    "dev": "concurrently \"npm run dev --prefix src/backend\" \"npm run dev --prefix src/frontend\"",
+    "build:backend": "npm run build --prefix src/backend",
+    "build:frontend": "npm run build --prefix src/frontend",
+    "build": "npm run build:backend && npm run build:frontend",
+    "verify": "node src/backend/dist/scripts/verify_system.js || ts-node src/backend/scripts/verify_system.ts",
+    "generate-data": "python scripts/generate_data.py"
+  },
+  "keywords": [
+    "teradyne",
+    "fde",
+    "rag",
+    "traceability",
+    "react",
+    "express"
+  ],
+  "author": "Antigravity by Google DeepMind",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

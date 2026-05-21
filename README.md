@@ -141,7 +141,7 @@ This starts a colorful, interactive ANSI-styled terminal application where you c
 
 ### [Exercise 3: User-Facing React Application & Metric]
 *   **Dashboard**: A premium, futuristic single-page workspace styled in Vanilla CSS featuring an **AI Search Console**, an **Audit Queue** for team leads, and the **System Health Monitor**.
-*   **Measurement Approach**: Explains the tracking of **Knowledge Gap Resolution Velocity (KGRV)** and **Search Reformulation Frequency** to keep the corporate index accurate and self-healing.
+*   **Measurement Approach**: Explains the tracking of **User Correction Resolution Velocity (UCRV)** and **Search Reformulation Frequency** to keep the corporate index accurate and self-healing.
 *   👉 **How to Test & Validate**:
     1.  **Browser Dashboard**: Open your browser to `http://localhost:5173`.
     2.  **Onboarding Tour**: If it's your first time, the guided tour auto-launches after 800ms. Follow it through the search console, the audit queue, and the analytics telemetry dashboard. To restart it anytime, click the `?` icon in the main header.

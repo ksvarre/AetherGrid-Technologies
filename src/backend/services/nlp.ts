@@ -69,7 +69,7 @@ const STOP_WORDS = new Set([
 ]);
 
 /**
- * Simple Porter-style suffix stemming algorithm to normalize suffixes: "s", "es", "ing", "ed".
+ * Simple grammatical suffix stemming algorithm to normalize suffixes: "s", "es", "ing", "ed".
  */
 function stem(word: string): string {
   if (word.length <= 2) return word;
@@ -451,10 +451,11 @@ export class OfflineNLPEngine implements INLPEngine {
               matchedCorrelationTokens++;
             }
           });
-          if (correlationTokens.length > 0 && matchedCorrelationTokens === correlationTokens.length) {
-            score += 10.0; // All correlation words are present in user query
-          } else if (matchedCorrelationTokens > 0) {
-            score += 2.0 * matchedCorrelationTokens; // Partial keyword correlation boost
+          const overlapRatio = correlationTokens.length > 0 ? matchedCorrelationTokens / correlationTokens.length : 0;
+          if (overlapRatio >= 0.75) {
+            score += 10.0; // Very high overlap boost
+          } else if (overlapRatio >= 0.5) {
+            score += 2.0; // Moderate overlap boost
           }
         }
       }
@@ -555,10 +556,11 @@ export class OfflineNLPEngine implements INLPEngine {
     pipeline.push(`[Synthesis] Compiled ${citations.length} custom inline source citations with metadata mappings.`);
 
     // 3. Compute scaled confidence score
-    // Highest score in matches acts as basis
-    // Map raw score to a nice confidence scale [0.1, 0.95]
-    const confidenceScore = Math.max(0.1, Math.min(0.95, 0.2 + rawMaxScore * 10));
-    pipeline.push(`[Confidence Calibration] Evaluated relative confidence metrics. Match confidence calibrated to: ${confidenceScore.toFixed(2)}.`);
+    // Scale confidence by query coverage to prevent low-overlap search queries from getting 95% confidence
+    const matchedTokensCount = queryTokens.filter(token => matches[0].chunk.content.toLowerCase().includes(token)).length;
+    const queryCoverage = matchedTokensCount / queryTokens.length;
+    const confidenceScore = Math.max(0.05, Math.min(0.95, (0.1 + rawMaxScore * 2) * queryCoverage));
+    pipeline.push(`[Confidence Calibration] Evaluated relative confidence metrics (Query Coverage: ${(queryCoverage * 100).toFixed(0)}%). Match confidence calibrated to: ${confidenceScore.toFixed(2)}.`);
 
     let answer = `AetherGrid local database found references for your question:\n\n` + answerParagraphs.join("\n\n");
     

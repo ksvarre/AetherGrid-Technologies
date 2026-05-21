@@ -122,7 +122,7 @@ async function runValidation() {
 
   // STEP 4: PowerPoint (.pptx) Traceability
   printSubHeader('STEP 4: POWERPOINT PRESENTATION (.pptx) TRACEABILITY & CITATIONS');
-  const pptxQuery = "helium substation deployment thermal antenna bracket";
+  const pptxQuery = "August 15th Install rural antennas and cellular CBRS brackets on fiberglass poles";
   console.log(`Querying: "${C_YELLOW}${pptxQuery}${C_RESET}"`);
   const pptxRes = await makeRequest('POST', '/api/query', { query: pptxQuery });
   console.log(`- Calibrated Confidence: ${C_GREEN}${pptxRes.data.confidenceScore}${C_RESET}`);
@@ -155,7 +155,7 @@ async function runValidation() {
     console.log(`  - Recipient Name : ${C_CYAN}${routing.recipientName}${C_RESET}`);
     console.log(`  - Recipient Email: ${C_CYAN}${routing.recipientEmail}${C_RESET}`);
     console.log(`  - Rationale for Assignment: ${C_YELLOW}${routing.rationale}${C_RESET}`);
-    console.log(`  - Draft Outreach Slack Message:\n${C_RESET}${C_DIM}${routing.draftedQuestion}${C_RESET}`);
+    console.log(`  - Draft Outreach Teams Message:\n${C_RESET}${C_DIM}${routing.draftedQuestion}${C_RESET}`);
   } else {
     console.log(`${C_RED}❌ Error: suggestedRouting field was empty or null.${C_RESET}`);
   }

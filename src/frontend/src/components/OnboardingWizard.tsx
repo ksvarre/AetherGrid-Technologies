@@ -10,14 +10,14 @@ interface OnboardingStep {
   title: string;
   description: string;
   icon: string;             // Emoji icon
-  tab?: 'search' | 'audit' | 'analytics';  // Auto-switch tab before spotlighting
+  tab?: 'search' | 'audit' | 'analytics' | 'roadmap';  // Auto-switch tab before spotlighting
   position?: 'top' | 'bottom' | 'left' | 'right' | 'auto';
 }
 
 interface OnboardingWizardProps {
   isOpen: boolean;
   onClose: () => void;
-  onNavigateTab: (tab: 'search' | 'audit' | 'analytics') => void;
+  onNavigateTab: (tab: 'search' | 'audit' | 'analytics' | 'roadmap') => void;
 }
 
 // ─────────────────────────────────────────────
@@ -80,6 +80,14 @@ const STEPS: OnboardingStep[] = [
     icon: '⚙️',
     tab: 'search',
     position: 'bottom',
+  },
+  {
+    target: '#roadmap-sidebar-btn',
+    title: 'Recommended Future Features',
+    description: 'Explore our <strong>Future Features & Roadmap</strong>! While not part of the standard exercises, this presents strategic next-step tasks to transition the knowledge tracer into a production-grade enterprise system (SSO, self-service upload portal, hybrid vector DBs, and Teams webhook action loops) if there was more time.',
+    icon: '🔮',
+    tab: 'roadmap',
+    position: 'right',
   },
 ];
 

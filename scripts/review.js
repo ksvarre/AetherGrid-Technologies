@@ -273,7 +273,7 @@ async function runExercise2Playbook() {
       console.log(`  - Derived Expert Name : ${C_CYAN}${routing.recipientName}${C_RESET}`);
       console.log(`  - Expert Contact Email: ${C_CYAN}${routing.recipientEmail}${C_RESET}`);
       console.log(`  - Expert Assignment Rationale: ${C_YELLOW}${routing.rationale}${C_RESET}`);
-      console.log(`  - Drafted Slack/Teams Question to Expert:\n${C_DIM}"${routing.draftedQuestion}"${C_RESET}`);
+      console.log(`  - Drafted Teams Question to Expert:\n${C_DIM}"${routing.draftedQuestion}"${C_RESET}`);
       console.log(`${C_GREEN}✅ Success: System generated high-quality fallback routing for the low-confidence query!${C_RESET}`);
     } else {
       console.log(`${C_RED}❌ Error: suggestedRouting was not generated!${C_RESET}`);
@@ -475,7 +475,7 @@ function startSandbox(rl) {
           console.log(`Expert Name : ${C_CYAN}${data.suggestedRouting.recipientName}${C_RESET}`);
           console.log(`Email       : ${C_CYAN}${data.suggestedRouting.recipientEmail}${C_RESET}`);
           console.log(`Rationale   : ${C_YELLOW}${data.suggestedRouting.rationale}${C_RESET}`);
-          console.log(`Slack Draft : "${C_DIM}${data.suggestedRouting.draftedQuestion}${C_RESET}"`);
+          console.log(`Teams Draft : "${C_DIM}${data.suggestedRouting.draftedQuestion}${C_RESET}"`);
         }
 
         if (data.executionPipeline && data.executionPipeline.length > 0) {

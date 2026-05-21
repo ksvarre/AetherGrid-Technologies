@@ -61,7 +61,7 @@ The frontend is a single-page application split into modular, focused components
 4.  **`SuggestedRoutingPanel.tsx`**:
     *   Pops out with a glowing border when search confidence drops below `0.40`.
     *   Displays the **Primary Expert**, a detailed **Rationale** (Why they are the expert), and a fully editable **Drafted Question**.
-    *   Features a "Copy Slack Code" button with a copy-confirmation micro-animation.
+    *   Features a "Copy Teams Message" button with a copy-confirmation micro-animation.
 5.  **`AuditQueue.tsx` (Team Lead Panel)**:
     *   Displays user corrections, query rejections, and knowledge gaps in an administrative audit table.
     *   Allows the team lead to "Apply Correction" (updating the search index behavior) or "Dismiss" with single-click actions.

@@ -4,16 +4,7 @@ This document records the key architectural decisions, rationale, trade-offs, an
 
 ---
 
-## Decision 1: Primary AI Tool Disclosure
-*   **Status**: Accepted
-*   **Context**: The exercise specification requires declaring a primary AI coding assistant and limits web-based chat interfaces (ChatGPT, Claude.ai, Gemini Chat, etc.) to supporting roles only.
-*   **Decision**: **Antigravity by Google DeepMind** (operating via the agentic developer environment) is declared as the primary AI assistant. 
-*   **Rationale**: The agentic environment integrates directly into the terminal, filesystem, and development lifecycle, ensuring that all operations are transparent, fully automated, and traceably committed to the project.
-*   **Trade-offs**: None. Using a terminal-integrated agentic workflow guarantees a clean, auditable development trail.
-
----
-
-## Decision 2: Self-Contained Dual-Mode search (Offline-First Strategy)
+## Decision 1: Self-Contained Dual-Mode search (Offline-First Strategy)
 *   **Status**: Accepted
 *   **Context**: The application must be runnable locally without exposing private credentials, but also corporate-ready for live production deployment at a company where advanced LLM capabilities would be expected.
 *   **Decision**: Implement a **Strategy Pattern** via the `INLPEngine` interface. 
@@ -24,7 +15,7 @@ This document records the key architectural decisions, rationale, trade-offs, an
 
 ---
 
-## Decision 3: Language & Runtime Stack (Unified TypeScript & Node.js)
+## Decision 2: Language & Runtime Stack (Unified TypeScript & Node.js)
 *   **Status**: Accepted
 *   **Context**: We need to parse multiple Office documents (`.docx`, `.pptx`, `.xlsx`), ingest Markdown transcripts, build a REST API, and code a React application.
 *   **Decision**: Use **TypeScript and Node.js** across the entire stack.
@@ -36,7 +27,7 @@ This document records the key architectural decisions, rationale, trade-offs, an
 
 ---
 
-## Decision 4: Local Office Ingestion Libraries (Mammoth & SheetJS)
+## Decision 3: Local Office Ingestion Libraries (Mammoth & SheetJS)
 *   **Status**: Accepted
 *   **Context**: The system must extract clean searchable text and structure from Word, Excel, and PowerPoint files in Node.js on Windows without requiring a Microsoft Office installation.
 *   **Decision**: Standardize on:
@@ -48,7 +39,7 @@ This document records the key architectural decisions, rationale, trade-offs, an
 
 ---
 
-## Decision 5: Premium Vanilla CSS Design System (No TailwindCSS)
+## Decision 4: Premium Vanilla CSS Design System (No TailwindCSS)
 *   **Status**: Accepted
 *   **Context**: Web application guidelines dictate: "Use Vanilla CSS for maximum flexibility and control. Avoid using TailwindCSS unless the USER explicitly requests it."
 *   **Decision**: Build a custom CSS Design System from scratch in `/src/frontend/src/index.css` using modern CSS variables (custom properties), HSL color definitions, glassmorphism filters, glowing utility classes, and custom keyframe micro-animations.
@@ -57,7 +48,7 @@ This document records the key architectural decisions, rationale, trade-offs, an
 
 ---
 
-## Decision 6: Local File-Based JSON Database for Feedback & Metrics
+## Decision 5: Local File-Based JSON Database for Feedback & Metrics
 *   **Status**: Accepted
 *   **Context**: Capturing user corrections, rejections, and rolling system metrics requires structured storage, but a full SQL or MongoDB instance introduces local runtime dependencies.
 *   **Decision**: Build a transactional JSON file database in `data/db/` (e.g. `feedback.json`, `metrics.json`).
@@ -66,7 +57,7 @@ This document records the key architectural decisions, rationale, trade-offs, an
 
 ---
 
-## Decision 7: STRIDE Security Hardening and Path Virtualization
+## Decision 6: STRIDE Security Hardening and Path Virtualization
 *   **Status**: Accepted
 *   **Context**: Deploying retrieval systems containing sensitive technical documents poses data disclosure risks. Absolute physical server paths (e.g. `d:\Antigravity Projects\...`) could leak directory structure, and unsanitized feedback inputs could lead to Stored Cross-Site Scripting (XSS) in operator dashboards.
 *   **Decision**: Implement absolute path virtualization and robust sanitization:
@@ -78,7 +69,7 @@ This document records the key architectural decisions, rationale, trade-offs, an
 
 ---
 
-## Decision 8: High-Speed Ingestion Caching and Dynamic RAM Search Sync
+## Decision 7: High-Speed Ingestion Caching and Dynamic RAM Search Sync
 *   **Status**: Accepted
 *   **Context**: Re-parsing a large corpus of Word, PowerPoint, and Excel files via libraries like Mammoth and SheetJS on every server boot is extremely slow and resource-heavy. Additionally, waiting for a restart to index newly approved operator corrections degrades usability.
 *   **Decision**: Implement static serialization and runtime memory injection:
@@ -90,16 +81,16 @@ This document records the key architectural decisions, rationale, trade-offs, an
 
 ---
 
-## Decision 9: Grammatical Stemming for Query Matching
+## Decision 8: Grammatical Stemming for Query Matching
 *   **Status**: Accepted
 *   **Context**: Users searching the knowledge tracer frequently query words in singular or plural forms (e.g. "nodes" vs "node", "forecasting" vs "forecast"), which caused traditional exact token matching to miss highly relevant context segments.
-*   **Decision**: Implement a **Porter-style suffix stemming filter** within `nlp.ts` and integrate it into the `tokenize()` function. The filter strips common grammatical suffixes like `"s"`, `"es"`, `"ing"`, and `"ed"`, while using heuristic rule exceptions to preserve proper abbreviations (like `"us"` or `"as"`) and regular bases.
+*   **Decision**: Implement a **grammatical suffix stemming filter** within `nlp.ts` and integrate it into the `tokenize()` function. The filter strips common grammatical suffixes like `"s"`, `"es"`, `"ing"`, and `"ed"`, while using heuristic rule exceptions to preserve proper abbreviations (like `"us"` or `"as"`) and regular bases.
 *   **Rationale**: Normalized tokens allow search vectors (TF-IDF/BM25) to map different morphological inflections of the same root word onto a single token index, dramatically increasing search recall in offline execution.
 *   **Trade-offs**: A custom stemming filter is simpler than full library-based lemmatization (like natural or compromise) but keeps the codebase extremely lightweight, high-performance, and has zero external npm dependencies or native binaries.
 
 ---
 
-## Decision 10: Secure Path-Traversal-Guarded Document Download Bridge
+## Decision 9: Secure Path-Traversal-Guarded Document Download Bridge
 *   **Status**: Accepted
 *   **Context**: Operators reviewing corpus citations in the Search Console citation drawer need to access and download the original raw source document or transcript files, but exposing arbitrary file paths creates high risk of directory traversal attacks.
 *   **Decision**: Implement a secure backend endpoint `GET /api/documents/download/:filename` paired with a premium glassmorphic download button in the React UI drawer. The backend:
@@ -110,7 +101,7 @@ This document records the key architectural decisions, rationale, trade-offs, an
 
 ---
 
-## Decision 11: Document Density Calibration for Structured Office Retrieval (Office-to-Dialogue Relevance Equalizer)
+## Decision 10: Document Density Calibration for Structured Office Retrieval (Office-to-Dialogue Relevance Equalizer)
 *   **Status**: Accepted
 *   **Context**: Conversational transcripts inherently gain heavy term frequency boosts due to speaker names, facilitator markers (e.g. `**Marcus Vance**:`), and redundant conversational phrases (e.g., repeated technical keywords over a 15-minute dialogue). Conversely, structured Office documents (like Excel pricing grids, Word SOP sections, and PowerPoint slides) present extremely dense, high-fidelity facts in single lines without speaker dialogue anchors. Consequently, pure BM25 or TF-IDF matching severely penalizes these short office snippets, ranking long transcripts higher even for query terms specifically referencing cell tables or presentation slides.
 *   **Decision**: Implement a type-specific baseline boost to match weights within `OfflineNLPEngine.queryDocuments` when scoring non-zero matches:
@@ -122,7 +113,7 @@ This document records the key architectural decisions, rationale, trade-offs, an
 
 ---
 
-## Decision 12: True Keyless Validation and Environment-Aware Falling Back
+## Decision 11: True Keyless Validation and Environment-Aware Falling Back
 *   **Status**: Accepted
 *   **Context**: During development or early staging cycles, config templates or `.env` files frequently contain default placeholder keys (like `GEMINI_API_KEY="your_gemini_api_key_here"`). Under naive code patterns that merely verify the existence of the environment variable (e.g. `if (process.env.GEMINI_API_KEY)`), the application is fooled into asserting it is running in "Enterprise Cloud" mode, resulting in uncaught HTTP 403 API authorization failures when indexing or searching.
 *   **Decision**: Hard-code placeholder exclusions at both server startup and status query points. The server explicitly checks `if (apiKey && apiKey !== 'your_gemini_api_key_here')` to classify the mode. If it matches the placeholder, the server sets `mode` to `"Offline Fallback"` and utilizes local text-matching engines automatically.
@@ -131,7 +122,7 @@ This document records the key architectural decisions, rationale, trade-offs, an
 
 ---
 
-## Decision 13: Widescreen Responsive SVG Telemetry Charting & Click-to-Reveal KPIs
+## Decision 12: Widescreen Responsive SVG Telemetry Charting & Click-to-Reveal KPIs
 *   **Status**: Accepted
 *   **Context**: The team lead system analytics dashboard includes a 30-day performance trends graph showing Health Index, Confidence, and Rejection Rate, as well as KPI summary cards. Naive SVG rendering causes charts to display blank margins or font distortion on 1080p+ widescreen monitors. Furthermore, clean-state boots initialized to pre-calibrated default baselines (85% System Health and Average Search Confidence) risk confusing users unless they can read immediate context without leaving the dashboard tab.
 *   **Decision**: 
@@ -142,7 +133,7 @@ This document records the key architectural decisions, rationale, trade-offs, an
 
 ---
 
-## Decision 14: HTML Entity Sanitization Fix (Excluding `'` and `/` from escapeHtml)
+## Decision 13: HTML Entity Sanitization Fix (Excluding `'` and `/` from escapeHtml)
 *   **Status**: Accepted
 *   **Context**: In our Stored XSS mitigation, we implemented `escapeHtml()` in `database.ts` which escaped `'` to `&#x27;` and `/` to `&#x2f;`. When user gap feedback containing words like "couldn't" or sentences with backslashes/slashes was saved, it got stored with `&#x27;` and `&#x2f;`. When retrieved, standard DOM rendering of text or raw rendering in standard HTML inputs (or tooltips) led to double-encoding bugs, displaying `"couldn&#x27;t"`.
 *   **Decision**: Update `escapeHtml` to only escape `<` (to `&lt;`), `>` (to `&gt;`), `&` (to `&amp;`), and `"` (to `&quot;`), while keeping `'` and `/` raw.
@@ -151,7 +142,7 @@ This document records the key architectural decisions, rationale, trade-offs, an
 
 ---
 
-## Decision 15: Jaccard Similarity Formulation for Query Reformulation Detection
+## Decision 14: Jaccard Similarity Formulation for Query Reformulation Detection
 *   **Status**: Accepted
 *   **Context**: Track user search query behavior to identify when users are not finding what they want. When they don't get the desired answer, they tend to input multiple permutations of the same question (reformulations) within a short window. We need a way to detect this.
 *   **Decision**: Implement a sliding-window Jaccard Similarity reformulation algorithm in `database.ts`. It compares consecutive search queries within a 5-minute time window. If the Jaccard similarity coefficient (calculated on word tokens, ignoring casing and stemming) is $\ge 40\%$ (0.4) and the queries are not identical, it flags the pair as a "reformulation".
@@ -160,7 +151,7 @@ This document records the key architectural decisions, rationale, trade-offs, an
 
 ---
 
-## Decision 16: Three-Tier Cognitive Search Query Routing Flow
+## Decision 15: Three-Tier Cognitive Search Query Routing Flow
 *   **Status**: Accepted
 *   **Context**: The search routing logic must elegantly handle multiple query types: (a) explicit matches against the indexed knowledge base, (b) queries referencing specific business domains, and (c) off-topic or out-of-scope queries.
 *   **Decision**: Design a 3-Tier Cognitive Routing engine in `routing.ts`:
@@ -172,7 +163,7 @@ This document records the key architectural decisions, rationale, trade-offs, an
 
 ---
 
-## Decision 17: Interactive Reformulation Drill-Down and Telemetry Card UI Alignment
+## Decision 16: Interactive Reformulation Drill-Down and Telemetry Card UI Alignment
 *   **Status**: Accepted
 *   **Context**: Knowing there is a 7% reformulation rate is helpful, but operators need a way to see what the queries are to improve the knowledge base. Also, the team lead dashboard layout had the reformulation card wrapped onto a separate row, creating an uneven dashboard grid, and the performance charts were cluttered.
 *   **Decision**:
@@ -183,7 +174,7 @@ This document records the key architectural decisions, rationale, trade-offs, an
 
 ---
 
-## Decision 18: Advanced Multi-Format File Ingestion and Parser Security Validation Gate
+## Decision 17: Advanced Multi-Format File Ingestion and Parser Security Validation Gate
 *   **Status**: Accepted
 *   **Context**: The user commented that we should make sure we can ingest the files (Excel, Word, PowerPoint) and we need some security to prevent bad files from damaging the host system/platform.
 *   **Decision**: Update `parser.ts` to implement a multi-layered file validation and secure parsing architecture:
@@ -195,7 +186,7 @@ This document records the key architectural decisions, rationale, trade-offs, an
 
 ---
 
-## Decision 19: Full-Stack Security Hardening (OWASP/STRIDE Audit Remediation)
+## Decision 18: Full-Stack Security Hardening (OWASP/STRIDE Audit Remediation)
 *   **Status**: Accepted
 *   **Context**: A comprehensive security audit using STRIDE threat modeling and OWASP Top 10 analysis identified 29 findings across 5 severity levels. The application had zero authentication, zero rate limiting, unrestricted CORS (`*`), no HTTP security headers, direct user input interpolation into LLM prompts (prompt injection risk), raw `err.message` leaking in API responses, and unbounded log file growth.
 *   **Decision**: Implement a 5-phase remediation across all backend services and the frontend:
@@ -210,7 +201,7 @@ This document records the key architectural decisions, rationale, trade-offs, an
 
 ---
 
-## Decision 20: Automated Live Application Screenshot Capture & Programmatic Verification
+## Decision 19: Automated Live Application Screenshot Capture & Programmatic Verification
 *   **Status**: Accepted
 *   **Context**: The user required a comprehensive User Guide featuring actual screenshots of the running React application (port 5173/5174) rather than synthetic mockups, placeholders, or static designs.
 *   **Decision**: Configure and run Playwright in a headless environment via a dedicated Node.js automation script (`scripts/take_screenshots.js`). The script connects to the active frontend development server, automatically handles state (bypassing onboarding welcome tours, typing custom natural language searches, opening citation drawers, closing drawer overlays, and navigating across sidebar workspace panels), and captures high-fidelity screenshots.
@@ -219,7 +210,7 @@ This document records the key architectural decisions, rationale, trade-offs, an
 
 ---
 
-## Decision 21: Custom-Built Onboarding Walkthrough (Zero Dependencies)
+## Decision 20: Custom-Built Onboarding Walkthrough (Zero Dependencies)
 *   **Status**: Accepted
 *   **Context**: The application needed an interactive guided tour to onboard new users (operators and reviewers) to the key features: search, citations, feedback submission, audit queue, analytics dashboard, and LLM settings. The TASK.md roadmap listed this as backlog item #4. Two approaches were evaluated: (1) using `react-joyride`, the most popular React tour library, or (2) building a custom wizard from scratch.
 *   **Decision**: Build a fully custom onboarding wizard (`OnboardingWizard.tsx` + `onboarding.css`) with zero external dependencies. The wizard features a 7-step guided tour with spotlight overlay, glassmorphic tooltip cards, auto-tab switching, keyboard navigation, `localStorage` persistence, and multiple exit paths (Skip button, ✕ close, Escape key). A "?" help button in the header allows re-launching anytime.
@@ -229,7 +220,7 @@ This document records the key architectural decisions, rationale, trade-offs, an
 
 ---
 
-## Decision 22: Highly Resilient Regex-Based Markdown Bold Parser and Flexible Flexbox Citation Layout
+## Decision 21: Highly Resilient Regex-Based Markdown Bold Parser and Flexible Flexbox Citation Layout
 *   **Status**: Accepted
 *   **Context**: Under low-confidence and fallback search flows, local document sources are highlighted by wrapping metadocument headers (e.g., `Based on Amira Patel's notes in ...:`) in markdown double-asterisks (`**`). However, naive React split-based parsing or string slicing often broke when adjacent to punctuation, citation indices `[1]`, or custom paragraph markers, leading to literal `**` tags displaying directly. Additionally, the CSS grid columns in the Citation Ledger squeezed long file names, causing cards to overlap vertically or spill out of container boundaries on narrower browser resolutions.
 *   **Decision**: 

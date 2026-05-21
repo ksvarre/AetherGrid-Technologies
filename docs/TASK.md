@@ -52,7 +52,7 @@ These advanced security remediations (STRIDE), self-healing sync mechanisms, and
 - [x] Implement modified-time (`mtime`) and file-size comparisons on server boot to bypass mammoth, SheetJS, and officeparser crawls if corpus files are unchanged, achieving a sub-10ms boot time.
 
 ### 📝 Grammatical Stemming (Singular/Plural Query Matching)
-- [x] Implement a simple Porter-style suffix stemming algorithm in `nlp.ts` (stripping trailing `"s"`, `"es"`, `"ing"`, `"ed"` suffix tokens).
+- [x] Implement a simple grammatical suffix stemming algorithm in `nlp.ts` (stripping trailing `"s"`, `"es"`, `"ing"`, `"ed"` suffix tokens).
 - [x] Integrate the stemming filter into the main backend `tokenize()` function.
 
 ### 🔌 Secure Document Download Bridge
@@ -127,7 +127,7 @@ These items represent planned future enhancements to make the AetherGrid Knowled
 - **Proposed Flow**: Build a drag-and-drop file upload zone in the admin portal. A secure `POST /api/documents/upload` endpoint will enforce a 50MB file size limit, validate magic bytes (ZIP/OLE2 headers), and trigger an active hot-reindex to update search results instantly without server restarts.
 
 ### 3. Microsoft Teams Interactive Channel Integration
-- **Objective**: Turn suggested expert routing into active, collaborative Slack/Teams message loops.
+- **Objective**: Turn suggested expert routing into active, collaborative Microsoft Teams message loops.
 - **Proposed Flow**: Connect a Microsoft Teams incoming webhook or bot. When a low-confidence routing card is triggered, the user can click "Escalate to Teams", posting a rich interactive card in the expert's channel. The expert's reply will feed back into the feedback API to resolve the gap.
 
 ### 4. Repository Publication Hardening & GitHub Cleanup

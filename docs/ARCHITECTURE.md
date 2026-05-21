@@ -109,7 +109,7 @@ export interface INLPEngine {
 ```
 
 The system initializes the engine using an environmental switch or transient request-scoped headers:
-- **`OfflineNLPEngine`**: A zero-dependency engine. It tokenizes queries and contents, applies a Porter stemming filter, calculates a local TF-IDF similarity matrix, and applies a **Document Density relevance boost** to structured Office chunks (`+0.8` for xlsx, `+0.6` for pptx, `+0.4` for docx) to prevent short, dense cells and bullet points from being penalized by conversational transcripts. It then compiles the most entity-weighted matching sentences as inline citations and forms answers using dynamic synthesis templates.
+- **`OfflineNLPEngine`**: A zero-dependency engine. It tokenizes queries and contents, applies a grammatical suffix stemming filter, calculates a local TF-IDF similarity matrix, and applies a **Document Density relevance boost** to structured Office chunks (`+0.8` for xlsx, `+0.6` for pptx, `+0.4` for docx) to prevent short, dense cells and bullet points from being penalized by conversational transcripts. It then compiles the most entity-weighted matching sentences as inline citations and forms answers using dynamic synthesis templates.
 - **`GeminiNLPEngine`**: Operates via `@google/genai` (Google's standard SDK). It chunks text, generates embeddings, computes similarity for semantic retrieval, and sends top context nodes to `gemini-2.5-flash` to return a fully realized structured response including inline citation indexes.
 - **`AzureOpenAINLPEngine`**: Integrates with enterprise-configured Azure OpenAI deployments using secure HTTPS REST requests, facilitating corporate Bring-Your-Own-Key (BYOK) configurations where all parsing and querying are powered by the company's Azure LLM.
 
@@ -128,7 +128,7 @@ When the search engine processes a query, it computes a relative relevance score
 1.  **Extract Query Entities**: It maps key terms in the query to AetherGrid product domains (e.g., "thermals" $\rightarrow$ Project Helium; "MAE" $\rightarrow$ Project Quantum; "Kubernetes" $\rightarrow$ DevOps).
 2.  **Evaluate Expert Directory**: It queries the topic expert directory to locate the employee mapped to the dominant product domain.
 3.  **Calculate Rationale**: It scans the index to find how many documents the expert has written or how many meetings they've attended concerning that topic.
-4.  **Draft Question**: It builds a professional Slack/Email template inserting the expert's name, their topic domain, and the query terms, presenting it as an editable widget in the UI.
+4.  **Draft Question**: It builds a professional Microsoft Teams/Email template inserting the expert's name, their topic domain, and the query terms, presenting it as an editable widget in the UI.
 
 ---
 

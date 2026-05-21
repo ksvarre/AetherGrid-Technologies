@@ -6,9 +6,10 @@ import { AuditQueue } from './components/AuditQueue';
 import { AetherPulseAnalytics } from './components/AetherPulseAnalytics';
 import { CloudSettingsPanel } from './components/CloudSettingsPanel';
 import { OnboardingWizard } from './components/OnboardingWizard';
+import { RoadmapView } from './components/RoadmapView';
 
 export const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'search' | 'audit' | 'analytics'>('search');
+  const [activeTab, setActiveTab] = useState<'search' | 'audit' | 'analytics' | 'roadmap'>('search');
   const [searchResult, setSearchResult] = useState<QueryResponse | null>(null);
   const [currentQuery, setCurrentQuery] = useState<string>('');
   const [isSearchLoading, setIsSearchLoading] = useState<boolean>(false);
@@ -96,14 +97,20 @@ export const App: React.FC = () => {
             </svg>
             AetherPulse Metrics
           </button>
+          
+          <button 
+            id="roadmap-sidebar-btn"
+            className={`menu-item ${activeTab === 'roadmap' ? 'active' : ''}`}
+            onClick={() => setActiveTab('roadmap')}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '0.5rem' }}>
+              <polygon points="12 2 2 7 12 12 22 7 12 2" />
+              <polyline points="2 17 12 22 22 17" />
+              <polyline points="2 12 12 17 22 12" />
+            </svg>
+            Recommended Future Features
+          </button>
         </nav>
-
-        {/* 🤖 Declared Assistant Core Signature */}
-        <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1.5rem', fontSize: '0.75rem', color: 'var(--text-dim)' }}>
-          <span style={{ fontWeight: 600, display: 'block', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>Primary Assistant:</span>
-          <span>Antigravity by Google DeepMind</span>
-          <span style={{ display: 'block', marginTop: '0.5rem', fontSize: '0.7rem' }}>Build Target: Self-Healing RAG</span>
-        </div>
       </aside>
 
       {/* 🖥️ Main View Container */}
@@ -223,6 +230,8 @@ export const App: React.FC = () => {
           {activeTab === 'audit' && <AuditQueue />}
 
           {activeTab === 'analytics' && <AetherPulseAnalytics />}
+
+          {activeTab === 'roadmap' && <RoadmapView />}
         </div>
       </main>
 

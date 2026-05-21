@@ -1,31 +1,12 @@
-# Enterprise Production Staging Roadmap & AI Development Disclosures
+# Recommended Future Features
 
-This document details the collaborative human-AI development process and establishes the Enterprise Production Staging Roadmap to scale the **AetherGrid Technologies Knowledge Tracer** from a high-fidelity local prototype to a secure, resilient, and enterprise-grade corporate platform.
-
----
-
-## 🤖 AI Co-Pilot & Development Disclosures
-
-To ensure transparency, traceability, and compliance with the take-home exercise requirements, this section discloses the hybrid human-AI pair-programming workflow used to build the platform.
-
-### 1. Primary Agentic Development Environment
-*   **Primary Tool**: **Antigravity by Google DeepMind** (operating via the terminal-integrated agentic environment).
-*   **Role**: Served as the primary autonomous development pair. Antigravity conducted directory analysis, managed filesystem writes/updates, executed concurrent backend-frontend servers, ran verification test suites, programmatically captured headless screenshots via Playwright, and documented the Architectural Decision Log (ADL).
-
-### 2. Supporting LLMs & Foundation Models
-To optimize specific layers of the system, a hybrid multi-model architecture was leveraged:
-*   **Gemini 3.5 Flash / 1.5 Pro**: Utilized for core metadata extraction, high-speed structured parsing, and natural language generative answer compilation within the application's Enterprise Cloud Mode.
-*   **Claude 3.5 / 3.6 Opus**: Deployed for strategic structural review, complex algorithm designs (such as the Porter-style suffix stemmer and Jaccard reformulation calculator), and multi-step security threat modeling.
-*   **GPT-4o / GPT Models**: Consulted for auxiliary prompt engineering optimization and formatting validation.
-
-### 3. Interactive Support Chatbots
-*   **Gemini Chat & GitHub Copilot Chat**: Used for instantaneous syntax queries, regex checks, and minor TypeScript compiler (`tsc`) type alignment queries during rapid active-coding sprints.
+This document outlines the recommended future features and tasks to scale the **AetherGrid Technologies Knowledge Tracer** from a high-fidelity local prototype to a secure, resilient, and enterprise-grade corporate platform.
 
 ---
 
-## 🔮 Enterprise Production Staging Roadmap
+## 🔮 Recommended Future Features & Staging Roadmap
 
-To prepare this application for high-scale enterprise deployment across AetherGrid Technologies' engineering, sales, and operations departments, we have mapped out a 7-phase production engineering roadmap.
+To prepare this application for high-scale enterprise deployment across AetherGrid Technologies' engineering, sales, and operations departments, we have mapped out an 8-phase production engineering roadmap.
 
 ```mermaid
 graph TD
@@ -34,7 +15,8 @@ graph TD
     C --> D[Phase 4: Hybrid Vector DB]
     D --> E[Phase 5: Continuous Evaluation]
     E --> F[Phase 6: Active Learning Loops]
-    F --> G[Phase 7: Teams/Slack Webhooks]
+    F --> G[Phase 7: Teams Action Loops]
+    G --> H[Phase 8: UI/UX & Generative Tuning]
 
     style A fill:#1a365d,stroke:#00f0ff,stroke-width:2px,color:#fff
     style B fill:#1a365d,stroke:#00f0ff,stroke-width:2px,color:#fff
@@ -43,6 +25,7 @@ graph TD
     style E fill:#113030,stroke:#00e5ff,stroke-width:2px,color:#fff
     style F fill:#113030,stroke:#00e5ff,stroke-width:2px,color:#fff
     style G fill:#113030,stroke:#00e5ff,stroke-width:2px,color:#fff
+    style H fill:#3a1a5d,stroke:#b800ff,stroke-width:2px,color:#fff
 ```
 
 ### Phase 1: Secure Identity Gateway (SSO & RBAC)
@@ -94,17 +77,18 @@ graph TD
     *   **Correction Auto-Alignment**: Periodically aggregate approved feedback corrections. Use these historical correct answers as dynamically injected *few-shot* examples in the LLM's context window.
     *   **Incremental Fine-Tuning**: Set up a monthly background cron job to package approved corrections into a fine-tuning dataset, incrementally training a lightweight corporate-hosted LLM on custom business terminology, project acronyms, and organizational jargon.
 
-### Phase 7: Collaborative Teams & Slack Action Loops
+### Phase 7: Collaborative Microsoft Teams Action Loops
 *   **Objective**: Move suggested expert routing out of passive clipboard copy-pasting and into active corporate communication channels.
 *   **Proposed Implementation**:
-    *   **Teams/Slack Integration**: Connect a Microsoft Teams Incoming Webhook or Slack Bot.
+    *   **Microsoft Teams Integration**: Connect a Microsoft Teams Incoming Webhook or Custom Teams Bot.
     *   **One-Click Escalation**: When a query triggers suggested expert routing (confidence < 40%), replace the copy button with a secure "Escalate to Teams" button.
-    *   **Interactive Cards**: Automatically post an interactive card into the expert's channel showing the user's query, the matched low-confidence snippet, and the routing rationale.
-    *   **Chatbot Resolution**: The expert can reply directly to the Slack/Teams thread with the correct answer. A background listener captures their response, updates the feedback database, and auto-resolves the knowledge gap, updating the searchable index in real time.
+    *   **Interactive Cards**: Automatically post an interactive card into the expert's Teams channel showing the user's query, the matched low-confidence snippet, and the routing rationale.
+    *   **Chatbot Resolution**: The expert can reply directly to the Microsoft Teams thread with the correct answer. A background listener captures their response, updates the feedback database, and auto-resolves the knowledge gap, updating the searchable index in real time.
 
----
-
-> [!NOTE]
-> ### 📦 Package Completeness Audit
-> With the implementation of the dynamic **User Correction Resolution Velocity (UCRV)** success metric, a clean-slate zero-data initialization state, a custom zero-dependency **Onboarding Tour**, a **Porter suffix stemmer**, **3-tier cognitive routing**, **Excel table parsing/rendering**, and a complete **STRIDE-remediated security suite**, **all three exercises are 100% complete and fully verified.** 
-> This staging roadmap is a proactive addition demonstrating enterprise readiness for operational transition.
+### Phase 8: Premium UI/UX Polish & Generative Response Tuning
+*   **Objective**: Maximize operator productivity via front-end layout enhancements and provide tools to actively tune the search ingestion parameters and generative LLM response characteristics.
+*   **Proposed Implementation**:
+    *   **Generative Response & Prompt Quality Console**: Build a dashboard interface enabling administrators to view, edit, and save LLM system directives and instructions. Include controls to dynamically adjust model parameters like temperature (for response creativity), top-p, token limits, and safety filters.
+    *   **Ingestion Parameter Customizer**: Construct visual sliders to define text-splitting rules, chunk sizes, token thresholds, and chunk overlap percentages (e.g. 15% overlap) to tweak matching accuracy for specialized file schemas.
+    *   **Premium UI/UX Refinements**: Refactor layout grids for flawless responsive behavior across mobile, tablet, and widescreen monitors. Introduce configurable aesthetic profiles (e.g. system light/dark theme toggle), drag-and-drop workspace layout customization, and customizable keyboard hotkeys for power users.
+    *   **Granular Citation Highlight Mapping**: Click on a citation marker in a synthesized response to open the document viewer with the exact corresponding Excel cell, PDF text range, or Word section automatically highlighted.

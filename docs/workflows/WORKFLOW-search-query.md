@@ -50,7 +50,7 @@ This workflow describes how a natural language question submitted by an employee
 **Action**: Resolves the active NLP engine from request headers (`x-cloud-provider`, `x-gemini-api-key`, `x-azure-api-key`, `x-azure-endpoint`, `x-azure-deployment`) or falls back to the server-wide default:
   - **Cloud Mode (`GeminiNLPEngine`)**: Dense keyword ranking -> extracts top 6 context chunks -> compiles prompt -> executes API call -> returns structured JSON.
   - **Cloud Mode (`AzureOpenAINLPEngine`)**: Same flow through Azure OpenAI endpoint.
-  - **Offline Mode (`OfflineNLPEngine`)**: Porter-style tokenizer -> computes Term Frequency (TF) and Inverse Document Frequency (IDF) -> matches top 3 chunks -> extracts matching sentences -> synthesizes paragraph with static tags.
+  - **Offline Mode (`OfflineNLPEngine`)**: Grammatical suffix-stemming tokenizer -> computes Term Frequency (TF) and Inverse Document Frequency (IDF) -> matches top 3 chunks -> extracts matching sentences -> synthesizes paragraph with static tags.
 **Timeout**: 15s (Cloud), 1s (Offline)
 **Input**: `(query, documentIndex)`
 **Output on SUCCESS**: `QueryResponse` (answer, confidenceScore, citations, domain) -> GO TO STEP 3

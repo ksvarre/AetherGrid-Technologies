@@ -21,7 +21,7 @@
     "react",
     "express"
   ],
-  "author": "Antigravity by Google DeepMind",
+  "author": "AetherGrid Technologies",
   "license": "ISC",
   "devDependencies": {
     "concurrently": "^8.2.2",

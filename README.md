@@ -6,14 +6,6 @@ It implements a self-healing corporate knowledge engine for **AetherGrid Technol
 
 ---
 
-## 🤖 Primary AI Tool Disclosure
-In strict compliance with the **AI Tool Requirements** of the exercise specification:
-*   **Primary AI Assistant**: **Antigravity by Google DeepMind** (operating via the agentic developer environment).
-*   **Role**: Assisted in full-stack architecture design, document ingestion services, natural language query algorithms, responsive premium UX layout, and rigorous decision logging.
-*   **External Web Chats**: No web-based chat interfaces (e.g. ChatGPT, Claude.ai, Gemini Chat) were used as primary tools, ensuring that the entire generation history is auditable via the workspace environment.
-
----
-
 ## ⚡ Corporate Deployment & "Zero-Key" Design
 To ensure this application can be immediately evaluated by any reviewer and successfully deployed inside a secure corporate network, it is built with a **Dual-Mode Search & Ingestion Pipeline** under a clean TypeScript `INLPEngine` strategy:
 1.  **Offline Mode (Default)**: Out of the box, the system runs **100% locally** with **zero external network requests or API keys**. It uses a high-performance local TF-IDF & BM25 text-retrieval matrix, regex-based attendee matching, and rule-based response synthesis.
@@ -109,41 +101,56 @@ This starts a colorful, interactive ANSI-styled terminal application where you c
 
 ---
 
-## 🔬 Core Exercise Deliverables
+## 🔬 Core Exercise Deliverables & Reviewer Validation Playbooks
 
 ### [Exercise 1: Ingestion, Enrichment, & Query API]
-*   **Ingestion**: Deep scans the `/data/transcripts` directory.
-*   **Enrichment**: Extracts metadata like *Topic Domain*, *Priority Rating*, and *Attendees* from free-form meeting conversations.
+*   **Ingestion**: Deep scans the `/data/transcripts` directory on boot, registers new text nodes, and maintains an optimized in-memory search index.
+*   **Enrichment**: Extracts metadata like *Topic Domain*, *Priority Rating*, *Attendees*, and *Facilitator* from free-form conversations using zero-dependency TypeScript regex/heuristics, falling back to frontmatter headers when present.
 *   **Query API**: Serves `POST /api/query` accepting natural language questions, retrieving relevant meetings with their enriched structural metadata.
+*   👉 **How to Test & Validate**:
+    1.  **Automated Ingestion Test**: Run `cmd.exe /c "npm run verify"` to execute automated assertions for Exercise 1 ingestion and metadata extraction, confirming a sub-10ms cached boot time.
+    2.  **CLI Sandbox Validation**: Open the **Interactive CLI Reviewer Portal** via `cmd.exe /c "npm run review"` and select **Option 2** (Natural Language Sandbox). Ask *"What is Elena's MAE target?"* or *"database scaling issue attendees"*. Observe how the system tokenizes, normalizes, stems plural/gerund terms, and returns a compiled answer with inline citations (`[1]`, `[2]`) and exact date/attendee arrays.
+    3.  **JSON API Check**: Send a raw cURL command to see the structured API response:
+        ```bash
+        curl -X POST http://localhost:5000/api/query -H "Content-Type: application/json" -d "{\"query\":\"database scaling crisis attendees\"}"
+        ```
 
 ### [Exercise 2: Office Documents, Traceability, & Suggested Routing]
-*   **Office Parsing**: Extends the ingestion layer to index Word (`.docx`), PowerPoint (`.pptx`), and Excel (`.xlsx`) files.
+*   **Office Parsing**: Extends the ingestion layer to securely index Word (`.docx`), PowerPoint (`.pptx`), and Excel (`.xlsx`) files.
 *   **Strict Traceability**: Traces every claim back to its exact origin, including source filename, author/attendees, date, and matched snippet.
 *   **Suggested Routing**: When query confidence drops below a threshold, the system provides a routing plan: *Who to contact* (primary domain expert), *Why* (matched expertise history), and a *drafted question*.
 *   **Gap & Correction Capture**: Endpoints `POST /api/feedback` and `GET /api/feedback` to record rejections/corrections and expose them in a lead review queue.
 *   **Instrumentation**: Aggregates system metrics (rolling confidence, user corrections, health levels) to detect quality degradation before users report it.
+*   👉 **How to Test & Validate**:
+    1.  **Dedicated Exercise 2 Test Suite**: Run `cmd.exe /c "node scripts/validate_ex2.js"` to run the dedicated Exercise 2 test suite. It registers user corrections, updates in-memory weights, and validates correct routing behaviors.
+    2.  **Verify Off-Topic Null Routing (Tier 3)**: Search for *"how to bake a chocolate chip cookie"* in the React Web App or CLI Sandbox. Because it is off-topic, observe that the system scores under `40%` confidence and gracefully triggers **3-Tier Routing**, identifying the query as completely out of scope without forcing a mismatch.
+    3.  **Verify Domain Routing (Tier 2)**: Search *"Project Helium solar hardware targets"*. See it trigger a high-fidelity routing block pointing to *Jack Ryder* with a pre-drafted message.
+    4.  **Verify Feedback Capture**: Search any query (e.g., *"Helium solar specs"*), click the 👎 button on the result card in the Web App, type a correction (e.g. *"Actually, solar edge nodes operate on 48V DC"*), and submit. Go to the **Audit Queue** tab to see your correction logged.
 
 ### [Exercise 3: User-Facing React Application & Metric]
 *   **Dashboard**: A premium, futuristic single-page workspace styled in Vanilla CSS featuring an **AI Search Console**, an **Audit Queue** for team leads, and the **System Health Monitor**.
 *   **Measurement Approach**: Explains the tracking of **Knowledge Gap Resolution Velocity (KGRV)** and **Search Reformulation Frequency** to keep the corporate index accurate and self-healing.
+*   👉 **How to Test & Validate**:
+    1.  **Browser Dashboard**: Open your browser to `http://localhost:5173`.
+    2.  **Onboarding Tour**: If it's your first time, the guided tour auto-launches after 800ms. Follow it through the search console, the audit queue, and the analytics telemetry dashboard. To restart it anytime, click the `?` icon in the main header.
+    3.  **Audit Queue Action**: In GridTrace Core, flag a search result as inaccurate using the 👎 button, enter a correction, and submit. Navigate to the **Audit Queue** tab, filter by domain, and click **Approve**.
+    4.  **Telemetry Verification**: Go to **AetherPulse Metrics**. Observe the live **System Health Index** and see the **User Correction Resolution Velocity (UCRV)** gauge calibrate. The SLA threshold (48h Limit) is clearly marked.
+    5.  **Jaccard Reformulation Test**: Search *"Project Helium thermal targets"* in GridTrace Core, then immediately search *"Helium project thermal objectives"* within 5 minutes. Go to the **AetherPulse Metrics** tab and click the **Reformulation Rate** card; it will list the consecutive search pair as a reformulation!
+    6.  **Excel Tabular Rendering**: Search *"Project Quantum model benchmarks MAE"* and click on the citation drawer for `quantum_model_benchmarks_v1.xlsx`. The matched data cell values are rendered as a beautiful, high-contrast HTML table grid layout inside the citation drawer rather than a raw text blob.
 
 ---
 
 ## 🔮 Future Features & Development Roadmap
 
-To scale AetherGrid Knowledge Tracer into an enterprise-grade corporate portal, we have established a comprehensive 7-phase production engineering roadmap and AI development disclosure ledger.
+To scale AetherGrid Knowledge Tracer into an enterprise-grade corporate portal, we have established a comprehensive 8-phase production engineering roadmap.
 
-Please refer to the complete **[Enterprise Staging Roadmap & AI Development Disclosures](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/docs/ROADMAP.md)** document for deep-dive technical plans covering:
+Please refer to the complete **[Recommended Future Features](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/docs/ROADMAP.md)** document for deep-dive technical plans covering:
 
-1.  **AI Co-Pilot & Development Disclosures**: Explicit breakdown of collaborative tooling including Antigravity, Gemini 3.5 Flash, Claude 3.6 Opus, GPT, and Copilot Chat.
-2.  **Phase 1: Secure Identity Gateway (SSO & RBAC)**: Gating the **Audit Queue** and analytics behind secure SSO (Microsoft Entra ID, Auth0) and Role-Based Access Control to prevent unauthorized approvals.
-3.  **Phase 2: Self-Service Document Ingestion Gateway**: Drag-and-drop file uploader in the React UI with ZIP PK header validations and dynamic hot-reindexing.
-4.  **Phase 3: Centralized Enterprise API Key Brokerage (No BYOK)**: Transitioning from client-managed keys to server-side enterprise secrets manager storage (Azure Key Vault, GCP Secret Manager) to control corporate billing and rate boundaries.
-5.  **Phase 4: Hybrid Sparse-Dense Search & Vector Database Migration**: Transitioning local files to PostgreSQL (Supabase with `pgvector`) and implementing hybrid search models (BM25 + Dense Vectors) with Reciprocal Rank Fusion.
-6.  **Phase 5: Continuous Evaluation & Automated Regression Pipeline**: Establishing automated CI/CD checks against a "golden dataset" using metrics like *Faithfulness* and *Context Recall* to prevent quality regressions on new uploads.
-7.  **Phase 6: Continuous Active Learning & Feedback Alignment Loops**: Periodically feeding approved corrections back into the LLM context as few-shot prompt alignments or incremental fine-tuning datasets.
-8.  **Phase 7: Collaborative Teams & Slack Action Loops**: Connecting low-confidence routing directly to interactive Teams/Slack messages so experts can resolve knowledge gaps with a single click.
-
-
-
-
+1.  **Phase 1: Secure Identity Gateway (SSO & RBAC)**: Gating the **Audit Queue** and analytics behind secure SSO (Microsoft Entra ID, Okta, or Auth0) and Role-Based Access Control to prevent unauthorized approvals.
+2.  **Phase 2: Self-Service Document Ingestion Gateway**: Drag-and-drop file uploader in the React UI with ZIP PK header validations and dynamic hot-reindexing.
+3.  **Phase 3: Centralized Enterprise API Key Brokerage (No BYOK)**: Transitioning from client-managed keys to server-side enterprise secrets manager storage (Azure Key Vault, GCP Secret Manager) to control corporate billing and rate boundaries.
+4.  **Phase 4: Hybrid Sparse-Dense Search & Vector Database Migration**: Transitioning local files to PostgreSQL (Supabase with `pgvector`) and implementing hybrid search models (BM25 + Dense Vectors) with Reciprocal Rank Fusion.
+5.  **Phase 5: Continuous Evaluation & Automated Regression Pipeline**: Establishing automated CI/CD checks against a "golden dataset" using metrics like *Faithfulness* and *Context Recall* to prevent quality regressions on new uploads.
+6.  **Phase 6: Continuous Active Learning & Feedback Alignment Loops**: Periodically feeding approved corrections back into the LLM context as few-shot prompt alignments or incremental fine-tuning datasets.
+7.  **Phase 7: Collaborative Microsoft Teams Action Loops**: Connecting low-confidence routing directly to interactive Teams messages so experts can resolve knowledge gaps with a single click.
+8.  **Phase 8: Premium UI/UX Polish & Generative Response Tuning**: Creating administrative consoles to customize model temperature/system prompts, configure split parameters, optimize grid layouts, and implement citation-to-coordinate maps.

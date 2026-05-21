@@ -192,7 +192,7 @@ This document describes the structure, endpoints, parsing modules, and database 
 
 ## 🔍 Offline Search Retrieval Logic (The Local Engine)
 When executing in local **Offline Mode**, the backend processes queries through a custom-built, lightweight retrieval engine:
-1.  **Tokenization, Suffix Stemming & Lowercasing**: Queries and document chunks are split into words, stripped of punctuation, and filtered to remove common English stop words ("the", "is", "at", "which", etc.). A Porter-style stemming filter is then applied to normalize common trailing suffix endings (`"s"`, `"es"`, `"ies"`, `"ing"`, `"ed"`), ensuring robust singular/plural query matches.
+1.  **Tokenization, Suffix Stemming & Lowercasing**: Queries and document chunks are split into words, stripped of punctuation, and filtered to remove common English stop words ("the", "is", "at", "which", etc.). A grammatical suffix stemming filter is then applied to normalize common trailing suffix endings (`"s"`, `"es"`, `"ies"`, `"ing"`, `"ed"`), ensuring robust singular/plural query matches.
 2.  **Conversational Filler Word Downweighting**: Conversational transition terms (e.g., `says`, `said`, `asks`, `talk`, `spoke`) are downweighted by 90% in the IDF scoring loop to prevent filler words from inflating document scores.
 3.  **Specialized Entity & Name Boosting**: Query terms matching key project names (Quantum, Helium, Horizon) or employee first/last names (e.g. `marcus`, `vance`, `amira`, `patel`, `david`, `kross`, `sarah`, `chen`, `elena`, `rostova`) receive a double TF-IDF scoring boost.
 4.  **Dialogue Speaker & Topic Affinity Boosts**:

@@ -99,93 +99,10 @@ export class DatabaseService {
       fs.mkdirSync(DB_DIR, { recursive: true });
     }
     if (!fs.existsSync(FEEDBACK_PATH)) {
-      const seedFeedback = [
-        {
-          id: "fb_seed_1",
-          query: "What is the Project Quantum MAE forecasting target and validation status?",
-          answer: "Project Quantum's model target is an MAE (Mean Absolute Error) of less than 1.5% across all test nodes. The validation status is currently marked as 'Passed' for residential and light-commercial grids.",
-          confidenceScore: 0.95,
-          status: "correct",
-          domain: "Project Quantum",
-          timestamp: new Date(Date.now() - 3 * 24 * 3600 * 1000).toISOString(),
-          resolved: true,
-          resolvedTimestamp: new Date(Date.now() - 3 * 24 * 3600 * 1000 + 3600000).toISOString()
-        },
-        {
-          id: "fb_seed_2",
-          query: "How do you bake a chocolate chip cookie at home?",
-          answer: "I couldn't find any relevant documents or meeting records in our database matching those search parameters.",
-          confidenceScore: 0.05,
-          status: "rejection",
-          domain: "Operations",
-          timestamp: new Date(Date.now() - 2 * 24 * 3600 * 1000).toISOString(),
-          resolved: false
-        },
-        {
-          id: "fb_seed_3",
-          query: "What did Marcus say about the edge node firmware overheating issue?",
-          answer: "Marcus Vance stated that the fan curve profile in the current firmware was set to low-RPM to minimize residential noise, causing core temperatures to spike under Elena's telemetry processing scripts.",
-          confidenceScore: 0.92,
-          status: "correct",
-          domain: "Project Helium",
-          timestamp: new Date(Date.now() - 1 * 24 * 3600 * 1000).toISOString(),
-          resolved: true,
-          resolvedTimestamp: new Date(Date.now() - 1 * 24 * 3600 * 1000 + 1800000).toISOString()
-        },
-        {
-          id: "fb_seed_4",
-          query: "When will the decentralized microgrid pitch be ready?",
-          answer: "I couldn't find a specific launch date in the transcripts.",
-          confidenceScore: 0.35,
-          status: "correction",
-          correctedAnswer: "The decentralized microgrid pitch deck is scheduled for executive review on June 15th, 2026, as per Amira Patel's slide roadmap.",
-          domain: "Project Horizon",
-          timestamp: new Date(Date.now() - 12 * 3600 * 1000).toISOString(),
-          resolved: false
-        }
-      ];
-      fs.writeFileSync(FEEDBACK_PATH, JSON.stringify(seedFeedback, null, 2), 'utf-8');
+      fs.writeFileSync(FEEDBACK_PATH, '[]', 'utf-8');
     }
-
     if (!fs.existsSync(QUERIES_LOG_PATH)) {
-      const seedLogs: any[] = [];
-      const nowMs = Date.now();
-      const queries = [
-        { q: "What is the Project Quantum MAE forecasting target and validation status?", d: "Project Quantum", c: 0.95 },
-        { q: "What are the quantum forecasting targets?", d: "Project Quantum", c: 0.95 },
-        { q: "How do we fix firmware bricking on edge devices?", d: "Project Helium", c: 0.92 },
-        { q: "What did Marcus say about firmware?", d: "Project Helium", c: 0.92 },
-        { q: "How much does GridPulse licensing cost?", d: "Product Commercials", c: 0.88 },
-        { q: "When will the decentralized microgrid pitch be ready?", d: "Project Horizon", c: 0.35 },
-        { q: "What is our database scaling capacity?", d: "DevOps / Database", c: 0.91 },
-        { q: "What are the safety protocols for substation operations?", d: "Safety & Compliance", c: 0.89 },
-        { q: "Tell me about the solar panel discharge rates", d: "Project Horizon", c: 0.94 },
-        { q: "What is the chassis fan configuration?", d: "Project Helium", c: 0.90 }
-      ];
-
-      for (let i = 45; i >= 0; i--) {
-        const queryObj = queries[i % queries.length];
-        const timeOffset = i * 4 * 3600 * 1000 + Math.floor(Math.random() * 3600 * 1000);
-        const logTime = new Date(nowMs - timeOffset);
-        
-        let isReformulation = false;
-        let reformulationOf: string | undefined;
-
-        if (i % 7 === 0) {
-          isReformulation = true;
-          reformulationOf = queries[(i + 1) % queries.length].q;
-        }
-
-        seedLogs.push({
-          query: queryObj.q,
-          confidenceScore: queryObj.c,
-          domain: queryObj.d,
-          timestamp: logTime.toISOString(),
-          isReformulation,
-          reformulationOf
-        });
-      }
-      fs.writeFileSync(QUERIES_LOG_PATH, JSON.stringify(seedLogs, null, 2), 'utf-8');
+      fs.writeFileSync(QUERIES_LOG_PATH, '[]', 'utf-8');
     }
   }
 

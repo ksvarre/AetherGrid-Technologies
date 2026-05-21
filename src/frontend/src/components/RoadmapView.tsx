@@ -52,6 +52,8 @@ export const RoadmapView: React.FC = () => {
       status: 'Design Approved',
       badgeColor: 'var(--accent-cyan)',
       bullets: [
+        'Immediate Security Hardening: Migrate all frontend credential persistence from localStorage to sessionStorage, ensuring API keys auto-purge on browser tab close to prevent persistent XSS exposure.',
+        'If frontend key verification is required pre-Phase-3, transport tokens via encrypted, scoped, HTTP-Only cookies to shield raw cryptographic strings from client-side JavaScript execution.',
         'Secrets locked inside Azure Key Vault or AWS Secrets Manager with zero local dotenv persistence.',
         'Centralized server-side proxy managing API integrations to Google Cloud Vertex AI and Azure OpenAI.',
         'Strict tenant token/request limits and budget quotas to prevent financial exhaustions.',
@@ -68,6 +70,7 @@ export const RoadmapView: React.FC = () => {
       badgeColor: 'var(--accent-blue)',
       bullets: [
         'Migration of active tables (queries log, corrections ledger, corpus files) to Supabase (PostgreSQL).',
+        'Persist dynamically injected live corrections to the database tier, eliminating volatile RAM loss on process restart and enabling multi-node correction synchronization.',
         'Semantic dense indexing powered by PostgreSQL pgvector extensions using Cosine distance indices.',
         'Hybrid Sparse-Dense Retrieval (RRF - Reciprocal Rank Fusion) combining lexical BM25 search and embeddings.',
         'High-speed read replicas ensuring search performance scales to thousands of concurrent operations.'
@@ -134,6 +137,21 @@ export const RoadmapView: React.FC = () => {
       ],
       securityFocus: 'STRIDE Remediations: Prompt Injection and UI Redressing prevention (X-Frame-Options).',
       architectureDetails: 'Uses an admin-only metadata storage table to save prompt variables, dynamically injected into Vertex AI model configs.'
+    },
+    {
+      number: 9,
+      title: 'Workflow Spec Completeness & Tech Debt',
+      objective: 'Close the documentation gap by generating build-ready design specifications for all active backend endpoints currently flagged as "Missing" in the Workflow Registry.',
+      status: 'Under Review',
+      badgeColor: 'var(--accent-purple)',
+      bullets: [
+        'Author WORKFLOW-reformulations.md documenting sliding window parameters (5-min window, Jaccard ≥ 40%), memory data arrays, query log schemas, and performance budgets for GET /api/reformulations.',
+        'Author WORKFLOW-download.md documenting input validation, path sanitization boundaries, explicit directory-traversal prevention tests, file download timeouts, and allowed MIME types for GET /api/documents/download/:filename.',
+        'Author WORKFLOW-status.md documenting the health check response schema, uptime dependencies, critical parameter thresholds, and SLA contracts for GET /api/status.',
+        'Update REGISTRY.md status column from "Missing" to "Approved" for all three workflows to close the technical debt loop.'
+      ],
+      securityFocus: 'STRIDE Remediations: Tampering prevention (Download Bridge path traversal hardening), Information Disclosure prevention (Health Check data exposure limits).',
+      architectureDetails: 'Each spec follows the established WORKFLOW-*.md structured format used by approved workflows, ensuring consistency for automated coding agents and human engineers.'
     }
   ];
 

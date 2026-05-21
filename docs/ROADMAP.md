@@ -17,6 +17,7 @@ graph TD
     E --> F[Phase 6: Active Learning Loops]
     F --> G[Phase 7: Teams Action Loops]
     G --> H[Phase 8: UI/UX & Generative Tuning]
+    H --> I[Phase 9: Workflow Spec Completeness]
 
     style A fill:#1a365d,stroke:#00f0ff,stroke-width:2px,color:#fff
     style B fill:#1a365d,stroke:#00f0ff,stroke-width:2px,color:#fff
@@ -26,6 +27,7 @@ graph TD
     style F fill:#113030,stroke:#00e5ff,stroke-width:2px,color:#fff
     style G fill:#113030,stroke:#00e5ff,stroke-width:2px,color:#fff
     style H fill:#3a1a5d,stroke:#b800ff,stroke-width:2px,color:#fff
+    style I fill:#3a1a5d,stroke:#b800ff,stroke-width:2px,color:#fff
 ```
 
 ### Phase 1: Secure Identity Gateway (SSO & RBAC)
@@ -51,6 +53,8 @@ graph TD
 ### Phase 3: Centralized Enterprise API Key Brokerage (No BYOK)
 *   **Objective**: Transition away from Bring Your Own Key (BYOK) for developers and operators, securing corporate AI usage under enterprise billing boundaries.
 *   **Proposed Implementation**:
+    *   **Immediate Security Hardening**: Migrate all frontend API credential persistence from `localStorage` to `sessionStorage`, ensuring keys auto-purge when the browser tab is closed and preventing persistent XSS credential exposure on shared machines.
+    *   **Interim Cookie Transport**: If frontend key verification is required before full Phase 3 deployment, transport tokens strictly via encrypted, scoped, HTTP-Only cookies, shielding underlying raw cryptographic strings from client-side JavaScript execution.
     *   **Central Key Store**: Deploy backend API keys within a secure, dedicated secrets manager (e.g. **AWS Secrets Manager**, **Azure Key Vault**, or **Google Cloud Secret Manager**).
     *   **Enterprise API Broker**: The Node.js backend handles all LLM API requests using the centralized, corporate-managed key (e.g. Google Cloud Vertex AI API or Azure OpenAI Service).
     *   **Rate & Budget Caps**: Implement server-side request throttles, tenant quotas, and prompt size limits to prevent runaway cloud usage costs, protecting corporate accounts from financial exhaustion.
@@ -59,6 +63,7 @@ graph TD
 *   **Objective**: Transition from local memory-based JSON storage to an enterprise-grade relational database and high-availability vector store.
 *   **Proposed Implementation**:
     *   **Relational Storage**: Migrate user feedback logs, telemetry metrics, and document metadata from `data/db/` JSON files to **Supabase (PostgreSQL)** or **Azure SQL**.
+    *   **Correction Persistence**: Persist dynamically injected live corrections to the database tier, eliminating volatile RAM loss on process restart and enabling multi-node correction synchronization.
     *   **Semantic Vector Index**: Use a high-performance vector store (e.g. **pgvector** in PostgreSQL, **Qdrant**, or **Pinecone**).
     *   **Hybrid Retrieval Engine**: Combine traditional lexical search (BM25 keyword matching with grammatical stemming) and dense neural embeddings (e.g., Google Text Embeddings) using **Reciprocal Rank Fusion (RRF)**. This preserves high-precision keyword lookups (like serial numbers or specific acronyms) while enabling broad semantic reasoning.
 
@@ -92,3 +97,11 @@ graph TD
     *   **Ingestion Parameter Customizer**: Construct visual sliders to define text-splitting rules, chunk sizes, token thresholds, and chunk overlap percentages (e.g. 15% overlap) to tweak matching accuracy for specialized file schemas.
     *   **Premium UI/UX Refinements**: Refactor layout grids for flawless responsive behavior across mobile, tablet, and widescreen monitors. Introduce configurable aesthetic profiles (e.g. system light/dark theme toggle), drag-and-drop workspace layout customization, and customizable keyboard hotkeys for power users.
     *   **Granular Citation Highlight Mapping**: Click on a citation marker in a synthesized response to open the document viewer with the exact corresponding Excel cell, PDF text range, or Word section automatically highlighted.
+
+### Phase 9: Workflow Specification Completeness & Technical Debt Closure
+*   **Objective**: Close the documentation gap by generating build-ready design specifications for all active backend endpoints currently flagged as "Missing" in the Workflow Registry, eliminating operational liability from undocumented contracts.
+*   **Proposed Implementation**:
+    *   **Reformulation Spec**: Author `WORKFLOW-reformulations.md` documenting the sliding window parameters (5-min window, Jaccard ≥ 40%), memory data arrays, query log schemas, and performance budgets for `GET /api/reformulations`.
+    *   **Download Bridge Spec**: Author `WORKFLOW-download.md` documenting input validation, path sanitization boundaries, explicit directory-traversal prevention tests, file download timeouts, and allowed MIME types for `GET /api/documents/download/:filename`.
+    *   **Health Check Spec**: Author `WORKFLOW-status.md` documenting the health check response schema, uptime dependencies, critical parameter thresholds, and SLA contracts for `GET /api/status`.
+    *   **Registry Closure**: Update `REGISTRY.md` status column from "Missing" to "Approved" for all three workflows to close the technical debt loop.

@@ -154,15 +154,16 @@ This starts a colorful, interactive ANSI-styled terminal application where you c
 
 ## 🔮 Future Features & Development Roadmap
 
-To scale AetherGrid Knowledge Tracer into an enterprise-grade corporate portal, we have established a comprehensive 8-phase production engineering roadmap.
+To scale AetherGrid Knowledge Tracer into an enterprise-grade corporate portal, we have established a comprehensive 9-phase production engineering roadmap.
 
 Please refer to the complete **[Recommended Future Features](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/docs/ROADMAP.md)** document for deep-dive technical plans covering:
 
 1.  **Phase 1: Secure Identity Gateway (SSO & RBAC)**: Gating the **Audit Queue** and analytics behind secure SSO (Microsoft Entra ID, Okta, or Auth0) and Role-Based Access Control to prevent unauthorized approvals.
 2.  **Phase 2: Self-Service Document Ingestion Gateway**: Drag-and-drop file uploader in the React UI with ZIP PK header validations and dynamic hot-reindexing.
-3.  **Phase 3: Centralized Enterprise API Key Brokerage (No BYOK)**: Transitioning from client-managed keys to server-side enterprise secrets manager storage (Azure Key Vault, GCP Secret Manager) to control corporate billing and rate boundaries.
-4.  **Phase 4: Hybrid Sparse-Dense Search & Vector Database Migration**: Transitioning local files to PostgreSQL (Supabase with `pgvector`) and implementing hybrid search models (BM25 + Dense Vectors) with Reciprocal Rank Fusion.
+3.  **Phase 3: Centralized Enterprise API Key Brokerage (No BYOK)**: Immediate `localStorage` → `sessionStorage` credential hardening, followed by transitioning from client-managed keys to server-side enterprise secrets manager storage (Azure Key Vault, GCP Secret Manager) with HTTP-Only cookie transport to control corporate billing and rate boundaries.
+4.  **Phase 4: Hybrid Sparse-Dense Search & Vector Database Migration**: Transitioning local files to PostgreSQL (Supabase with `pgvector`), persisting live corrections to eliminate volatile RAM loss, and implementing hybrid search models (BM25 + Dense Vectors) with Reciprocal Rank Fusion.
 5.  **Phase 5: Continuous Evaluation & Automated Regression Pipeline**: Establishing automated CI/CD checks against a "golden dataset" using metrics like *Faithfulness* and *Context Recall* to prevent quality regressions on new uploads.
 6.  **Phase 6: Continuous Active Learning & Feedback Alignment Loops**: Periodically feeding approved corrections back into the LLM context as few-shot prompt alignments or incremental fine-tuning datasets.
 7.  **Phase 7: Collaborative Microsoft Teams Action Loops**: Connecting low-confidence routing directly to interactive Teams messages so experts can resolve knowledge gaps with a single click.
 8.  **Phase 8: Premium UI/UX Polish & Generative Response Tuning**: Creating administrative consoles to customize model temperature/system prompts, configure split parameters, optimize grid layouts, and implement citation-to-coordinate maps.
+9.  **Phase 9: Workflow Specification Completeness & Technical Debt**: Authoring build-ready design specs (`WORKFLOW-reformulations.md`, `WORKFLOW-download.md`, `WORKFLOW-status.md`) for the 3 active backend endpoints flagged as "Missing" in the Workflow Registry, closing the documentation debt loop.

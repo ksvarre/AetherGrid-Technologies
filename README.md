@@ -52,12 +52,16 @@ TER Take Home Exercise/
 *   **npm**: v9.0+ (Tested on v11.6)
 *   **Python**: 3.8+ (Required only for the synthetic data generation script)
 
-### 1. Ingest Synthetic Data
-Run the python data generation script to construct the synthetic AetherGrid corporate corpus:
-```bash
-python scripts/generate_data.py
-```
-This generates 12 meeting transcripts (`.md`), 4 design specs (`.docx`), 4 roadmaps (`.pptx`), and 4 metric files (`.xlsx`) directly under `/data`.
+### 1. Ingest Synthetic Data (Optional)
+
+> [!NOTE]
+> **The entire synthetic AetherGrid corporate corpus (12 meeting transcripts, 4 DOCX, 4 PPTX, and 4 XLSX files) is already pre-generated and checked into this repository!**
+> Reviewers do not need to install Python or run this script to evaluate the application. You can immediately skip this step and proceed to step 3.
+>
+> If you wish to clean or regenerate the corpus dynamically, run:
+> ```bash
+> python scripts/generate_data.py
+> ```
 
 ### 2. Configure Environment (Optional)
 Create a `.env` file in the root directory if you wish to run in Cloud Mode:

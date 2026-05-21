@@ -34,7 +34,8 @@ Thumbs.db
 *.sw?
 
 # Local Databases (Temporary or User specific)
-data/db/*.local.json
+data/db/*.json
+data/db/*.tmp
 
 # Agent Workspace Rules - Ignore locked system skills, track all custom skills
 .agents/skills/agency-*/

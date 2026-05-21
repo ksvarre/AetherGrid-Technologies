@@ -9,8 +9,11 @@ This manual serves as a definitive guide for evaluating and auditing all three e
 > ### ⚠️ Enterprise Cloud Mode & Gemini API Validation Disclaimer
 > Please be advised that **only the Google Gemini API (`GEMINI_API_KEY`) has been fully tested and validated to work** in the Enterprise Cloud Mode. Due to the lack of access to active corporate Azure API keys during development, Azure-based OpenAI integrations have not been calibrated or verified.
 > 
-> *   **To evaluate Enterprise Cloud Mode**: Please supply a standard Google Gemini API key in the `.env` file (`GEMINI_API_KEY=your_key`).
-> *   **To evaluate Offline Mode (Default)**: If no key is provided, the application gracefully defaults to high-performance local Offline Mode, which runs **100% locally with zero external network requests or keys**, using our TF-IDF text matrix and rule-based NLP algorithms. Both modes are fully functional and ready for evaluation.
+> *   **To evaluate Enterprise Cloud Mode (Two Options)**:
+>     *   **Option A: Server-Wide Configuration (`.env`)**: Supply a standard Google Gemini API key in the root `.env` file (`GEMINI_API_KEY=your_key`). This configures the entire server instance to run in Cloud Mode by default for all users.
+>     *   **Option B: Client-Scoped Configuration (UI Settings)**: Leave the root `.env` file empty. Start the server (which boots into local Offline Mode), open `http://localhost:5173`, click the **Settings Gear Icon** in the top-right, paste your key under the Gemini Provider settings, and click **Save Settings** or **Re-Index**. This stores the key in your browser's local storage and dynamically injects it via transient headers (`x-gemini-api-key`) on a request-by-request basis. The backend handles this dynamically in-memory and **never** writes it to the server's `.env` or disk.
+> *   **To evaluate Offline Mode (Default)**: If no key is provided (either in `.env` or the UI), the application gracefully defaults to high-performance local Offline Mode, which runs **100% locally with zero external network requests or keys**, using our TF-IDF text matrix and rule-based NLP algorithms. Both modes are fully functional and ready for evaluation.
+
 
 To align with modern software engineering best practices, this standalone system was planned, secured, implemented, and verified using a highly structured, multi-persona development workflow.
 

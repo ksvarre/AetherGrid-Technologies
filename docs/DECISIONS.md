@@ -9,7 +9,7 @@ This document records the key architectural decisions, rationale, trade-offs, an
 *   **Context**: The application must be runnable locally without exposing private credentials, but also corporate-ready for live production deployment at a company where advanced LLM capabilities would be expected.
 *   **Decision**: Implement a **Strategy Pattern** via the `INLPEngine` interface. 
     *   **Offline Mode**: Uses a pure JavaScript-based BM25 / TF-IDF text matcher, keyword analyzers, and regex-based entity extractors.
-    *   **Cloud Mode**: Triggered automatically when a `GEMINI_API_KEY` is present in the environmental config, utilizing semantic vectors and Google's Gemini LLM for high-fidelity generative syntheses.
+    *   **Cloud Mode**: Activated either server-wide via a `GEMINI_API_KEY` in the environmental config (`.env`), or client-scoped on a request-by-request basis via transient secure headers (`x-gemini-api-key`) passed from the frontend's settings panel. It utilizes semantic vectors and Google's Gemini LLM for high-fidelity generative syntheses.
 *   **Rationale**: Ensures 100% out-of-the-box local operation for recruiters and interview evaluators with zero setup friction, while proving enterprise viability and direct modular upgradeability for production teams.
 *   **Trade-offs**: Implementing a high-quality local text search engine and response compiler in pure TypeScript adds implementation complexity, but it completely removes dependency on third-party SaaS accounts or network connections during local evaluation.
 

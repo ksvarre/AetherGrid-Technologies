@@ -9,7 +9,9 @@ It implements a self-healing corporate knowledge engine for **AetherGrid Technol
 ## ⚡ Corporate Deployment & "Zero-Key" Design
 To ensure this application can be immediately evaluated by any reviewer and successfully deployed inside a secure corporate network, it is built with a **Dual-Mode Search & Ingestion Pipeline** under a clean TypeScript `INLPEngine` strategy:
 1.  **Offline Mode (Default)**: Out of the box, the system runs **100% locally** with **zero external network requests or API keys**. It uses a high-performance local TF-IDF & BM25 text-retrieval matrix, regex-based attendee matching, and rule-based response synthesis.
-2.  **Enterprise Cloud Mode**: By simply adding a `GEMINI_API_KEY` to the `.env` file, the system automatically elevates to industry-grade RAG, using semantic embedding-based search and Google's Gemini LLM for metadata enrichment and fluid generative question-answering with inline citations.
+2.  **Enterprise Cloud Mode**: Elevates the search engine to industry-grade RAG, using semantic embedding-based search and Google's Gemini LLM for metadata enrichment and fluid generative question-answering with inline citations. This can be activated via two distinct pathways:
+    *   **Pathway A: Server-Wide Configuration (process.env)**: Adding a `GEMINI_API_KEY` to the server's `.env` file. This automatically defaults the entire server instance to Cloud Mode for all connecting users.
+    *   **Pathway B: Client-Scoped Transient Configuration (Secure UI BYOK)**: Entering your `GEMINI_API_KEY` directly into the web interface's **Settings Panel** (top-right gear icon). The key is stored securely in your browser's `localStorage` and sent over HTTPS on a request-by-request basis via custom headers (`x-gemini-api-key`). The backend processes this in-memory dynamically *without* writing the key to the server's `.env` file or disk, preserving absolute credential isolation.
 
 ---
 
@@ -56,12 +58,18 @@ TER Take Home Exercise/
 > ```
 
 ### 2. Configure Environment (Optional)
-Create a `.env` file in the root directory if you wish to run in Cloud Mode:
-```env
-PORT=5000
-GEMINI_API_KEY=your_gemini_api_key_here
-```
-*If left blank, the application gracefully defaults to high-performance local Offline Mode.*
+If you wish to evaluate or run the system in **Enterprise Cloud Mode**, you can provide a Gemini API key via either of the following methods:
+
+*   **Option A: Server-Wide Configuration (`.env`)**
+    Create a `.env` file in the root directory:
+    ```env
+    PORT=5000
+    GEMINI_API_KEY=your_gemini_api_key_here
+    ```
+    *If this variable is absent or left as the placeholder, the server defaults to high-performance local Offline Mode.*
+
+*   **Option B: Client-Scoped Transient Configuration (Web UI Settings)**
+    Leave the server's `.env` blank (or running offline). Once the application starts, click the **Settings Gear Icon** in the top-right corner of the React Web App. Paste your `GEMINI_API_KEY` there and click **Save Settings** or **Re-Index Workspace**. This stores the key securely in your browser's local storage and forwards it via headers over HTTPS on each request. The key is processed strictly in-memory by the backend and is **never** written to the server's `.env` file or disk.
 
 ### 3. Install & Run
 Install root dependencies and start both backend and frontend concurrently:

@@ -1,6 +1,6 @@
 # WORKFLOW: User Gap Feedback Capture
-**Version**: 0.1
-**Date**: 2026-05-20
+**Version**: 0.2
+**Date**: 2026-05-21
 **Author**: Workflow Architect
 **Status**: Approved
 
@@ -11,8 +11,8 @@ This workflow describes how the AetherGrid system captures user corrections or s
 | Actor | Role in this workflow |
 |---|---|
 | Employee (User) | Submits correction or marks answer as incorrect in the Search Console UI |
-| Express Server | Receives the feedback request, sanitizes string inputs |
-| `DatabaseService` | Commits raw feedback items to the transactional JSON database file |
+| Express Server | Receives the feedback request, validates required fields |
+| `DatabaseService` | Sanitizes inputs, generates ID, and commits feedback items to the transactional JSON database file |
 
 ## Prerequisites
 - Feedback directories must exist (`/data/db`).
@@ -27,8 +27,18 @@ This workflow describes how the AetherGrid system captures user corrections or s
 
 ### STEP 1: Input Validation & Hardening Sanitization
 **Actor**: Express Server & `DatabaseService`
-**Action**: Validates payload parameters. Most importantly, sanitizes HTML tags inside `correctedAnswer` to prevent **Stored XSS** injection (STRIDE security hardening) before saving it.
-- **Sanitization Rule**: Replace `<` with `&lt;`, `>` with `&gt;`, `"` with `&quot;`, `'` with `&#x27;`, `/` with `&#x2F;`.
+**Action**: Validates payload parameters (`query` and `status` are required). Sanitizes all string inputs via `escapeHtml()` to prevent **Stored XSS** injection (STRIDE security hardening) before saving.
+- **Sanitization Rules Applied** (as of v0.2):
+  - `<` → `&lt;`
+  - `>` → `&gt;`
+  - `&` → `&amp;`
+  - `"` → `&quot;`
+
+> [!IMPORTANT]
+> **Single quotes (`'`) and forward slashes (`/`) are intentionally NOT escaped.** React's JSX rendering auto-escapes all text output via `{}` interpolation. The previous rules (`'` → `&#x27;`, `/` → `&#x2F;`) caused double-encoding and visible corruption in the UI (e.g., "couldn&#x27;t" instead of "couldn't"). This was fixed in v0.2.
+
+- **Atomic Write Pattern**: All file writes use `safeWriteJson()` which writes to a `.tmp` file first, then atomically renames — preventing corruption from crashes during write.
+
 **Timeout**: 1s
 **Input**: `{ query, answer, confidenceScore, status, correctedAnswer, domain }`
 **Output on SUCCESS**: Sanitized payload -> GO TO STEP 2
@@ -44,7 +54,7 @@ This workflow describes how the AetherGrid system captures user corrections or s
 
 ### STEP 2: Persist Feedback Record
 **Actor**: `DatabaseService`
-**Action**: Loads the existing feedback array from `data/db/feedback.json`, generates a unique ID (e.g. `fb_1716243884000_123`), sets `resolved` to `false`, appends the new record, and writes the stream back to the file.
+**Action**: Loads the existing feedback array from `data/db/feedback.json`, generates a unique ID (e.g. `fb_1716243884000_123`), sets `resolved` to `false`, appends the new record, and writes the stream back to the file via `safeWriteJson`.
 **Timeout**: 2s
 **Input**: Sanitized payload
 **Output on SUCCESS**: `feedbackId` -> GO TO STEP 3
@@ -117,7 +127,9 @@ None.
 |---|---|---|
 | TC-01: Valid Feedback Submission | Submit correction payload | Return `success: true`, record added to `feedback.json` |
 | TC-02: Stored XSS Prevention | Submit `correctedAnswer` with `<script>` tag | The script tag is escaped (`&lt;script&gt;`), saved in file, rendering safely as raw text in UI |
-| TC-03: Missing status parameter | Submit payload without `status` | Return 400 Bad Request error |
+| TC-03: Single Quote Preservation | Submit `correctedAnswer` with "I couldn't find it" | The apostrophe is stored as-is (not `&#x27;`), renders correctly in the UI |
+| TC-04: Missing status parameter | Submit payload without `status` | Return 400 Bad Request error |
+| TC-05: Concurrent write safety | Two feedback submissions in rapid succession | Both succeed — `safeWriteJson` atomic temp-file write prevents corruption |
 
 ---
 
@@ -125,8 +137,11 @@ None.
 | # | Assumption | Where Verified | Risk if Wrong |
 |---|---|---|---|
 | A1 | File system is not concurrent-write restricted | Verified: single instance runs | Concurrency issues if multi-instances write simultaneously |
+| A2 | React JSX auto-escapes all rendered text | Verified: standard React behavior | If using `dangerouslySetInnerHTML`, XSS risk returns |
 
 ## Spec vs Reality Audit Log
 | Date | Finding | Action taken |
 |---|---|---|
 | 2026-05-20 | Initial spec created | Escaping rules enforced on raw text entries |
+| 2026-05-21 | `escapeHtml()` was encoding `'` → `&#x27;` and `/` → `&#x2F;` causing visible UI corruption ("couldn&#x27;t") | Removed single-quote and forward-slash escaping. Updated Step 1 sanitization rules. Added TC-03 |
+| 2026-05-21 | File writes used direct `writeFile` without atomicity protection | Documented `safeWriteJson` atomic temp-file pattern. Added TC-05 |

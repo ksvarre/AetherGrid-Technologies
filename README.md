@@ -121,4 +121,31 @@ This starts a colorful, interactive ANSI-styled terminal application where you c
 
 ### [Exercise 3: User-Facing React Application & Metric]
 *   **Dashboard**: A premium, futuristic single-page workspace styled in Vanilla CSS featuring an **AI Search Console**, an **Audit Queue** for team leads, and the **System Health Monitor**.
-*   **Measurement Approach**: Explains the tracking of **Knowledge Gap Resolution Velocity (KGRV)** to keep the corporate index accurate and self-healing.
+*   **Measurement Approach**: Explains the tracking of **Knowledge Gap Resolution Velocity (KGRV)** and **Search Reformulation Frequency** to keep the corporate index accurate and self-healing.
+
+---
+
+## 🔮 Future Features & Development Roadmap
+
+To scale AetherGrid Knowledge Tracer into an enterprise-grade corporate portal, we have established a 5-point future feature backlog:
+
+### 1. Admin Resolution Workflow for Reformulation Issues
+*   **Objective**: Transition search query friction from passive detection to active resolution by operators.
+*   **Proposed Solution**: Integrate a "Resolve Reformulation" action directly next to each pair in the Reformulation list in the Operator Portal. This opens a modal where a Team Lead can submit a custom "Golden Answer" for the reformulation pair. The backend will persist this to a new `data/db/reformulations_resolved.json` database, which compiles as a high-priority virtual chunk in the search index, self-healing that specific question immediately.
+
+### 2. User-Facilitated Document Upload Gateway
+*   **Objective**: Democratize knowledge ingestion by enabling operators and administrators to upload new documents directly from the UI.
+*   **Proposed Solution**: Build a drag-and-drop file upload zone in the admin portal. A secure `POST /api/documents/upload` endpoint will enforce a 50MB file size limit, validate magic bytes (ZIP/OLE2 headers for DOCX, XLSX, PPTX, or standard headers for MD), and trigger an active hot-reindex to update search results instantly without server restarts.
+
+### 3. Microsoft Teams Collaborative Integration
+*   **Objective**: Turn suggested expert routing into active, collaborative corporate communication loops.
+*   **Proposed Solution**: Connect a Microsoft Teams incoming webhook or bot. When a low-confidence routing card is triggered, the user can click "Escalate to Teams", posting a rich interactive card in the expert's channel. The expert's reply will feed back into the feedback API to resolve the gap.
+
+### 4. Interactive Onboarding Guide & User How-To Suite
+*   **Objective**: Guide new operators and recruiters through the platform's advanced workflows with high-fidelity, interactive training prompts.
+*   **Proposed Solution**: Integrate a stateful step-by-step onboarding wizard (e.g. `react-joyride`) that walks new users through executing their first query, auditing citations, triggering suggested expert routing, and self-healing the knowledge base.
+
+### 5. Repository Publication Hardening & GitHub Cleanup
+*   **Objective**: Clean and standardize the repository for public or corporate distribution.
+*   **Proposed Solution**: Establish pre-configured `.gitignore` structures to exclude local development assets (e.g. active staging session database files, local keys), perform dependency security checks, run automated code formatting (Prettier), and supply clean empty JSON database templates under `data/db/` so the repository boots up instantly in a pristine state out-of-the-box.
+

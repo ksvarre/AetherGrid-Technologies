@@ -65,3 +65,55 @@ These advanced security remediations (STRIDE), self-healing sync mechanisms, and
 - [x] Perform manual XSS payload validation (`<script>` submission check).
 - [x] Benchmarking boot time latency to confirm it completes under 10ms.
 - [x] Update primary documents `docs/ARCHITECTURE.md` and `docs/BACKEND.md` to match new behaviors.
+
+---
+
+## 🔵 Phase 3: Cognitive Routing, Reformulation Tracking & UI Polish — 100% COMPLETE
+
+These optimizations enhance search accuracy, track user search friction, and perfect the analytical interface.
+
+### 🧠 3-Tier Cognitive Routing & Search Scoping
+- [x] Design a 3-tier retrieval filter routing logic (`routing.ts`):
+  - **Tier 1**: Match on scored content chunks ($\ge 0.15$ threshold) using either Local Offline TF-IDF or Cloud LLM.
+  - **Tier 2**: Match on rule-based keyword domain routers mapping topics like "thermal" or "pricing" to direct source files, generating a domain-aware expert suggestion even with low TF-IDF correlation.
+  - **Tier 3**: Classify off-topic queries (e.g. "what is the weather today") and return a friendly null response, avoiding false expert alerts.
+- [x] Link top low-scoring chunks to suggested routing rationales to provide context-aware feedback (e.g. "Marcus Vance is suggested because you queried a thermal node, which is covered in helium_edge_node_hardware_v2.docx").
+
+### 🔄 Jaccard-Based Search Reformulation Tracking
+- [x] Implement consecutive query Jaccard Similarity indexer in `database.ts` (tracking word overlap among last 20 queries inside a 5-minute sliding window).
+- [x] Flag pairs with $\ge 40\%$ token overlap and differing text as "reformulations", calculating a rolling reformulation rate metric.
+- [x] Expose reformulation pairs through a secure Express endpoint `GET /api/reformulations`.
+
+### 💅 Premium Dashboard & UI Enhancements
+- [x] Rearrange the System Health dashboard to put all 4 metrics (Health, Confidence, Rejections, Reformulations) on a single row using a responsive 4-column CSS grid.
+- [x] Reposition the 30-day performance trends line chart to the bottom of the page to allow space for details.
+- [x] Embed click-to-reveal stateful explanation tooltips on each card, providing equations and examples.
+- [x] Add an interactive **Reformulation Drill-Down Panel** showing anonymous query pairs (e.g. "pricing tier solar" $\rightarrow$ "Project Horizon pricing standard tier") to help identify gaps.
+- [x] Fix HTML entity double-encoding bug (`escapeHtml` excluding `'` and `/`) to render text like "couldn't" correctly.
+- [x] Add elegant HTML table grid styling for Excel citations in the citation slide-out panel.
+
+---
+
+## 🔮 Future Development Roadmap (Backlog)
+
+These items represent planned future enhancements to make the AetherGrid Knowledge Tracer an industry-leading enterprise solution.
+
+### 1. Admin Resolution Workflow for Reformulations
+- **Objective**: Give team leads a way to directly resolve detected reformulation issues by providing custom answers.
+- **Proposed Flow**: Add a "Create Custom Resolution" action next to each pair in the Reformulation list. Saving an answer writes to `data/db/reformulations_resolved.json`, which compiles as a high-priority virtual chunk in the search index, self-healing that specific question immediately.
+
+### 2. User-Facilitated Document Upload Gateway
+- **Objective**: Allow users/operators to upload new Markdown transcripts or Microsoft Office files directly from the UI.
+- **Proposed Flow**: Build a drag-and-drop file upload zone in the admin portal. A secure `POST /api/documents/upload` endpoint will enforce a 50MB file size limit, validate magic bytes (ZIP/OLE2 headers), and trigger an active hot-reindex to update search results instantly without server restarts.
+
+### 3. Microsoft Teams Interactive Channel Integration
+- **Objective**: Turn suggested expert routing into active, collaborative Slack/Teams message loops.
+- **Proposed Flow**: Connect a Microsoft Teams incoming webhook or bot. When a low-confidence routing card is triggered, the user can click "Escalate to Teams", posting a rich interactive card in the expert's channel. The expert's reply will feed back into the feedback API to resolve the gap.
+
+### 4. Stateful Interactive Onboarding Guide & How-To Suite
+- **Objective**: Provide a premium guided wizard to onboard new operators and recruiters.
+- **Proposed Flow**: Integrate a step-by-step interactive onboarding overlay (e.g. `react-joyride`) that walks users through running a query, inspecting citations, copying escalation messages, and resolving gaps.
+
+### 5. Repository Publication Hardening & GitHub Cleanup
+- **Objective**: Clean and standardize the repository for public or corporate distribution.
+- **Proposed Flow**: Set up strict `.gitignore` patterns to exclude personal environment files or raw temporary session database writes, audit npm dependencies for security, and supply pre-configured, clean empty JSON database templates in `data/db/` for immediate cloning and deployment.

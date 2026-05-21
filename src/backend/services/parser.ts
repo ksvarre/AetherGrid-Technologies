@@ -3,7 +3,7 @@ import path from 'path';
 import mammoth from 'mammoth';
 import * as xlsx from 'xlsx';
 import officeParser from 'officeparser';
-import { DocumentChunk } from './nlp';
+import { DocumentChunk, INLPEngine, GeminiNLPEngine, AzureOpenAINLPEngine } from './nlp';
 
 const getDir = (sub: string) => {
   let p = path.resolve(__dirname, `../../../${sub}`);
@@ -44,9 +44,46 @@ async function safeWriteJson(filePath: string, data: any): Promise<void> {
 
 export class ParserService {
   /**
+   * Helper to enrich metadata using cloud NLP engine if available.
+   * If extraction fails, logs warning, saves translated error, and disables subsequent cloud calls in this run.
+   */
+  private async enrichMetadata(
+    fileName: string,
+    rawContent: string,
+    nlpEngine?: INLPEngine,
+    errorContainer?: { cloudError?: any },
+    defaults: Partial<DocumentChunk> = {}
+  ): Promise<Partial<DocumentChunk>> {
+    const meta = { ...defaults };
+    if (nlpEngine && errorContainer && !errorContainer.cloudError) {
+      try {
+        const enriched = await nlpEngine.extractMetadata(fileName, rawContent);
+        if (enriched.domain) meta.domain = enriched.domain;
+        if (enriched.priority) meta.priority = enriched.priority;
+        if (enriched.author) meta.author = enriched.author;
+        if (enriched.attendees) meta.attendees = enriched.attendees;
+        if (enriched.decisions) meta.decisions = enriched.decisions;
+        if (enriched.actionItems) meta.actionItems = enriched.actionItems;
+      } catch (err: any) {
+        console.warn(`⚠️ Cloud metadata extraction failed for ${fileName}. Disabling cloud enrichment and falling back to offline heuristics.`, err);
+        // Translate error using engine static methods
+        if (nlpEngine instanceof GeminiNLPEngine) {
+          errorContainer.cloudError = GeminiNLPEngine.translateError(err);
+        } else if (nlpEngine instanceof AzureOpenAINLPEngine) {
+          errorContainer.cloudError = AzureOpenAINLPEngine.translateError(err);
+        } else {
+          errorContainer.cloudError = { code: 'UNKNOWN_CLOUD_ERROR', message: err.message || String(err) };
+        }
+        errorContainer.cloudError.fallbackActive = true;
+      }
+    }
+    return meta;
+  }
+
+  /**
    * Main entry point: Scans directories, parses files, and returns semantic chunks.
    */
-  public async ingestAll(): Promise<DocumentChunk[]> {
+  public async ingestAll(nlpEngine?: INLPEngine, errorContainer?: { cloudError?: any }): Promise<DocumentChunk[]> {
     const startTime = Date.now();
     const allChunks: DocumentChunk[] = [];
     const seenPaths = new Set<string>();
@@ -72,7 +109,7 @@ export class ParserService {
 
     let cacheDirty = false;
 
-    // 1. Ingest Transcripts (.md) exclusively for Exercise 1
+    // 1. Ingest Transcripts (.md)
     if (fs.existsSync(TRANSCRIPTS_DIR)) {
       const files = await fs.promises.readdir(TRANSCRIPTS_DIR);
       for (const file of files) {
@@ -85,11 +122,12 @@ export class ParserService {
             const size = stat.size;
 
             const cached = cache.files[filePath];
-            if (cached && cached.mtime === mtime && cached.size === size) {
+            // Skip cache read if nlpEngine is active to ensure fresh LLM extraction, or if file changed
+            if (!nlpEngine && cached && cached.mtime === mtime && cached.size === size) {
               allChunks.push(...cached.chunks);
               hitCount++;
             } else {
-              const chunks = await this.parseTranscript(filePath, file);
+              const chunks = await this.parseTranscript(filePath, file, nlpEngine, errorContainer);
               cache.files[filePath] = { mtime, size, chunks };
               cacheDirty = true;
               allChunks.push(...chunks);
@@ -102,8 +140,76 @@ export class ParserService {
       }
     }
 
-    // Note: Office Documents (.docx, .pptx, .xlsx) parsing is completely disabled 
-    // for this pure Exercise 1 scope to maximize speed and secure the API surface.
+    // 2. Ingest Office Documents (.docx/.doc, .pptx/.ppt, .xlsx/.xls) - Including legacy binary formats
+    if (fs.existsSync(DOCUMENTS_DIR)) {
+      const files = await fs.promises.readdir(DOCUMENTS_DIR);
+
+      // Allowed extensions mapped to their parser type
+      const extensionMap: Record<string, 'docx' | 'pptx' | 'xlsx'> = {
+        '.docx': 'docx', '.doc': 'docx',
+        '.pptx': 'pptx', '.ppt': 'pptx',
+        '.xlsx': 'xlsx', '.xls': 'xlsx',
+      };
+
+      // Security: Maximum file size (50MB) to prevent resource exhaustion from oversized uploads
+      const MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024;
+
+      for (const file of files) {
+        const ext = path.extname(file).toLowerCase();
+        const parserType = extensionMap[ext];
+        if (!parserType) continue;
+
+        const filePath = path.join(DOCUMENTS_DIR, file);
+        seenPaths.add(filePath);
+        try {
+          const stat = await fs.promises.stat(filePath);
+          const mtime = stat.mtimeMs;
+          const size = stat.size;
+
+          // Security: Reject oversized files to prevent memory exhaustion or denial-of-service
+          if (size > MAX_FILE_SIZE_BYTES) {
+            console.warn(`🛡️ Security: Skipping oversized file "${file}" (${(size / 1024 / 1024).toFixed(1)}MB exceeds 50MB limit).`);
+            continue;
+          }
+
+          // Security: Basic magic-byte validation to detect disguised or corrupted files
+          const fd = await fs.promises.open(filePath, 'r');
+          const headerBuf = Buffer.alloc(8);
+          await fd.read(headerBuf, 0, 8, 0);
+          await fd.close();
+
+          const isZipBased = headerBuf[0] === 0x50 && headerBuf[1] === 0x4B; // PK header (.docx/.pptx/.xlsx)
+          const isOleBased = headerBuf[0] === 0xD0 && headerBuf[1] === 0xCF && headerBuf[2] === 0x11 && headerBuf[3] === 0xE0; // OLE2 header (.doc/.ppt/.xls)
+
+          if (!isZipBased && !isOleBased) {
+            console.warn(`🛡️ Security: Skipping file "${file}" — file header does not match any known Office format (expected ZIP/PK or OLE2/CFB signature). File may be corrupted or disguised.`);
+            continue;
+          }
+
+          const cached = cache.files[filePath];
+          // Skip cache read if nlpEngine is active to ensure fresh LLM extraction, or if file changed
+          if (!nlpEngine && cached && cached.mtime === mtime && cached.size === size) {
+            allChunks.push(...cached.chunks);
+            hitCount++;
+          } else {
+            let chunks: DocumentChunk[] = [];
+            if (parserType === 'docx') {
+              chunks = await this.parseDocx(filePath, file, nlpEngine, errorContainer);
+            } else if (parserType === 'pptx') {
+              chunks = await this.parsePptx(filePath, file, nlpEngine, errorContainer);
+            } else if (parserType === 'xlsx') {
+              chunks = await this.parseXlsx(filePath, file, nlpEngine, errorContainer);
+            }
+            cache.files[filePath] = { mtime, size, chunks };
+            cacheDirty = true;
+            allChunks.push(...chunks);
+            missCount++;
+          }
+        } catch (err) {
+          console.error(`❌ Error processing document file ${file}:`, err);
+        }
+      }
+    }
 
     // Prune deleted/disabled files from the cache automatically
     for (const cachedPath of Object.keys(cache.files)) {
@@ -124,7 +230,7 @@ export class ParserService {
     }
 
     const duration = Date.now() - startTime;
-    console.log(`🚀 Ingestion complete: loaded ${allChunks.length} transcript chunks. (Total Time: ${duration}ms | Cache Hits: ${hitCount} | Cache Misses/Parsed: ${missCount})`);
+    console.log(`🚀 Ingestion complete: loaded ${allChunks.length} chunks. (Total Time: ${duration}ms | Cache Hits: ${hitCount} | Cache Misses/Parsed: ${missCount})`);
 
     return allChunks;
   }
@@ -132,7 +238,7 @@ export class ParserService {
   /**
    * Parses Markdown transcripts and extracts frontmatter attributes.
    */
-  private async parseTranscript(filePath: string, fileName: string): Promise<DocumentChunk[]> {
+  private async parseTranscript(filePath: string, fileName: string, nlpEngine?: INLPEngine, errorContainer?: { cloudError?: any }): Promise<DocumentChunk[]> {
     const rawContent = await fs.promises.readFile(filePath, 'utf-8');
     const contentLower = rawContent.toLowerCase();
 
@@ -144,13 +250,11 @@ export class ParserService {
     }
 
     // 2. Dynamic Attendees/Speakers Extraction Heuristics
-    // Match dialogue lines starting with "**Speaker Name**:" or "**Dr. Speaker Name**:"
     const speakerRegex = /^\*\*([^*:]+)\*\*:/gm;
     const uniqueSpeakers = new Set<string>();
     let match;
     let firstSpeaker = '';
 
-    // Reset regex index and find matches in raw content
     speakerRegex.lastIndex = 0;
     while ((match = speakerRegex.exec(rawContent)) !== null) {
       const name = match[1].trim();
@@ -193,7 +297,6 @@ export class ParserService {
       contentLower.includes('danger') ||
       contentLower.includes('lock up') ||
       contentLower.includes('91°c') ||
-      contentLower.includes('high-voltage') ||
       contentLower.includes('spike') ||
       contentLower.includes('critical')
     ) {
@@ -211,7 +314,6 @@ export class ParserService {
       priority = 'Low';
     }
 
-    // Facilitator / Author fallback
     let facilitator = firstSpeaker;
 
     // Backward-Compatible Frontmatter Support
@@ -239,8 +341,15 @@ export class ParserService {
       }
     }
 
-    // Determine finalized author
     const author = facilitator || attendees[0] || 'Unknown Attendee';
+
+    // Enrich using cloud LLM if requested
+    const meta = await this.enrichMetadata(fileName, rawContent, nlpEngine, errorContainer, {
+      domain,
+      priority,
+      author,
+      attendees
+    });
 
     // Chunking: Split into paragraphs for semantic index
     const paragraphs = cleanContent.split(/\r?\n\r?\n/).filter(p => p.trim().length > 10);
@@ -251,18 +360,20 @@ export class ParserService {
       fileName,
       fileType: 'transcript',
       content: para.trim(),
-      author,
-      attendees,
+      author: meta.author || author,
+      attendees: meta.attendees || attendees,
       date,
-      domain,
-      priority
+      domain: meta.domain || domain,
+      priority: meta.priority || priority,
+      decisions: meta.decisions,
+      actionItems: meta.actionItems
     }));
   }
 
   /**
    * Parses Word documents (.docx) using mammoth.
    */
-  private async parseDocx(filePath: string, fileName: string): Promise<DocumentChunk[]> {
+  private async parseDocx(filePath: string, fileName: string, nlpEngine?: INLPEngine, errorContainer?: { cloudError?: any }): Promise<DocumentChunk[]> {
     try {
       const result = await mammoth.extractRawText({ path: filePath });
       const text = result.value;
@@ -273,14 +384,12 @@ export class ParserService {
       let domain = 'General';
       let priority: 'High' | 'Medium' | 'Low' = 'Medium';
 
-      // Parse metadata block if present (e.g. "Author: Dr. Elena Rostova")
       const authorMatch = text.match(/Author:\s*([^\r\n]+)/i);
       const dateMatch = text.match(/Date:\s*([^\r\n]+)/i);
 
       if (authorMatch) author = authorMatch[1].trim();
       if (dateMatch) date = dateMatch[1].trim();
 
-      // Deduce domain and priority from file title/words
       if (fileName.includes('quantum')) {
         domain = 'Project Quantum';
         priority = 'High';
@@ -295,6 +404,13 @@ export class ParserService {
         priority = 'Medium';
       }
 
+      // Enrich using cloud LLM if requested
+      const meta = await this.enrichMetadata(fileName, text, nlpEngine, errorContainer, {
+        domain,
+        priority,
+        author
+      });
+
       // Chunk by paragraph/section
       const sections = text.split(/\r?\n\r?\n/).filter(s => s.trim().length > 20);
       return sections.map((sect, index) => ({
@@ -303,11 +419,13 @@ export class ParserService {
         fileName,
         fileType: 'docx',
         content: sect.trim(),
-        author,
-        attendees: [],
+        author: meta.author || author,
+        attendees: meta.attendees || [],
         date,
-        domain,
-        priority
+        domain: meta.domain || domain,
+        priority: meta.priority || priority,
+        decisions: meta.decisions,
+        actionItems: meta.actionItems
       }));
     } catch (err) {
       console.error(`Error parsing Word docx: ${fileName}`, err);
@@ -318,9 +436,9 @@ export class ParserService {
   /**
    * Parses PowerPoint slides (.pptx) using officeparser.
    */
-  private async parsePptx(filePath: string, fileName: string): Promise<DocumentChunk[]> {
+  private async parsePptx(filePath: string, fileName: string, nlpEngine?: INLPEngine, errorContainer?: { cloudError?: any }): Promise<DocumentChunk[]> {
     return new Promise((resolve) => {
-      officeParser.parseOffice(filePath, (data: string | Error) => {
+      officeParser.parseOffice(filePath, async (data: string | Error) => {
         if (data instanceof Error) {
           console.error(`Error parsing PPTX: ${fileName}`, data);
           return resolve([]);
@@ -331,7 +449,6 @@ export class ParserService {
         let domain = 'Product Commercials';
         let priority: 'High' | 'Medium' | 'Low' = 'Medium';
 
-        // Deduce details from file names
         if (fileName.includes('horizon')) {
           domain = 'Project Horizon';
           author = 'Amira Patel';
@@ -345,9 +462,13 @@ export class ParserService {
           priority = 'High';
         }
 
-        // officeparser returns raw text separated by newlines
-        // We will chunk slide contents. Typically slide elements are grouped.
-        // We can split by double newlines or group every few lines as a slide.
+        // Enrich using cloud LLM if requested
+        const meta = await this.enrichMetadata(fileName, data, nlpEngine, errorContainer, {
+          domain,
+          priority,
+          author
+        });
+
         const slides = data.split(/\r?\n\r?\n/).filter(s => s.trim().length > 15);
         
         const chunks = slides.map((slideText, index) => ({
@@ -356,11 +477,13 @@ export class ParserService {
           fileName,
           fileType: 'pptx' as const,
           content: slideText.trim(),
-          author,
-          attendees: [],
+          author: meta.author || author,
+          attendees: meta.attendees || [],
           date,
-          domain,
-          priority
+          domain: meta.domain || domain,
+          priority: meta.priority || priority,
+          decisions: meta.decisions,
+          actionItems: meta.actionItems
         }));
 
         resolve(chunks);
@@ -371,10 +494,16 @@ export class ParserService {
   /**
    * Parses Excel sheets (.xlsx) row-by-row using SheetJS.
    */
-  private async parseXlsx(filePath: string, fileName: string): Promise<DocumentChunk[]> {
+  private async parseXlsx(filePath: string, fileName: string, nlpEngine?: INLPEngine, errorContainer?: { cloudError?: any }): Promise<DocumentChunk[]> {
     try {
       const workbook = xlsx.readFile(filePath);
-      const chunks: DocumentChunk[] = [];
+      const rawSheetsData: Array<{ sheetName: string; lines: string[]; author: string; date: string; domain: string; priority: 'High' | 'Medium' | 'Low' }> = [];
+
+      let combinedText = '';
+      let defaultAuthor = 'Unknown';
+      let defaultDate = '2026-05-20';
+      let defaultDomain = 'Product Commercials';
+      let defaultPriority: 'High' | 'Medium' | 'Low' = 'Medium';
 
       for (const sheetName of workbook.SheetNames) {
         const sheet = workbook.Sheets[sheetName];
@@ -383,7 +512,7 @@ export class ParserService {
         const rawRows: any[] = xlsx.utils.sheet_to_json(sheet, { header: 1 });
         if (rawRows.length === 0) continue;
 
-        // Parse Metadata Block (AetherGrid sheets have: Metadata Block, File, Author, Date in top rows)
+        // Parse Metadata Block
         let author = 'Unknown';
         let date = '2026-05-20';
         let dataStartRow = 0;
@@ -397,19 +526,16 @@ export class ParserService {
               date = row[0].replace('Date:', '').trim();
             }
           }
-          // The headers row usually follows an empty row
           if (row.length > 1 && rawRows[i - 1]?.length === 0) {
             dataStartRow = i;
           }
         }
 
-        // If dataStartRow wasn't deduced, fallback to first non-metadata row
         if (dataStartRow === 0) {
           dataStartRow = rawRows.findIndex(r => r.length > 1);
           if (dataStartRow === -1) dataStartRow = 0;
         }
 
-        // Deduce metadata
         let domain = 'Product Commercials';
         let priority: 'High' | 'Medium' | 'Low' = 'Medium';
         if (fileName.includes('quantum')) {
@@ -423,8 +549,11 @@ export class ParserService {
           priority = 'Medium';
         }
 
-        // Convert the grid into structured searchable strings
-        // Group row descriptions
+        if (author !== 'Unknown') defaultAuthor = author;
+        if (date !== '2026-05-20') defaultDate = date;
+        defaultDomain = domain;
+        defaultPriority = priority;
+
         const headerRow = rawRows[dataStartRow] || [];
         const contentRows = rawRows.slice(dataStartRow + 1);
 
@@ -444,21 +573,42 @@ export class ParserService {
           }
         }
 
-        // Separate chunks per sheet (or groups of rows)
         if (sheetLines.length > 0) {
-          chunks.push({
-            id: `${fileName}_${sheetName}_chunk`,
-            filePath: virtualizePath(filePath),
-            fileName,
-            fileType: 'xlsx',
-            content: `Sheet: "${sheetName}" | Tabular Data:\n` + sheetLines.join(';\n'),
+          rawSheetsData.push({
+            sheetName,
+            lines: sheetLines,
             author,
-            attendees: [],
             date,
             domain,
             priority
           });
+          combinedText += `Sheet: "${sheetName}" | Tabular Data:\n` + sheetLines.join(';\n') + '\n\n';
         }
+      }
+
+      // Enrich once for the entire workbook
+      const meta = await this.enrichMetadata(fileName, combinedText, nlpEngine, errorContainer, {
+        domain: defaultDomain,
+        priority: defaultPriority,
+        author: defaultAuthor
+      });
+
+      const chunks: DocumentChunk[] = [];
+      for (const sheetData of rawSheetsData) {
+        chunks.push({
+          id: `${fileName}_${sheetData.sheetName}_chunk`,
+          filePath: virtualizePath(filePath),
+          fileName,
+          fileType: 'xlsx',
+          content: `Sheet: "${sheetData.sheetName}" | Tabular Data:\n` + sheetData.lines.join(';\n'),
+          author: meta.author || sheetData.author,
+          attendees: meta.attendees || [],
+          date: sheetData.date,
+          domain: meta.domain || sheetData.domain,
+          priority: meta.priority || sheetData.priority,
+          decisions: meta.decisions,
+          actionItems: meta.actionItems
+        });
       }
 
       return chunks;

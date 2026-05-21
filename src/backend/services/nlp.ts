@@ -13,6 +13,9 @@ export interface DocumentChunk {
   date: string;
   domain: string;
   priority: 'High' | 'Medium' | 'Low';
+  decisions?: string[];
+  actionItems?: string[];
+  queryCorrelation?: string;
 }
 
 export interface Citation {
@@ -23,6 +26,8 @@ export interface Citation {
   attendees: string[];
   date: string;
   matchedSnippet: string;
+  decisions?: string[];
+  actionItems?: string[];
 }
 
 export interface SuggestedRouting {
@@ -40,6 +45,7 @@ export interface QueryResponse {
   domain: string;
   priority: 'High' | 'Medium' | 'Low';
   executionPipeline?: string[];
+  cloudError?: { code: string; message: string; fallbackActive: boolean };
 }
 
 export interface INLPEngine {
@@ -67,6 +73,10 @@ const STOP_WORDS = new Set([
  */
 function stem(word: string): string {
   if (word.length <= 2) return word;
+
+  if (word.endsWith('ware')) {
+    return word; // e.g. firmware, software, hardware -> firmware, software, hardware
+  }
 
   if (word.endsWith('sses')) {
     return word.slice(0, -2); // classes -> class
@@ -106,7 +116,7 @@ function stem(word: string): string {
   return word;
 }
 
-function tokenize(text: string): string[] {
+export function tokenize(text: string): string[] {
   return text
     .toLowerCase()
     .replace(/[^\w\s-]/g, '')
@@ -268,6 +278,41 @@ export class OfflineNLPEngine implements INLPEngine {
         score += 0.1; // minor baseline attendee presence boost
       }
 
+      // Query Correlation Boosts for Approved Corrections
+      if (chunk.queryCorrelation) {
+        const userQueryClean = query.toLowerCase().replace(/[^\w\s]/g, '').trim();
+        const correlationClean = chunk.queryCorrelation.toLowerCase().replace(/[^\w\s]/g, '').trim();
+        
+        if (userQueryClean === correlationClean) {
+          score += 15.0; // Huge boost for exact query match!
+        } else {
+          // Check keyword overlap of the stemmed correlation tokens
+          const correlationTokens = tokenize(chunk.queryCorrelation);
+          let matchedCorrelationTokens = 0;
+          correlationTokens.forEach(t => {
+            if (queryTokens.includes(t)) {
+              matchedCorrelationTokens++;
+            }
+          });
+          if (correlationTokens.length > 0 && matchedCorrelationTokens === correlationTokens.length) {
+            score += 10.0; // All correlation words are present in user query
+          } else if (matchedCorrelationTokens > 0) {
+            score += 2.0 * matchedCorrelationTokens; // Partial keyword correlation boost
+          }
+        }
+      }
+
+      // Add a baseline boost for structured Office Documents to keep them competitive with highly-boosted meeting dialogue transcripts
+      if (score > 0) {
+        if (chunk.fileType === 'xlsx') {
+          score += 0.8; // Tabular spreadsheets have high information density per line
+        } else if (chunk.fileType === 'pptx') {
+          score += 0.6; // Slide decks present structured summaries
+        } else if (chunk.fileType === 'docx') {
+          score += 0.4; // Word documents contain specification details
+        }
+      }
+
       return { chunk, score };
     });
 
@@ -317,8 +362,8 @@ export class OfflineNLPEngine implements INLPEngine {
         matchedSnippet: m.chunk.content
       });
 
-      // Extract the most relevant sentence containing query keywords
-      const sentences = m.chunk.content.split(/[.!?\r\n]+/).map(s => s.trim()).filter(Boolean);
+      // Extract the most relevant sentence containing query keywords (ignoring decimal points like $0.12 or 1.4 using negative lookahead for digits)
+      const sentences = m.chunk.content.split(/[.!?](?!\d)|[\r\n]+/).map(s => s.trim()).filter(Boolean);
       let bestSentence = sentences[0] || m.chunk.content;
       let maxWeight = -1;
 
@@ -397,6 +442,22 @@ export class GeminiNLPEngine implements INLPEngine {
     return this.ai;
   }
 
+  public static translateError(err: any): { code: string; message: string } {
+    const errMsg = String(err.message || err).toLowerCase();
+    const status = err.status || err.statusCode || 0;
+
+    if (status === 403 || errMsg.includes('api_key_invalid') || errMsg.includes('invalid') || errMsg.includes('key') || errMsg.includes('403') || errMsg.includes('unauthorized')) {
+      return { code: 'INVALID_KEY', message: 'Invalid Google Gemini API Key. Please verify your key.' };
+    }
+    if (status === 429 || errMsg.includes('quota') || errMsg.includes('exhausted') || errMsg.includes('rate limit') || errMsg.includes('429') || errMsg.includes('resource_exhausted')) {
+      return { code: 'CREDITS_EXHAUSTED', message: 'Gemini Quota or Credits Depleted. Please check billing or limits.' };
+    }
+    if (errMsg.includes('timeout') || errMsg.includes('etimedout') || errMsg.includes('enotfound') || errMsg.includes('fetch failed')) {
+      return { code: 'CONNECTION_TIMEOUT', message: 'Gemini Connection Timeout or Network Offline.' };
+    }
+    return { code: 'UNKNOWN_CLOUD_ERROR', message: `Gemini API Error: ${err.message || err}` };
+  }
+
   public async extractMetadata(fileName: string, content: string): Promise<Partial<DocumentChunk>> {
     try {
       const ai = await this.getAIInstance();
@@ -410,7 +471,11 @@ Content Preview:
 Return ONLY a JSON object with this shape (no markdown wrapping, no extra keys):
 {
   "domain": "string (one of: Project Quantum, Project Helium, Project Horizon, DevOps / Infrastructure, Safety & Compliance, Product Commercials)",
-  "priority": "string (one of: High, Medium, Low)"
+  "priority": "string (one of: High, Medium, Low)",
+  "author": "string",
+  "attendees": ["string"],
+  "decisions": ["string"],
+  "actionItems": ["string"]
 }`,
       });
 
@@ -419,12 +484,15 @@ Return ONLY a JSON object with this shape (no markdown wrapping, no extra keys):
       const parsed = JSON.parse(cleanText);
       return {
         domain: parsed.domain || 'General',
-        priority: parsed.priority || 'Medium'
+        priority: parsed.priority || 'Medium',
+        author: parsed.author || undefined,
+        attendees: parsed.attendees || [],
+        decisions: parsed.decisions || [],
+        actionItems: parsed.actionItems || []
       };
     } catch (err) {
-      console.warn("Failed to extract metadata via Gemini, falling back:", err);
-      const fallback = new OfflineNLPEngine();
-      return fallback.extractMetadata(fileName, content);
+      console.warn("Failed to extract metadata via Gemini, throwing error to trigger fallback:", err);
+      throw err;
     }
   }
 
@@ -434,7 +502,30 @@ Return ONLY a JSON object with this shape (no markdown wrapping, no extra keys):
       const queryTokens = tokenize(query);
       const scored = chunks.map(chunk => {
         const tokens = new Set(tokenize(chunk.content));
-        const matches = queryTokens.filter(t => tokens.has(t)).length;
+        let matches = queryTokens.filter(t => tokens.has(t)).length;
+
+        // Apply query correlation boosts for Gemini RAG sorting
+        if (chunk.queryCorrelation) {
+          const userQueryClean = query.toLowerCase().replace(/[^\w\s]/g, '').trim();
+          const correlationClean = chunk.queryCorrelation.toLowerCase().replace(/[^\w\s]/g, '').trim();
+          if (userQueryClean === correlationClean) {
+            matches += 100; // Put it at the very top!
+          } else {
+            const correlationTokens = tokenize(chunk.queryCorrelation);
+            let matchedCorrelationTokens = 0;
+            correlationTokens.forEach(t => {
+              if (queryTokens.includes(t)) {
+                matchedCorrelationTokens++;
+              }
+            });
+            if (correlationTokens.length > 0 && matchedCorrelationTokens === correlationTokens.length) {
+              matches += 50; // Put it at the top!
+            } else if (matchedCorrelationTokens > 0) {
+              matches += 5 * matchedCorrelationTokens;
+            }
+          }
+        }
+
         return { chunk, score: matches };
       }).sort((a, b) => b.score - a.score);
 
@@ -495,7 +586,9 @@ Return ONLY the raw JSON object. Do not wrap in markdown \`\`\`json blocks.`;
             author: original.author,
             attendees: original.attendees,
             date: original.date,
-            matchedSnippet: cit.matchedSnippet || original.content.substring(0, 200)
+            matchedSnippet: cit.matchedSnippet || original.content.substring(0, 200),
+            decisions: original.decisions || [],
+            actionItems: original.actionItems || []
           };
         }
         return null;
@@ -537,9 +630,227 @@ Return ONLY the raw JSON object. Do not wrap in markdown \`\`\`json blocks.`;
         priority: prio
       };
     } catch (err) {
-      console.warn("Failed Gemini Query, falling back to offline retrieval:", err);
-      const fallback = new OfflineNLPEngine();
-      return fallback.queryDocuments(query, chunks);
+      console.warn("Failed Gemini Query, throwing to trigger fallback:", err);
+      throw err;
+    }
+  }
+}
+
+/**
+ * ---------------------------------------------------------------------
+ * CLOUD STRATEGY: Azure OpenAI Chat Completion REST integration
+ * ---------------------------------------------------------------------
+ */
+export class AzureOpenAINLPEngine implements INLPEngine {
+  private apiKey: string;
+  private endpoint: string;
+  private deployment: string;
+
+  constructor(apiKey: string, endpoint: string, deployment: string) {
+    this.apiKey = apiKey;
+    this.endpoint = endpoint.endsWith('/') ? endpoint.slice(0, -1) : endpoint;
+    this.deployment = deployment;
+  }
+
+  public static translateError(err: any): { code: string; message: string } {
+    const errMsg = String(err.message || err).toLowerCase();
+    const status = err.status || err.statusCode || 0;
+
+    if (status === 401 || errMsg.includes('unauthorized') || errMsg.includes('401') || errMsg.includes('invalid api key')) {
+      return { code: 'INVALID_KEY', message: 'Invalid Azure OpenAI API Key. Please verify your key.' };
+    }
+    if (status === 404 || errMsg.includes('not found') || errMsg.includes('404') || errMsg.includes('deploymentnotfound') || errMsg.includes('endpoint')) {
+      return { code: 'INVALID_ENDPOINT', message: 'Azure Endpoint URL or Deployment Name Not Found. Please check endpoint and deployment.' };
+    }
+    if (status === 429 || errMsg.includes('too many requests') || errMsg.includes('429') || errMsg.includes('quota') || errMsg.includes('exhausted') || errMsg.includes('rate limit')) {
+      return { code: 'CREDITS_EXHAUSTED', message: 'Azure Resource Limits Exceeded (Credits Exhausted or Rate Limited).' };
+    }
+    if (errMsg.includes('timeout') || errMsg.includes('etimedout') || errMsg.includes('enotfound') || errMsg.includes('fetch failed')) {
+      return { code: 'CONNECTION_TIMEOUT', message: 'Azure Connection Timeout or Network Offline.' };
+    }
+    return { code: 'UNKNOWN_CLOUD_ERROR', message: `Azure OpenAI Error: ${err.message || err}` };
+  }
+
+  public async extractMetadata(fileName: string, content: string): Promise<Partial<DocumentChunk>> {
+    try {
+      const url = `${this.endpoint}/openai/deployments/${this.deployment}/chat/completions?api-version=2024-02-01`;
+      const prompt = `Extract metadata for this document in JSON format.
+Document Name: "${fileName}"
+Content Preview:
+"${content.substring(0, 3000)}"
+
+Return ONLY a JSON object with this shape (no markdown wrapping, no extra keys):
+{
+  "domain": "string (one of: Project Quantum, Project Helium, Project Horizon, DevOps / Infrastructure, Safety & Compliance, Product Commercials)",
+  "priority": "string (one of: High, Medium, Low)",
+  "author": "string",
+  "attendees": ["string"],
+  "decisions": ["string"],
+  "actionItems": ["string"]
+}`;
+
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'api-key': this.apiKey
+        },
+        body: JSON.stringify({
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.1,
+          max_tokens: 800
+        })
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        const errorMsg = errorData.error?.message || `HTTP ${res.status} ${res.statusText}`;
+        const errorObj = new Error(errorMsg) as any;
+        errorObj.status = res.status;
+        throw errorObj;
+      }
+
+      const responseData: any = await res.json();
+      const responseText = responseData.choices?.[0]?.message?.content || '{}';
+      const cleanText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+      const parsed = JSON.parse(cleanText);
+
+      return {
+        domain: parsed.domain || 'General',
+        priority: parsed.priority || 'Medium',
+        author: parsed.author || undefined,
+        attendees: parsed.attendees || [],
+        decisions: parsed.decisions || [],
+        actionItems: parsed.actionItems || []
+      };
+    } catch (err) {
+      console.warn("Failed to extract metadata via Azure OpenAI REST, throwing error to trigger fallback:", err);
+      throw err;
+    }
+  }
+
+  public async queryDocuments(query: string, chunks: DocumentChunk[]): Promise<QueryResponse> {
+    const queryTokens = tokenize(query);
+    const scored = chunks.map(chunk => {
+      const tokens = new Set(tokenize(chunk.content));
+      const matches = queryTokens.filter(t => tokens.has(t)).length;
+      return { chunk, score: matches };
+    }).sort((a, b) => b.score - a.score);
+
+    const topChunks = scored.slice(0, 6).map(s => s.chunk);
+    const contextString = topChunks.map((c, idx) => {
+      return `[Chunk ID: ${c.id} | Source: ${c.fileName} | Author/Attendees: ${c.author || c.attendees?.join(',')} | Date: ${c.date} | Domain: ${c.domain} | Priority: ${c.priority}]\nContent: ${c.content}`;
+    }).join('\n\n---\n\n');
+
+    const prompt = `You are the AetherGrid Technologies Knowledge Engine. 
+You answer employee queries using ONLY the retrieved corporate corpus chunks below.
+Every claim you make must cite the [Chunk ID] in the text (e.g. "[quantum_spec_c1]").
+
+Retrieved Chunks:
+${contextString}
+
+User Question: "${query}"
+
+Instructions:
+1. Synthesize a comprehensive, professional, natural language answer.
+2. Embed the Chunk ID inline at the end of claims (e.g. "Project Quantum validation achieved an MAE of 1.15 MW [quantum_spec_c1].")
+3. Assess your confidence score in the answer (on a scale from 0.0 to 1.0) based on how well the context answered the question.
+4. Output your response as a strict JSON object with this exact shape:
+{
+  "answer": "detailed text with inline citations",
+  "confidenceScore": 0.85,
+  "domain": "dominant topic area",
+  "priority": "dominant priority rating",
+  "citations": [
+    {
+      "chunkId": "string representing the cited chunk ID",
+      "matchedSnippet": "precise sentence or grid string matching the citation from the chunk content"
+    }
+  ]
+}
+Return ONLY the raw JSON object. Do not wrap in markdown \`\`\`json blocks.`;
+
+    try {
+      const url = `${this.endpoint}/openai/deployments/${this.deployment}/chat/completions?api-version=2024-02-01`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'api-key': this.apiKey
+        },
+        body: JSON.stringify({
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.2,
+          max_tokens: 1200
+        })
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        const errorMsg = errorData.error?.message || `HTTP ${res.status} ${res.statusText}`;
+        const errorObj = new Error(errorMsg) as any;
+        errorObj.status = res.status;
+        throw errorObj;
+      }
+
+      const responseData: any = await res.json();
+      const responseText = responseData.choices?.[0]?.message?.content || '{}';
+      const cleanText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+      const parsed = JSON.parse(cleanText);
+
+      const fullCitations = (parsed.citations || []).map((cit: any) => {
+        const original = topChunks.find(c => c.id === cit.chunkId);
+        if (original) {
+          return {
+            chunkId: original.id,
+            fileName: original.fileName,
+            filePath: original.filePath,
+            author: original.author,
+            attendees: original.attendees || [],
+            date: original.date,
+            matchedSnippet: cit.matchedSnippet || original.content.substring(0, 200),
+            decisions: original.decisions || [],
+            actionItems: original.actionItems || []
+          };
+        }
+        return null;
+      }).filter(Boolean) as Citation[];
+
+      let UserAnswer = parsed.answer || '';
+      const finalCitations: Citation[] = [];
+
+      fullCitations.forEach((cit, idx) => {
+        const marker = idx + 1;
+        const markerRegex = new RegExp(`\\[${cit.chunkId}\\]`, 'g');
+        if (UserAnswer.match(markerRegex)) {
+          UserAnswer = UserAnswer.replace(markerRegex, `[${marker}]`);
+          finalCitations.push(cit);
+        }
+      });
+
+      if (finalCitations.length === 0 && fullCitations.length > 0) {
+        fullCitations.forEach((cit, idx) => {
+          finalCitations.push(cit);
+          UserAnswer += ` [${idx + 1}]`;
+        });
+      }
+
+      const conf = parsed.confidenceScore || 0.8;
+      const dom = parsed.domain || topChunks[0]?.domain || 'General';
+      const prio = parsed.priority || topChunks[0]?.priority || 'Medium';
+
+      await dbService.logQuery(query, conf, dom);
+
+      return {
+        answer: UserAnswer,
+        confidenceScore: conf,
+        citations: finalCitations,
+        domain: dom,
+        priority: prio
+      };
+    } catch (err) {
+      console.warn("Failed Azure Query, throwing to trigger fallback:", err);
+      throw err;
     }
   }
 }

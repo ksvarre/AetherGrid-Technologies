@@ -1,100 +1,219 @@
-# AetherGrid Technologies — Exercise 1 Reviewer Guide
+# AetherGrid Technologies — Exercises 1, 2, & 3 Reviewer Guide
 
-This manual serves as a definitive guide for evaluating and auditing the **Exercise 1 (Meeting Transcripts: Ingestion, Enrichment, & Query API)** deliverable in this repository.
+This manual serves as a definitive guide for evaluating and auditing all three exercises in this repository:
+*   **Exercise 1**: Meeting Transcripts — Ingestion, Enrichment, & Query API
+*   **Exercise 2**: Office Documents — Multi-Format Traceability, Expert Routing, & Gap Capture
+*   **Exercise 3**: User-Facing Application — React Dashboard, Metrics, & Success Measurement
 
 To align with modern software engineering best practices, this standalone system was planned, secured, implemented, and verified using the structured **Kris Test Architecture** workflow.
 
 ---
 
-## 🏛️ Ingestion & Core Architecture
+## 🏛️ Exercise 1: Ingestion & Core Architecture
 
 The system operates as an **in-memory semantic query indexer** backed by a **pruning-aware high-performance filesystem scanner** and an **Express.js API server**. 
 
-### 1. File Scope Restrictive Ingestion
-*   **Active Directory**: Ingestion is restricted **exclusively** to the `data/transcripts/` folder containing synthetic Markdown (`.md`) files.
-*   **Defunct Office Parsers**: Mammoth (Word), SheetJS (Excel), and OfficeParser (PowerPoint) ingestion paths have been completely bypassed for this pure Exercise 1 deliverable, keeping startup, memory usage, and build times exceptionally light and secure.
-*   **Verification Location**: [parser.ts:L75-103](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/src/backend/services/parser.ts#L75-L103) shows the restricted folder traversal loop.
+### 1. File Scope & Multi-Format Ingestion
+*   **Transcript Directory**: Ingestion scans `data/transcripts/` for synthetic Markdown (`.md`) meeting transcripts.
+*   **Office Document Directory**: Ingestion also scans `data/documents/` for `.docx/.doc`, `.pptx/.ppt`, and `.xlsx/.xls` files (both modern XML-based and legacy binary Office formats).
+*   **Security Guards**: Office files undergo magic-byte validation (ZIP/PK header for modern formats, OLE2/CFB for legacy) and a 50MB size limit before parsing. Disguised or oversized files are rejected with clear console warnings.
+*   **Verification Location**: [parser.ts](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/src/backend/services/parser.ts) — `ingestAll()` method handles both directories with cache-aware hot paths.
 
 ### 2. Warm Boot Cache & Self-Cleaning Pruning
 *   **Index Database Cache**: Semantic text chunks and metadata calculations are written to `data/db/indexed_chunks.json` mapped to modified timestamps (`mtimeMs`).
-*   **Pruning Mechanism**: Any previously cached office documents (e.g., Excel/Word) are automatically identified as "out of scope" and pruned from the ledger upon booting. This keeps the active RAM index 100% transcript-focused.
-*   **Verification Location**: [parser.ts:L105-115](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/src/backend/services/parser.ts#L105-L115) shows the prune & save block.
+*   **Pruning Mechanism**: Deleted files are automatically pruned from the cache ledger on each boot. This keeps the active RAM index synchronized with the filesystem.
 
 ---
 
-## 🏷️ Enrichment & Dynamic Metadata Extraction (Exercise 1)
+## 🏷️ Exercise 1: Enrichment & Dynamic Metadata Extraction
 
 The pipeline dynamically extracts and derives structured metadata directly from pure Markdown dialogue transcripts using clean, zero-dependency TS/JS heuristics, with a backward-compatible parser for YAML frontmatter headers if present:
 
-1.  **Date Extraction**: Derived from filename patterns using a regex that extracts `YYYY_MM_DD` structures (e.g., `transcript_2026_03_02_database_scaling_crisis.md` $\rightarrow$ `2026-03-02`).
-    *   *Verification Location*: [parser.ts:L139-144](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/src/backend/services/parser.ts#L139-L144)
+1.  **Date Extraction**: Derived from filename patterns using a regex that extracts `YYYY_MM_DD` structures (e.g., `transcript_2026_03_02_database_scaling_crisis.md` → `2026-03-02`).
 2.  **Attendees (Unique Speakers)**: Formulated by scanning the transcript dialogue using regex matching dialogue headers `**Speaker Name**:` or `**Dr. Speaker Name**:` and converting them into a unique trimmed array.
-    *   *Verification Location*: [parser.ts:L146-164](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/src/backend/services/parser.ts#L146-L164)
 3.  **Facilitator (Author Binding)**: Deduced dynamically as the first speaker identified in the transcript dialogue. The facilitator is bound to the chunk's primary `author` property.
-    *   *Verification Location*: [parser.ts:L214-215](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/src/backend/services/parser.ts#L214-L215)
-4.  **Domain & Priority**: The file contents are evaluated against key-phrase vocabularies to determine the topic `domain` (e.g., "quantum", "MAE" $\rightarrow$ Project Quantum; "sensor", "helium" $\rightarrow$ Project Helium) and `priority` level (classified as High, Medium, or Low based on critical keywords).
-    *   *Verification Location*: [parser.ts:L166-212](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/src/backend/services/parser.ts#L166-L212)
+4.  **Domain & Priority**: The file contents are evaluated against key-phrase vocabularies to determine the topic `domain` (e.g., "quantum", "MAE" → Project Quantum; "sensor", "helium" → Project Helium) and `priority` level.
 5.  **Backward Compatibility**: The system maintains the frontmatter parser block as a fallback strategy. If a reviewer supplies a custom Markdown transcript that starts with `---`, the system will honor the defined fields.
-    *   *Verification Location*: [parser.ts:L217-240](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/src/backend/services/parser.ts#L217-L240)
 
 ---
 
-## 🔍 Retrieval & Query API (`POST /api/query`)
+## 🔍 Exercise 1: Retrieval & Query API (`POST /api/query`)
 
 The Express query API receives user queries, processes them offline via TF-IDF cosine-similarity, and synthesizes natural language answers with granular inline citations.
 
 ### 1. Stemming & Suffix Normalization
-*   Queries and chunks are split and cleaned of standard noise stop words. Suffixes (`-s`, `-es`, `-ies`, `-ing`, `-ed`) are stemmed using a robust Porter-style grammatical stemmer.
+*   Queries and chunks are split and cleaned of standard noise stop words. Suffixes (`-s`, `-es`, `-ies`, `-ing`, `-ed`) are stemmed using a robust Porter-style grammatical stemmer with special preservation rules (e.g., `firmware` → `firmware`, not `firmwar`).
 *   *Verification Location*: [nlp.ts:L68-116](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/src/backend/services/nlp.ts#L68-L116)
 
 ### 2. Semantic Query Scoring & Affinity Boosting
-*   **Cosine similarity weights** are calibrated across the RAM corpus to match the stemmed query tokens. Boosts are given for project names (Quantum, Helium, Horizon) and employee first/last names (Vance, Rostova, Patel, Chen, Marcus, Amira, David, Sarah, Elena).
-*   **Conversational Filler Downweighting**: Transition words (e.g., `say`, `said`, `says`, `ask`, `asks`) are downweighted by 90% in IDF to avoid transitions crowding out true relevance.
-*   **Dialogue-Attribution Extraction**: Active dialogue speakers are extracted via `getChunkSpeaker` parsing speaker prefixes (e.g. `**Marcus Vance**:`) rather than attributing quotes to the facilitator.
-*   **Dialogue Speaker-Topic Affinity Boost**: Adds a $+0.5$ baseline for active speaker query matches, plus a $+1.5$ boost per matching technical keyword contained in that active speaker's dialog block.
-*   *Verification Location*: [nlp.ts:L117-123](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/src/backend/services/nlp.ts#L117-L123) (speaker attribution) and [nlp.ts:L200-269](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/src/backend/services/nlp.ts#L200-L269) (boosting and affinity scoring)
+*   **Cosine similarity weights** are calibrated across the RAM corpus to match the stemmed query tokens with project name and employee name boosts.
+*   **Conversational Filler Downweighting**: Transition words (e.g., `say`, `said`) are downweighted by 90%.
+*   **Dialogue Speaker-Topic Affinity Boost**: Active speaker match + technical keyword cross-reference.
+*   **Query Correlation Boosts**: Approved corrections are linked to their originating query. When the same or similar query is asked again, the approved correction chunk receives a massive score boost, ensuring the self-healing feedback loop works.
 
 ### 3. Citations & Synthesized Answers
 *   Inline citations return a user-friendly index marker (`[1]`, `[2]`).
-*   **Entity-Weighted Snippet Selector**: Snippets are split by newlines as well as traditional punctuation. Matching query tokens are weighted (technical keywords 3.0, speaker names 1.0, fillers 0.1) to select the most relevant sentence for citation. This guarantees technical terms (e.g., `"firmware update bricking"`) are quoted instead of standard speaker names or greetings.
-*   The query result contains a detailed citation mapping representing chunk IDs, source file names, virtualized file paths, original authors (facilitators), exact matched quotes, dates, and the attendees array.
-*   *Verification Location*: [nlp.ts:L320-344](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/src/backend/services/nlp.ts#L320-L344) (weighted sentence selection) and [nlp.ts:L305-319](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/src/backend/services/nlp.ts#L305-L319) (citation metadata)
+*   **Entity-Weighted Snippet Selector**: Technical keywords receive 3.0x weight, speaker names 1.0x, fillers 0.1x.
+*   Full citation metadata: chunk IDs, source file names, virtualized paths, authors, attendees, dates, matched snippets.
+
+---
+
+## 📄 Exercise 2: Multi-Format Office Document Ingestion
+
+### Supported Formats
+| Format | Parser | Notes |
+|--------|--------|-------|
+| `.docx` / `.doc` | Mammoth | Modern XML and legacy binary Word documents |
+| `.pptx` / `.ppt` | OfficeParser | PowerPoint slide decks |
+| `.xlsx` / `.xls` | SheetJS (xlsx) | Excel spreadsheets — row-by-row tabular extraction |
+
+### Security Hardening for Untrusted Files
+*   **File Size Limit**: Files exceeding 50MB are rejected before parsing to prevent memory exhaustion.
+*   **Magic-Byte Validation**: Every file's header bytes are checked against known Office signatures (ZIP/PK for Open XML formats, OLE2/D0CF11E0 for legacy binary formats). Files with unrecognized headers are skipped.
+*   **Path Virtualization**: All absolute disk paths are stripped and replaced with relative workspace paths in API responses to prevent information disclosure.
+
+---
+
+## 🔗 Exercise 2: Multi-Hop Traceability
+
+Every search result provides **full citation chains** from the answer text back to the source document:
+
+```
+User Query → NLP Engine → Scored Chunks → Inline [1] [2] Markers → Citation Object
+                                                                        ↳ fileName, filePath, author, attendees, date, matchedSnippet
+```
+
+Clicking a citation marker in the UI opens a slide-out drawer showing the complete provenance: source file, workspace path (with download button), author/publisher, attendees list, publication date, and the exact indexed text segment. Excel data is rendered as a formatted table.
+
+---
+
+## 🧭 Exercise 2: Expert Routing & Gap Capture
+
+### Low-Confidence Routing
+When a query scores below **40% confidence**, the system automatically:
+1.  **Identifies the relevant expert** from a 5-person expert directory mapped by domain.
+2.  **Explains why**: The rationale now includes the closest matched content snippet (even if low-scoring), referencing the source file and author, plus the expert's domain role.
+3.  **Drafts a Microsoft Teams message**: A personalized, editable message template ready for the user to review, modify, and send directly to the expert.
+
+*   *Verification Location*: [routing.ts](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/src/backend/services/routing.ts) — `generateRouting()` accepts optional `topMatchedChunks` for snippet-aware rationale.
+
+### Feedback & Gap Capture Ledger
+*   Users can mark answers as **👍 Correct** or **👎 Inaccurate** and submit correction text.
+*   All feedback is persisted to `data/db/feedback.json` with full metadata (query, original answer, confidence score, correction text, domain, timestamp).
+*   Team leads review gaps in the **Audit Queue** and can **Approve** (injects correction into live RAM index) or **Dismiss** (marks as reviewed).
+*   Approved corrections include a `resolvedTimestamp` for UCRV metric tracking.
+
+---
+
+## 🖥️ Exercise 3: React User-Facing Application
+
+### Application Architecture
+*   **Framework**: React 18 + Vite + TypeScript
+*   **Styling**: Custom CSS design system with glassmorphism, dark theme, and micro-animations
+*   **Layout**: Sidebar navigation with three tabs: GridTrace Core (search), Audit Queue, AetherPulse Metrics
+
+### Search & Cite UI (GridTrace Core)
+*   Natural language search bar → synthesized answers with clickable `[1]` `[2]` citation markers.
+*   Citation drawer with full provenance metadata and document download.
+*   **Smart Table Rendering**: Excel-sourced citations are detected by file extension and rendered as proper HTML tables with column headers, instead of raw text.
+*   Inline confidence bar with color-coded scoring.
+
+### Low-Confidence Routing Panel
+*   Automatically appears below search results when confidence < 40%.
+*   Shows the matched expert, their domain rationale (with content snippet context), and an **editable** Microsoft Teams message draft.
+*   "Copy Teams Message" button copies the customized draft to clipboard.
+
+### Audit Queue (Team Lead Portal)
+*   Filterable, sortable table of all user-flagged gaps and corrections.
+*   Domain filter dropdown + resolved/unresolved toggle.
+*   Approve/Dismiss actions with background auto-refresh polling (10s interval).
+*   Knowledge Gap Hotspot panels showing anonymized query patterns by domain.
+
+### AetherPulse Metrics Dashboard
+*   **System Health Index** gauge with color-coded LED indicator.
+*   **Rolling Average Confidence** and **User Rejection Rate** metrics.
+*   **Knowledge Gap Hotspots** with expandable domain ledgers showing anonymized queries.
+*   Interactive tooltip explaining the 85% starting baseline calibration.
+
+---
+
+## 🎯 Exercise 3: 30-Day Success Metric (UCRV)
+
+The single metric tracked for the first 30 days post-launch is **User Correction Resolution Velocity (UCRV)**: the median elapsed time between a user-flagged knowledge gap (`feedback.timestamp`) and its team lead resolution (`feedback.resolvedTimestamp`).
+
+*   **Measurement**: Compute `resolvedTimestamp − timestamp` for all resolved feedback items in the 30-day window; take the median.
+*   **Target**: UCRV ≤ 48 hours.
+*   **Why this metric**: It directly measures the speed of the self-healing feedback loop — how quickly tribal knowledge flows back into the searchable corpus after users flag gaps.
+*   **Verification Location**: `resolvedTimestamp` is set in [database.ts](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/src/backend/services/database.ts) `resolveFeedback()`. The metric definition lives in [ARCHITECTURE.md](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/docs/ARCHITECTURE.md).
+
+---
+
+## 📊 Telemetry Metrics & Safe 85% Starting Baseline
+
+### Mathematical Formulas
+*   **User Rejection Rate ($R$)**: Ratio of corrections and rejections to total queries.
+*   **Average Search Confidence ($C$)**: Rolling average of matching scores.
+*   **System Health Index ($H$)**: $C \times (1 - R)$.
+
+### Pre-Calibrated Safe Starting State (85%)
+When no queries are logged, the system defaults to $C = 0.85$, $R = 0$, $H = 85\%$ to prevent false-positive degradation warnings on fresh boot.
 
 ---
 
 ## 🛡️ Security Sandboxing & Hardening
 
-Adhering to the zero-trust STRIDE threat model, three critical security gates are enforced:
+1.  **Path Traversal Prevention**: Physical absolute directories → virtualized relative workspace paths.
+2.  **HTML Input Neutralization (XSS Prevention)**: All user inputs processed via `escapeHtml()` before persistence.
+3.  **Atomic File Writes**: `safeWriteJson()` writes to temp file then renames, preventing corruption.
+4.  **Office File Validation**: Magic-byte header checks + 50MB size limits on ingested documents.
 
-1.  **Path Traversal Prevention (Virtualized Relative Routes)**: Physical absolute server directories are stripped into relative workspace virtualized paths (e.g. `data/transcripts/filename.md`) inside JSON citations.
-    *   *Verification Location*: [parser.ts:L21-23](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/src/backend/services/parser.ts#L21-L23)
-2.  **HTML Input Neutralization (Stored XSS Prevention)**: Query inputs, feedback items, and corrections are processed via HTML entity encoding (`escapeHtml`) before being written to metrics ledgers.
-    *   *Verification Location*: [database.ts:L41-50](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/src/backend/services/database.ts#L41-L50)
-3.  **Buffer Bloat Hardening (Express limits)**: Express routing has rigid content type and body parser limits.
+---
+
+## 🔵 Advanced Feature Verification (Phase 3)
+
+The AetherGrid Knowledge Tracer is enhanced with Phase 3 diagnostics that can be actively audited by the reviewer:
+
+### 1. Verification of Jaccard Reformulation Rate
+*   **How it works**: When a user inputs consecutive queries within 5 minutes that share $\ge 40\%$ word tokens (stem-normalized), the system flags a "reformulation".
+*   **Reviewer Test**: 
+    1. In the React Search Console, search for `"how to calibrate thermal edge nodes"`.
+    2. Within 5 minutes, search for `"thermal edge node calibration steps"`.
+    3. Navigate to the **System Analytics** tab. You will see the **Reformulation Rate** rise from $0\%$ to a positive value.
+    4. Click the **Reformulation Rate** card (or the "View Details" button). A detailed panel will reveal the anonymous tracked pair: `"how to calibrate thermal edge nodes" → "thermal edge node calibration steps"`.
+
+### 2. Verification of 3-Tier Cognitive Routing & Search Scoping
+*   **Tier 1 (High Confidence content match)**: Search `"Dr. Elena Rostova neural network forecasting"` $\rightarrow$ Returns exact specs from `quantum_ml_forecasting_spec.docx` with inline citations.
+*   **Tier 3 (Graceful Off-Topic Null Routing)**: Search `"what is the weather today"` or `"who is the president"` $\rightarrow$ Returns a friendly prompt indicating that the query is out of scope and cannot be routed to any corporate domain, preventing false alarms.
+
+### 3. Verification of Excel Tabular Layouts
+*   **Reviewer Test**: Search `"Project Quantum model benchmarks MAE"` and click on the citation drawer for `quantum_model_benchmarks_v1.xlsx` $\rightarrow$ The matched data cell values are rendered as a beautiful, high-contrast HTML table grid layout inside the citation drawer rather than a raw text blob.
+
+### 4. Verification of HTML Entity Sanitization Fix
+*   **Reviewer Test**: Submit a feedback correction containing the word `"couldn't"` or `"doesn't"`. In previous versions, Stored XSS mitigation escaped single quotes, causing it to display as `"couldn&#x27;t"`. The sanitization rules are now adjusted to preserve quotes safely, displaying correct text formatting across all inputs, tooltips, and lists.
 
 ---
 
 ## 🚀 Playbooks & Verification Commands
 
-Three npm-bound terminal scripts are registered to facilitate direct, frictionless verification of the codebase:
-
-### 1. Compile Backend TypeScript
+### 1. Install Dependencies
 ```bash
-npm run build:backend
+npm install
 ```
 
-### 2. Start the Express API Service (Port 5000)
+### 2. Start the Full Application (Backend + Frontend)
 ```bash
 npm run dev
 ```
-*(Leave this running in one console pane).*
+*(Launches Express API on port 5000 and React Vite dev server on port 5173).*
 
 ### 3. Launch the Interactive Review Console
 ```bash
 npm run review
 ```
-*(Runs in another console pane. High-fidelity ANSI menus will guide you through testing).*
+*(High-fidelity ANSI menus guiding through testing of all three exercises).*
 
-*   **Option 1: Run Automated Verification Suite**: Instantly executes Exercise 1 assertions, checking topic matching, dialogue speaker preservation, derived date mapping, and domain classification.
-*   **Option 2: Interactive Query Sandbox**: Type free-form queries (e.g. "What did Elena target for MAE?") to see the full synthesized answer, granular metadata, and the **synchronous `executionPipeline` trace logging** showing stemmed query tokens, calculated weights, and scores.
-*   **Option 3: Print cURL Commands**: Displays pre-formatted copy-pasteable `cURL` commands to query the Express API.
+### 4. Run Automated Verification Suite
+```bash
+npm run verify
+```
+*(Executes programmatic assertions for Exercise 1 ingestion, Exercise 2 routing and feedback, and Exercise 3 metrics).*

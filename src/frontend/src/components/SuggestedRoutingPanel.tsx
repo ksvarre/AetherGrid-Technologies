@@ -8,10 +8,11 @@ interface SuggestedRoutingPanelProps {
 
 export const SuggestedRoutingPanel: React.FC<SuggestedRoutingPanelProps> = ({ routing, query }) => {
   const [copied, setCopied] = useState(false);
+  const [draftText, setDraftText] = useState(routing.draftedQuestion);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(
-      `To: ${routing.recipientName} (${routing.recipientEmail})\n\n${routing.draftedQuestion}`
+      `To: ${routing.recipientName} (${routing.recipientEmail})\n\n${draftText}`
     );
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -45,13 +46,13 @@ export const SuggestedRoutingPanel: React.FC<SuggestedRoutingPanelProps> = ({ ro
           </div>
         </div>
 
-        {/* Drafted Question Card */}
+        {/* Drafted Question Card — Editable by the user before copying */}
         <div className="routing-draft-card">
-          <div className="routing-draft-title">Drafted Slack / Teams Question:</div>
+          <div className="routing-draft-title">Drafted Microsoft Teams Message:</div>
           <textarea 
             className="routing-draft-text" 
-            value={routing.draftedQuestion} 
-            readOnly
+            value={draftText}
+            onChange={(e) => setDraftText(e.target.value)}
           />
           <button 
             className={`routing-copy-btn ${copied ? 'copied' : ''}`}
@@ -74,7 +75,7 @@ export const SuggestedRoutingPanel: React.FC<SuggestedRoutingPanelProps> = ({ ro
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                 </svg>
-                <span>Copy Slack Template</span>
+                <span>Copy Teams Message</span>
               </>
             )}
           </button>

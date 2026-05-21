@@ -1,5 +1,5 @@
 # WORKFLOW: Pre-Execution Reference Document Review
-**Version**: 0.1
+**Version**: 0.2
 **Date**: 2026-05-21
 **Author**: Workflow Architect
 **Status**: Approved
@@ -17,7 +17,8 @@ This workflow describes how an autonomous agent must perform a rapid discovery a
 ---
 
 ## Prerequisites
-- The `/docs` folder must be populated with active system references (e.g. `BACKEND.md`, `ARCHITECTURE.md`, `FRONTEND.md`, `DECISIONS.md`, `TASK.md`).
+- The `/docs` folder must be populated with active system references (e.g. `BACKEND.md`, `ARCHITECTURE.md`, `FRONTEND.md`, `DECISIONS.md`, `TASK.md`, `REVIEWER_GUIDE.md`).
+- The `/docs/workflows/` subdirectory must contain the workflow registry (`REGISTRY.md`) and individual workflow specs.
 - The agent must be in Planning Mode or initiating a new session block.
 
 ---
@@ -51,6 +52,8 @@ This workflow describes how an autonomous agent must perform a rapid discovery a
 *   **Data flows, system dependencies, STRIDE perimeters** $\rightarrow$ Map to `docs/ARCHITECTURE.md` and `docs/DECISIONS.md`.
 *   **React components, styles, visual transitions** $\rightarrow$ Map to `docs/FRONTEND.md` and `docs/DECISIONS.md`.
 *   **Task checklist alignment, current phase progress** $\rightarrow$ Map to `docs/TASK.md`.
+*   **Workflow contracts, state transitions, handoff schemas** $\rightarrow$ Map to `docs/workflows/REGISTRY.md` and specific `WORKFLOW-*.md` specs.
+*   **Reviewer evaluation criteria, exercise requirements** $\rightarrow$ Map to `docs/REVIEWER_GUIDE.md`.
 **Timeout**: 1s
 **Input**: Reference file list & request scope
 **Output on SUCCESS**: Mapped document paths -> GO TO STEP 3
@@ -117,3 +120,4 @@ This workflow is entirely executed within the agent's pre-planning loop.
 | Date | Finding | Action taken |
 |---|---|---|
 | 2026-05-21 | Initial pre-execution workflow spec created | Enforced pre-plan reading constraints |
+| 2026-05-21 | `docs/REVIEWER_GUIDE.md` and `docs/workflows/` directory added to project — spec didn't cover | Added to Step 2 document context mapping |

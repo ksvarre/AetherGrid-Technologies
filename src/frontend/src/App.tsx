@@ -4,6 +4,7 @@ import type { QueryResponse } from './components/SearchConsole';
 import { SuggestedRoutingPanel } from './components/SuggestedRoutingPanel';
 import { AuditQueue } from './components/AuditQueue';
 import { AetherPulseAnalytics } from './components/AetherPulseAnalytics';
+import { CloudSettingsPanel } from './components/CloudSettingsPanel';
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'search' | 'audit' | 'analytics'>('search');
@@ -11,6 +12,7 @@ export const App: React.FC = () => {
   const [currentQuery, setCurrentQuery] = useState<string>('');
   const [isSearchLoading, setIsSearchLoading] = useState<boolean>(false);
   const [systemHealth, setSystemHealth] = useState<'Healthy' | 'Warning' | 'Critical'>('Healthy');
+  const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
 
   const fetchSystemStatus = async () => {
     try {
@@ -100,16 +102,58 @@ export const App: React.FC = () => {
             <p>Smart Utility Balance & Grid Optimization Asset Ledger</p>
           </div>
 
-          {/* Glowing led badge */}
-          <div className="status-badge">
-            <div className={`status-dot ${
-              systemHealth === 'Healthy' ? 'healthy' : systemHealth === 'Warning' ? 'warning' : 'critical'
-            }`}></div>
-            <span className="status-text" style={{
-              color: systemHealth === 'Healthy' ? 'var(--color-success)' : systemHealth === 'Warning' ? 'var(--color-warning)' : 'var(--color-danger)'
-            }}>
-              SYSTEM {systemHealth === 'Healthy' ? 'ONLINE' : systemHealth === 'Warning' ? 'DEGRADED' : 'CRITICAL'}
-            </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            {/* Glowing led badge */}
+            <div className="status-badge">
+              <div className={`status-dot ${
+                systemHealth === 'Healthy' ? 'healthy' : systemHealth === 'Warning' ? 'warning' : 'critical'
+              }`}></div>
+              <span className="status-text" style={{
+                color: systemHealth === 'Healthy' ? 'var(--color-success)' : systemHealth === 'Warning' ? 'var(--color-warning)' : 'var(--color-danger)'
+              }}>
+                SYSTEM {systemHealth === 'Healthy' ? 'ONLINE' : systemHealth === 'Warning' ? 'DEGRADED' : 'CRITICAL'}
+              </span>
+            </div>
+
+            {/* Premium Settings Gear Button */}
+            <button
+              onClick={() => setIsSettingsOpen(true)}
+              title="Cloud LLM & Ingestion Gateway Strategy Settings"
+              style={{
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                borderRadius: '8px',
+                width: '38px',
+                height: '38px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                color: 'var(--text-secondary)',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                outline: 'none'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = 'rgba(0, 242, 254, 0.08)';
+                e.currentTarget.style.borderColor = 'rgba(0, 242, 254, 0.35)';
+                e.currentTarget.style.color = 'var(--accent-cyan)';
+                e.currentTarget.style.boxShadow = '0 0 15px rgba(0, 242, 254, 0.2)';
+                e.currentTarget.style.transform = 'rotate(45deg) scale(1.05)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                e.currentTarget.style.color = 'var(--text-secondary)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+                e.currentTarget.style.transform = 'rotate(0deg) scale(1)';
+              }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+              </svg>
+            </button>
           </div>
         </header>
 
@@ -120,6 +164,7 @@ export const App: React.FC = () => {
               <SearchConsole 
                 onSearchResult={handleSearchResult} 
                 onLoadingChange={setIsSearchLoading}
+                onOpenSettings={() => setIsSettingsOpen(true)}
               />
               
               {/* Show low-confidence suggested routing card next to results if needed (Exercise 2) */}
@@ -129,6 +174,27 @@ export const App: React.FC = () => {
                   query={currentQuery}
                 />
               )}
+
+              {/* Tier 3: Off-topic query — no expert routing possible */}
+              {!isSearchLoading && searchResult && searchResult.confidenceScore < 0.40 && !searchResult.suggestedRouting && (
+                <div className="glass-panel routing-panel animate-slide-in" style={{ borderColor: 'rgba(148, 163, 184, 0.2)' }}>
+                  <div className="routing-header" style={{ color: 'var(--text-secondary)' }}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="12" y1="8" x2="12" y2="12"></line>
+                      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <h3 style={{ margin: 0, fontFamily: 'Outfit', fontWeight: 700 }}>Query Outside Knowledge Scope</h3>
+                  </div>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: '1rem 0 0.5rem' }}>
+                    The query <strong style={{ color: 'var(--text-primary)' }}>"{currentQuery}"</strong> does not match any AetherGrid knowledge domain or content in the indexed corpus. 
+                    No subject-matter expert could be identified for routing.
+                  </p>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: '0.5rem 0 0', fontStyle: 'italic' }}>
+                    💡 This query may be outside the scope of AetherGrid's documented knowledge base. If this topic should be covered, consider flagging the response as inaccurate to create a knowledge gap entry for the team lead to review.
+                  </p>
+                </div>
+              )}
             </div>
           )}
 
@@ -137,6 +203,9 @@ export const App: React.FC = () => {
           {activeTab === 'analytics' && <AetherPulseAnalytics />}
         </div>
       </main>
+
+      {/* Glassmorphic Settings Drawer */}
+      <CloudSettingsPanel isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </div>
   );
 };

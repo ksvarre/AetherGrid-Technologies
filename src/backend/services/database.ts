@@ -10,6 +10,7 @@ export interface FeedbackItem {
   correctedAnswer?: string;
   timestamp: string;
   resolved: boolean;
+  resolvedTimestamp?: string;
   domain: string;
 }
 
@@ -20,6 +21,7 @@ export interface MetricSummary {
   healthLevel: 'Healthy' | 'Warning' | 'Critical';
   totalQueriesCount: number;
   correctionsCount: number;
+  reformulationRate: number;
   gapHotspots: { domain: string; count: number }[];
 }
 
@@ -38,21 +40,49 @@ const FEEDBACK_PATH = path.join(DB_DIR, 'feedback.json');
 const QUERIES_LOG_PATH = path.join(DB_DIR, 'queries_log.json');
 
 // Security & Robustness Helpers
+// Note: Only escapes HTML-injection vectors (<, >, &, "). Single quotes and
+// forward slashes are intentionally NOT escaped because React's JSX rendering
+// already auto-escapes all text output — double-encoding causes visible
+// corruption (e.g. "couldn&#x27;t" instead of "couldn't").
 function escapeHtml(text: string): string {
   if (!text) return text;
   return text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;')
-    .replace(/\//g, '&#x2F;');
+    .replace(/"/g, '&quot;');
 }
 
 async function safeWriteJson(filePath: string, data: any): Promise<void> {
   const tempPath = filePath + '.tmp';
   await fs.promises.writeFile(tempPath, JSON.stringify(data, null, 2), 'utf-8');
   await fs.promises.rename(tempPath, filePath);
+}
+
+/**
+ * Lightweight tokenizer for query reformulation comparison.
+ * Strips stop words and lowercases for semantic overlap detection.
+ */
+const STOP_WORDS = new Set(['the','a','an','is','are','was','were','be','been','being','have','has','had','do','does','did','will','would','shall','should','may','might','can','could','and','but','or','if','then','else','when','at','by','for','with','about','against','between','through','during','before','after','above','below','to','from','up','down','in','out','on','off','over','under','again','further','than','that','this','these','those','what','which','who','whom','how','where','why','i','me','my','we','our','you','your','he','she','it','they','them','not','no','so','just','also','very','of']);
+
+function tokenizeForComparison(text: string): string[] {
+  return text.toLowerCase()
+    .replace(/[^a-z0-9\s]/g, '')
+    .split(/\s+/)
+    .filter(w => w.length > 1 && !STOP_WORDS.has(w));
+}
+
+/**
+ * Jaccard similarity: measures token overlap between two queries.
+ * Returns 0.0 (no overlap) to 1.0 (identical tokens).
+ */
+function jaccardSimilarity(tokensA: string[], tokensB: string[]): number {
+  if (tokensA.length === 0 && tokensB.length === 0) return 0;
+  const setA = new Set(tokensA);
+  const setB = new Set(tokensB);
+  const intersection = [...setA].filter(t => setB.has(t)).length;
+  const union = new Set([...setA, ...setB]).size;
+  return union === 0 ? 0 : intersection / union;
 }
 
 export class DatabaseService {
@@ -109,21 +139,57 @@ export class DatabaseService {
     if (!item) return false;
 
     item.resolved = true;
+    item.resolvedTimestamp = new Date().toISOString();
     await safeWriteJson(FEEDBACK_PATH, feedbackList);
     return true;
   }
 
-  // Queries Log (for Instrumentation)
-  public async logQuery(query: string, confidenceScore: number, domain: string): Promise<void> {
+  // Queries Log (for Instrumentation & Reformulation Detection)
+  public async logQuery(query: string, confidenceScore: number, domain: string, sessionId?: string): Promise<void> {
     this.ensureDatabaseFiles();
     try {
       const data = await fs.promises.readFile(QUERIES_LOG_PATH, 'utf-8');
       const log = JSON.parse(data);
+
+      // Detect query reformulation: check if this query is a rephrasing of a recent query
+      // within a 5-minute window (same session or time-based fallback)
+      let isReformulation = false;
+      let reformulationOf: string | undefined;
+      const now = Date.now();
+      const REFORMULATION_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
+      const SIMILARITY_THRESHOLD = 0.40; // 40% token overlap = likely reformulation
+      const currentTokens = tokenizeForComparison(query);
+
+      // Scan recent queries (last 20 max) for reformulation patterns
+      const recentQueries = log.slice(-20).reverse();
+      for (const prev of recentQueries) {
+        const timeDiff = now - new Date(prev.timestamp).getTime();
+        if (timeDiff > REFORMULATION_WINDOW_MS) break; // Outside time window
+
+        // Check if the session matches (if sessionId provided) or fall back to time proximity
+        const sameSession = sessionId && prev.sessionId && sessionId === prev.sessionId;
+        if (!sameSession && timeDiff > REFORMULATION_WINDOW_MS) continue;
+
+        const prevTokens = tokenizeForComparison(prev.query || '');
+        const similarity = jaccardSimilarity(currentTokens, prevTokens);
+
+        // If >40% overlap but query text is different → reformulation detected
+        if (similarity >= SIMILARITY_THRESHOLD && prev.query !== escapeHtml(query)) {
+          isReformulation = true;
+          reformulationOf = prev.query;
+          console.log(`🔄 Reformulation detected: "${query}" is a rephrasing of "${prev.query}" (${(similarity * 100).toFixed(0)}% overlap)`);
+          break;
+        }
+      }
+
       log.push({
         query: escapeHtml(query),
         confidenceScore,
         domain: escapeHtml(domain),
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        sessionId: sessionId || undefined,
+        isReformulation,
+        reformulationOf
       });
       await safeWriteJson(QUERIES_LOG_PATH, log);
     } catch (err) {
@@ -131,7 +197,7 @@ export class DatabaseService {
     }
   }
 
-  public async getQueryLogs(): Promise<{ query: string; confidenceScore: number; domain: string; timestamp: string }[]> {
+  public async getQueryLogs(): Promise<{ query: string; confidenceScore: number; domain: string; timestamp: string; sessionId?: string; isReformulation?: boolean; reformulationOf?: string }[]> {
     this.ensureDatabaseFiles();
     try {
       const data = await fs.promises.readFile(QUERIES_LOG_PATH, 'utf-8');
@@ -185,6 +251,11 @@ export class DatabaseService {
       .map(domain => ({ domain, count: domainCounts[domain] }))
       .sort((a, b) => b.count - a.count);
 
+    // Reformulation Rate: percentage of queries that are rephrased versions of earlier queries
+    // This measures implicit user dissatisfaction (users who rephrase rather than flag gaps)
+    const reformulationCount = queryLogs.filter(q => q.isReformulation).length;
+    const reformulationRate = queryLogs.length > 0 ? reformulationCount / queryLogs.length : 0;
+
     return {
       rollingAvgConfidence: parseFloat(totalConfidence.toFixed(2)),
       rejectionRate: parseFloat(rejectionRate.toFixed(2)),
@@ -192,6 +263,7 @@ export class DatabaseService {
       healthLevel,
       totalQueriesCount: queryLogs.length,
       correctionsCount,
+      reformulationRate: parseFloat(reformulationRate.toFixed(2)),
       gapHotspots
     };
   }

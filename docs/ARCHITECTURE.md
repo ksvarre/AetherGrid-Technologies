@@ -10,40 +10,48 @@ AetherGrid Knowledge Tracer is built as a highly responsive, modern, self-contai
 ```mermaid
 graph TD
     %% Ingestion Pipeline
-    subgraph Ingestion ["Ingestion & Parsing Pipeline"]
+    subgraph Ingestion ["Secure Multi-Format Ingestion Pipeline"]
         MD_Files["Markdown Transcripts (.md)"] --> MD_P["MD Dynamic Metadata Dialogue Parser"]
-        DOCX_Files["Word Specifications (.docx)"] -.->|Bypassed & Pruned| MD_P
-        PPTX_Files["PowerPoint Decks (.pptx)"] -.->|Bypassed & Pruned| MD_P
-        XLSX_Files["Excel Sheets (.xlsx)"] -.->|Bypassed & Pruned| MD_P
+        DOCX_Files["Word Specifications (.docx)"] --> Word_P["Mammoth Paragraph Parser"]
+        PPTX_Files["PowerPoint Decks (.pptx)"] --> PPTX_P["OfficeParser Slide Extractor"]
+        XLSX_Files["Excel Sheets (.xlsx)"] --> XLSX_P["SheetJS Tabular Cell Row Parser"]
         
-        MD_P --> Chunking["Document Semantic Paragraph Chunking"]
-        Chunking --> DocIndex["Local In-Memory Document Store"]
+        Word_P & PPTX_P & XLSX_P --> SecurityGate["Security Validation Gate<br>(50MB Limit & Magic Byte Header Check)"]
+        SecurityGate --> CacheCheck{"Warm Boot Cache<br>(indexed_chunks.json)"}
+        CacheCheck -->|Cache Hit| DocIndex["Local In-Memory Document Store"]
+        CacheCheck -->|Cache Miss| RawParse["Execute Fresh Parser & Extract Metadata"]
+        RawParse --> DocIndex
     end
 
     %% Search and Retrieval
-    subgraph SearchAPI ["API Query & Routing Engine"]
-        UserQuery["User Natural Language Question"] --> QueryParser["Search & Semantic Retrieval"]
+    subgraph SearchAPI ["3-Tier Cognitive Routing & Search Scoping Engine"]
+        UserQuery["User Natural Language Question"] --> RefCheck["Search Reformulation Tracker<br>(Jaccard Similarity Check in 5m Window)"]
+        RefCheck --> QueryParser["Search & Semantic Retrieval"]
         DocIndex --> QueryParser
         
         QueryParser --> NLPEngine["INLPEngine (Strategy Pattern)"]
         
-        NLPEngine -->|Offline Mode| LocalNLP["Local TF-IDF, Regex Entities & Rule synthesis"]
-        NLPEngine -->|Cloud Mode| GeminiNLP["Google Gemini 2.5 Flash API"]
+        NLPEngine -->|Offline Mode| LocalNLP["Local TF-IDF, Stemmer, & Entity Boosting"]
+        NLPEngine -->|Cloud Mode| CloudNLP["Gemini or Azure OpenAI LLM BYOK Strategy"]
         
-        LocalNLP & GeminiNLP --> ResGen["Synthesized Answer & Citation Compilation"]
-        ResGen --> Scorer["Confidence & Trust Scorer"]
+        LocalNLP & CloudNLP --> Scorer["Confidence & Trust Scorer"]
         
-        Scorer -->|Confidence >= 0.40| HighConf["Response with Precise Inline Citations"]
-        Scorer -->|Confidence < 0.40| LowConf["Response + Suggested Expert Routing Panel"]
+        Scorer --> RouteDecision{"3-Tier Scoping Route Decision"}
+        RouteDecision -->|Tier 1: Confidence >= 0.15| HighConf["Response with Precise Inline Citations"]
+        RouteDecision -->|Tier 2: Confidence < 0.15 & Domain Match| LowConf["Domain Fallback Routing: suggested Expert Card + Teams message template"]
+        RouteDecision -->|Tier 3: Confidence < 0.15 & Out-of-Scope| NullRoute["Null Route: Off-topic Query Filtered out gracefully"]
     end
 
     %% Self Healing
-    subgraph SelfHealing ["Feedback Loop & System Health Monitor"]
+    subgraph SelfHealing ["Self-Healing Feedback Loop & Telemetry Hub"]
         UIFeedback["User Corrections / Rejections"] --> FeedbackAPI["POST /api/feedback"]
         FeedbackAPI --> LocalJSONDB[("JSON File DB (feedback.json)")]
         
-        LocalJSONDB --> QualityMon["Rolling Health Aggregator"]
+        LocalJSONDB --> QualityMon["Rolling Health Aggregator<br>(Health, Confidence, Rejection, Reformulation)"]
         QualityMon --> HealthDashboard["System Health Monitor Display"]
+        
+        FeedbackAPI -->|Approve Correction| RAMSync["Dynamic Memory Injection<br>(Live index sync without reboot)"]
+        RAMSync --> DocIndex
     end
 ```
 
@@ -99,11 +107,13 @@ export interface INLPEngine {
 }
 ```
 
-The system initializes the engine using an environmental switch:
-- **`OfflineNLPEngine`**: A zero-dependency engine. It performs tokenization, calculates a local TF-IDF score over document chunks, uses predefined regex rules to find key product mentions, extracts author registries, compiles matching sentences as inline citations, and forms an answer using synthesis templates.
-- **`GeminiNLPEngine`**: Operates via `@google/genai` (Google's standard SDK). It chunks text, generates embeddings, computes cosine similarity for semantic retrieval, and sends top context nodes to `gemini-2.5-flash` to return a fully realized structured response including inline citation indexes.
+The system initializes the engine using an environmental switch or transient request-scoped headers:
+- **`OfflineNLPEngine`**: A zero-dependency engine. It tokenizes queries and contents, applies a Porter stemming filter, calculates a local TF-IDF similarity matrix, and applies a **Document Density relevance boost** to structured Office chunks (`+0.8` for xlsx, `+0.6` for pptx, `+0.4` for docx) to prevent short, dense cells and bullet points from being penalized by conversational transcripts. It then compiles the most entity-weighted matching sentences as inline citations and forms answers using dynamic synthesis templates.
+- **`GeminiNLPEngine`**: Operates via `@google/genai` (Google's standard SDK). It chunks text, generates embeddings, computes similarity for semantic retrieval, and sends top context nodes to `gemini-2.5-flash` to return a fully realized structured response including inline citation indexes.
+- **`AzureOpenAINLPEngine`**: Integrates with enterprise-configured Azure OpenAI deployments using secure HTTPS REST requests, facilitating corporate Bring-Your-Own-Key (BYOK) configurations where all parsing and querying are powered by the company's Azure LLM.
 
 This abstraction allows an IT operations team to easily swap this engine for an internal corporate vector DB (e.g. Pinecone/PgVector) or corporate LLM endpoint (Azure OpenAI/Internal Llama model) by implementing `INLPEngine` in a single file!
+
 
 ---
 
@@ -134,6 +144,22 @@ $$\text{System Health Index} (H) = C \times (1 - R)$$
   - $H \ge 0.70$: **System Healthy** (Green glowing status).
   - $0.55 \le H < 0.70$: **Moderate Degradation Warning** (Amber glow). Triggered when rejections increase or index searches are yielding low-confidence results, prompting the team lead to review gaps.
   - $H < 0.55$: **Critical Attention Required** (Red flashing glow). Indicates high user frustration or severely outdated knowledge.
+
+### ⚙️ Telemetry Starting Metric & Calibration Design
+To prevent false-positive *System Quality Degradation Warnings* when the application starts or when the logs database has been fully purged (reducing total queries count to exactly zero), the telemetry system is pre-calibrated to a safe, initial state:
+*   **Average Search Confidence ($C$)**: Hardcoded to a healthy default of **85%** (`0.85`) when the logs are empty.
+*   **User Rejection Rate ($R$)**: Defaults to **0%** (`0.0`) when no user corrections are logged.
+*   **System Health Index ($H$)**: Calculated as $0.85 \times (1 - 0) = 85\%$ (`0.85`).
+
+This calibrated starting baseline ensures the console launches in a clean, nominal state (flashing green status) rather than displaying arbitrary null bounds or alarming error states. Once a user begins querying the database, the calculations dynamically switch to actual query logs to reflect live performance metrics.
+
+---
+
+### 🎯 30-Day Success Metric: User Correction Resolution Velocity (UCRV)
+
+The single metric we will track for the first 30 days post-launch is **User Correction Resolution Velocity (UCRV)**, defined as the **median elapsed time between a user-flagged knowledge gap (`feedback.timestamp`) and its team lead resolution and index integration (`feedback.resolvedTimestamp`)**. UCRV is measured by computing `resolvedTimestamp − timestamp` across all resolved feedback items within the rolling 30-day window, and taking the median of those durations. A healthy target is **UCRV ≤ 48 hours** — meaning team leads are reviewing, approving, and integrating corrections into the live knowledge index within two business days. This metric was chosen because it directly captures the **speed of the self-healing feedback loop**, which is the core value proposition of the system: when users flag gaps, how quickly does tribal knowledge flow back into the searchable corpus? If UCRV degrades (e.g., exceeds 72 hours), it signals either that the audit queue is being ignored, that the volume of gaps is overwhelming the review team, or that the routing suggestions are not reaching the right experts — each of which triggers a different operational response.
+
+To complement UCRV (which relies on *explicit* user feedback), the system also tracks a **Query Reformulation Rate** — the percentage of queries where a user rephrases a similar question within a 5-minute session window. Reformulation is detected using Jaccard similarity (≥40% token overlap between consecutive queries). This captures *implicit* dissatisfaction: users who don't bother clicking 👎 but instead rephrase their question, indicating the first answer didn't satisfy them. A reformulation rate exceeding 20% is flagged as a leading indicator that specific knowledge domains need enrichment, even before users explicitly report gaps.
 
 ---
 

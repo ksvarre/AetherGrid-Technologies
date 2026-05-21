@@ -9,7 +9,7 @@ This document describes the structure, endpoints, parsing modules, and database 
 *   **API Framework**: Express with TypeScript (`ts-node` for local execution).
 *   **Key Parsing Heuristics**:
     *   `dialogue/dynamic-metadata` (internal): Programmatically parses raw conversational Markdown transcripts to extract dates from filename structures, scans dialogues for unique speaker signatures to construct the attendees array, classifies domains using vocabulary rules, and identifies authors from the first dialogue speakers. Maintains fallback compatibility for manual YAML frontmatter blocks.
-    *   *Bypassed Office Parsers*: `mammoth` (Word), `xlsx` (Excel), and `officeparser` (PowerPoint) have been completely bypassed for this pure Exercise 1 deliverable, keeping startup, memory usage, and build times exceptionally light and secure.
+    *   `office-parsers` (Mammoth, OfficeParser, SheetJS): Actively parses Word (`.docx/.doc`), PowerPoint (`.pptx/.ppt`), and Excel (`.xlsx/.xls`) files, applying strict magic-byte validation and 50MB security gates. Tabular Excel data is formatted into clean high-contrast Markdown tables.
 *   **Local Storage**: Standard file-based JSON streams (acting as the lightweight transactional DB).
 
 ---
@@ -32,7 +32,7 @@ This document describes the structure, endpoints, parsing modules, and database 
 
 ### 2. Search & Query Endpoint
 *   **`POST /api/query`**
-*   **Description**: Receives a natural language question, processes semantic matching using the current `INLPEngine` strategy, scores confidence, compiles source citations, and appends Suggested Routing if confidence is $< 0.40$.
+*   **Description**: Receives a natural language question, logs it to detect consecutive Jaccard query reformulations, processes semantic matching using the current `INLPEngine` strategy, and applies a **3-Tier Cognitive Routing engine**. It returns precise source citations, or falls back to domain-based expert routing if confidence is low (< 0.15) and a domain matches. If confidence is low (< 0.15) and the query is out of scope (off-topic), it gracefully null-routes the request.
 *   **Payload**:
     ```json
     {
@@ -138,8 +138,9 @@ This document describes the structure, endpoints, parsing modules, and database 
     {
       "rollingAvgConfidence": 0.76,
       "rejectionRate": 0.12,
-      "systemHealthIndex": 0.67,
-      "healthLevel": "Warning",
+      "reformulationRate": 0.07,
+      "systemHealthIndex": 0.71,
+      "healthLevel": "Healthy",
       "totalQueriesCount": 84,
       "correctionsCount": 10,
       "gapHotspots": [
@@ -147,6 +148,21 @@ This document describes the structure, endpoints, parsing modules, and database 
         { "domain": "Project Helium", "count": 4 }
       ]
     }
+    ```
+
+### 6. Reformulations List Endpoint
+*   **`GET /api/reformulations`**
+*   **Description**: Retrieves the list of consecutive query reformulations tracked by the sliding-window Jaccard algorithm (word similarity >= 40% within 5 minutes) to feed the admin drill-down panels.
+*   **Response**:
+    ```json
+    [
+      {
+        "previousQuery": "how to calibrate thermal sub",
+        "currentQuery": "thermal substation calibration steps",
+        "similarity": 0.57,
+        "timestamp": "2026-05-21T04:26:42.000Z"
+      }
+    ]
     ```
 
 ---
@@ -161,11 +177,17 @@ When executing in local **Offline Mode**, the backend processes queries through 
     *   **Baseline Speaker Match**: $+0.5$ added to the chunk's score if the query keywords match the active dialogue speaker's name.
     *   **Technical Topic Affinity**: $+1.5$ per query keyword matching terms in the dialogue text (excluding filler words and speaker names), ensuring highly targeted speaker-to-topic correlation.
     *   **Attendee Presence Match**: $+0.1$ added if a query speaker name is listed in the chunk's attendees array.
-5.  **Refined Answer Synthesis**:
+5.  **Document Density & File Type Calibration**:
+    *   **Excel (`.xlsx`)**: $+0.8$ baseline boost (highest density per row, e.g. grids/pricing/testing logs).
+    *   **PowerPoint (`.pptx`)**: $+0.6$ baseline boost (synthesized slide bullet points).
+    *   **Word (`.docx`)**: $+0.4$ baseline boost (specification paragraphs).
+    This calibration levels the playing field against long conversational meeting transcripts (which receive multiple speaker/dialogue keyword boosts), ensuring natural, generic terms successfully bubble high-priority Office specs to the top without needing overly unique or specific IDs.
+6.  **Refined Answer Synthesis**:
     *   If matching scores are high, the system compiles the text content of the top-ranking chunks.
     *   **Entity-Weighted Snippet Selector**: Extracts matching sentences/lines (split by `.`, `!`, `?`, and `\n`). The matching tokens are weighted (technical terms weight 3.0, speaker names 1.0, fillers 0.1), and the highest weighted sentence is chosen. This guarantees that technical context (like *"bricking the node"*) is quoted instead of dialogue headers like *"Marcus Vance: Good point"*.
     *   It pieces them together into a readable response paragraph using structured text-connectors and inline numeric citations (`[1]`, `[2]`).
     *   If no matching chunks score above the threshold, it sets confidence to `< 0.35` and triggers the suggested routing fallback.
+
 
 ---
 

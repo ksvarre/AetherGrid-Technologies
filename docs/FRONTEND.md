@@ -71,8 +71,15 @@ The frontend is a single-page application split into modular, focused components
         *   **KPI Cards**: Rolling search confidence, rejection percentages, and query velocities.
         *   **SVG Line Graphs**: Displays simulated 30-day performance trends.
         *   **Gap Hotspots**: List of topics generating the most corrections.
+7.  **`CloudSettingsPanel.tsx` (LLM Gateway Settings Drawer)**:
+    *   Sliding settings panel accessed via a premium gear icon in the dashboard header.
+    *   Provides user controls for selecting the **LLM Engine Provider** (Local Offline, Google Gemini API, or Azure OpenAI Service).
+    *   Implements **Bring-Your-Own-Key (BYOK)** fields with visibility toggles and strict credential scoping.
+    *   Includes a "Sync & Re-index Workspace" trigger that calls `POST /api/ingest` with request-scoped credentials to validate active keys.
+    *   Renders a detailed success/degradation alert card. If the entered key fails verification (e.g. invalid key or billing limit), it gracefully notifies the user with detailed error reasonings (e.g., `INVALID_KEY`, `CREDITS_EXHAUSTED`) and reports successful fallback to local offline mode.
 
 ---
+
 
 ## ✨ Micro-Animations & Dynamic Interactions
 To achieve a highly premium visual experience, the interface utilizes pure CSS micro-animations:
@@ -80,3 +87,40 @@ To achieve a highly premium visual experience, the interface utilizes pure CSS m
 *   **Glassmorphic Border Sliders**: Hovering over cards causes the border-glow to track the mouse coordinates or transition smoothly through a subtle linear shift.
 *   **Low-Confidence Slide-In**: The Suggested Routing card slides in from the right edge with a custom cubic-bezier ease-out transition.
 *   **Search Typing Indicator**: When waiting for API responses, a neon typing loader generates a glowing wave effect using staggered element delays.
+*   **Widescreen Scaled SVG Polylines**: Performance trend charts draw mathematically pre-calibrated lines dynamically across a `1500x140` widescreen viewbox mapping to the screen width without text distortions.
+
+---
+
+## 🎨 Premium Dashboard & UI Enhancements (Phase 3)
+
+We restructured and refined key components of the **System Health Monitor** and **Search Console** interfaces to deliver maximum readability and interactive analysis:
+
+### 1. Unified 4-Column KPI Telemetry Row
+The System Health dashboard has been rearranged so that all four key performance indicators appear in a unified, widescreen-friendly row:
+*   **Grid Specs**: Responsive 4-column design (`grid-template-columns: repeat(4, 1fr)`) with an elegant fallback for smaller screens (`repeat(2, 1fr)` or single column).
+*   **KPI Cards Included**:
+    1.  **System Health Index**: Combined metric calculating retrieval stability (`avgConfidence * (1 - rejectionRate)`).
+    2.  **Average Search Confidence**: The rolling average confidence score of all searches.
+    3.  **User Rejection Rate**: The percentage of queries where users rejected or corrected the system answers.
+    4.  **Reformulation Rate**: The percentage of searches where users input consecutive queries of $\ge 40\%$ Jaccard token overlap within 5 minutes (indicating search friction).
+
+### 2. Interactive Click-to-Reveal Metric Overlays
+Rather than forcing operators to reference static documentation, each of the four KPI cards now features a stateful, interactive `?` icon.
+*   **Behavior**: Clicking the `?` icon slides up a beautiful, glassmorphic overlay containing:
+    *   **Description**: Detailed text of what the metric represents.
+    *   **Formula / Calculation**: The exact equation or process (e.g. Jaccard token comparison rules, health product equations).
+    *   **Example**: Concrete real-world scenarios to help team leads interpret results.
+*   **UX Detail**: Includes an immediate, accessible close (`×`) control to collapse the overlay smoothly.
+
+### 3. Interactive Reformulation Drill-Down Panel
+To make the 7% Reformulation Rate actionable, the **Reformulation Rate** card is fully interactive. Clicking the card (or the "View Details" button) displays a stateful, slide-out **Reformulation Drill-Down Panel** inside the dashboard:
+*   **Content**: Fetches and renders a clean list of anonymous reformulation pairs tracked by the backend (e.g. `Query 1: how to calibrate thermal node` $\rightarrow$ `Query 2: thermal substation calibration steps`).
+*   **Usage**: Enables team leads to see exactly what users are struggling to find, identifying clear gaps to add to the knowledge base.
+
+### 4. Excel Tabular Citations & Formatting
+When a user queries the Search Console and clicks on a citation that originates from an Excel spreadsheet (`.xlsx` file), the **Citation Drawer** parses the matched spreadsheet row and renders it:
+*   **Design**: Displays a beautifully styled, high-contrast HTML table grid layout.
+*   **CSS Classes**: Uses `.excel-table` styling featuring clean borders, highlighted headers, zebra row striping, and glowing status tags for row states.
+
+### 5. Repositioned SVG Performance Trends Chart
+To allow space for the unified telemetry row and interactive drawers, the 30-day performance trends line chart has been moved to the bottom of the System Health page, serving as a comprehensive history footer.

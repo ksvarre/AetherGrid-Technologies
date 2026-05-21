@@ -24,14 +24,20 @@ export interface QueryResponse {
   suggestedRouting?: SuggestedRouting;
   domain: string;
   priority: 'High' | 'Medium' | 'Low';
+  cloudError?: {
+    code: string;
+    message: string;
+    fallbackActive: boolean;
+  };
 }
 
 interface SearchConsoleProps {
   onSearchResult: (result: QueryResponse | null, query: string) => void;
   onLoadingChange: (loading: boolean) => void;
+  onOpenSettings: () => void;
 }
 
-export const SearchConsole: React.FC<SearchConsoleProps> = ({ onSearchResult, onLoadingChange }) => {
+export const SearchConsole: React.FC<SearchConsoleProps> = ({ onSearchResult, onLoadingChange, onOpenSettings }) => {
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<QueryResponse | null>(null);
@@ -55,10 +61,26 @@ export const SearchConsole: React.FC<SearchConsoleProps> = ({ onSearchResult, on
     setCorrectedText('');
     setFeedbackSuccess(false);
 
+    // Retrieve transient credentials from localStorage
+    const provider = localStorage.getItem('aethergrid_cloud_provider') || 'local';
+    const geminiKey = localStorage.getItem('aethergrid_gemini_key') || '';
+    const azureKey = localStorage.getItem('aethergrid_azure_key') || '';
+    const azureEndpoint = localStorage.getItem('aethergrid_azure_endpoint') || '';
+    const azureDeployment = localStorage.getItem('aethergrid_azure_deployment') || '';
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'x-cloud-provider': provider,
+      'x-gemini-api-key': geminiKey,
+      'x-azure-api-key': azureKey,
+      'x-azure-endpoint': azureEndpoint,
+      'x-azure-deployment': azureDeployment,
+    };
+
     try {
       const response = await fetch('http://localhost:5000/api/query', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ query }),
       });
       if (!response.ok) {
@@ -165,6 +187,116 @@ export const SearchConsole: React.FC<SearchConsoleProps> = ({ onSearchResult, on
     );
   };
 
+  /**
+   * Smart citation snippet renderer:
+   * - Detects tabular data from Excel (.xlsx/.xls) and renders as an HTML table
+   * - Falls back to standard quoted text for non-tabular content (transcripts, Word docs, PPTX)
+   */
+  const renderSnippetContent = (snippet: string, fileName: string) => {
+    const isExcel = /\.xlsx?$/i.test(fileName);
+    
+    // Detect tabular pattern: rows separated by semicolons, cells formatted as "Header: Value"
+    const rows = snippet.split(/;\s*\n|;\s*$/).map(r => r.trim()).filter(Boolean);
+    const isTabular = isExcel && rows.length > 0 && rows.every(row => row.includes(':'));
+
+    if (isTabular) {
+      // Extract unique headers from all rows to build consistent columns
+      const allHeaders: string[] = [];
+      const parsedRows: Record<string, string>[] = [];
+
+      // Remove "Sheet: ..." prefix line if present
+      let dataRows = rows;
+      if (rows[0]?.startsWith('Sheet:')) {
+        dataRows = rows.slice(1);
+      }
+
+      for (const row of dataRows) {
+        const cells = row.split(/,\s*(?=[A-Za-z_][A-Za-z0-9_ ]*:)/);
+        const rowData: Record<string, string> = {};
+        for (const cell of cells) {
+          const colonIdx = cell.indexOf(':');
+          if (colonIdx > 0) {
+            const header = cell.substring(0, colonIdx).trim();
+            const value = cell.substring(colonIdx + 1).trim();
+            if (!allHeaders.includes(header)) allHeaders.push(header);
+            rowData[header] = value;
+          }
+        }
+        if (Object.keys(rowData).length > 0) parsedRows.push(rowData);
+      }
+
+      if (parsedRows.length > 0 && allHeaders.length > 0) {
+        return (
+          <div className="drawer-snippet-box" style={{ padding: 0, overflow: 'auto' }}>
+            {rows[0]?.startsWith('Sheet:') && (
+              <div style={{ 
+                padding: '0.5rem 0.75rem', 
+                fontSize: '0.75rem', 
+                fontWeight: 600, 
+                color: 'var(--accent-cyan)', 
+                borderBottom: '1px solid rgba(255,255,255,0.08)',
+                background: 'rgba(0, 242, 254, 0.03)'
+              }}>
+                📊 {rows[0].split('|')[0]?.trim()}
+              </div>
+            )}
+            <table style={{
+              width: '100%',
+              borderCollapse: 'collapse',
+              fontSize: '0.8rem',
+              fontFamily: 'monospace',
+            }}>
+              <thead>
+                <tr>
+                  {allHeaders.map(h => (
+                    <th key={h} style={{
+                      padding: '0.5rem 0.6rem',
+                      textAlign: 'left',
+                      color: 'var(--accent-cyan)',
+                      fontWeight: 700,
+                      fontSize: '0.72rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.04em',
+                      borderBottom: '2px solid rgba(0, 242, 254, 0.2)',
+                      whiteSpace: 'nowrap',
+                      background: 'rgba(0, 242, 254, 0.03)',
+                    }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {parsedRows.map((row, rowIdx) => (
+                  <tr key={rowIdx} style={{
+                    borderBottom: '1px solid rgba(255,255,255,0.04)',
+                    transition: 'background 0.2s',
+                  }}
+                    onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.02)'; }}
+                    onMouseOut={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                  >
+                    {allHeaders.map(h => (
+                      <td key={h} style={{
+                        padding: '0.45rem 0.6rem',
+                        color: 'var(--text-primary)',
+                        borderBottom: '1px solid rgba(255,255,255,0.04)',
+                      }}>{row[h] || '—'}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+      }
+    }
+
+    // Default: plain text snippet display
+    return (
+      <div className="drawer-snippet-box">
+        "{snippet}"
+      </div>
+    );
+  };
+
   return (
     <div className="search-console">
       {/* Ask Input form */}
@@ -204,8 +336,70 @@ export const SearchConsole: React.FC<SearchConsoleProps> = ({ onSearchResult, on
 
       {/* Results View */}
       {result && !loading && (
-        <div className="glass-panel answer-box animate-slide-up">
-          <div className="answer-header">
+        <div className="glass-panel answer-box animate-slide-up" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          {result.cloudError && (
+            <div 
+              className="alert-banner warning animate-slide-up"
+              style={{
+                margin: 0,
+                border: '1px solid rgba(245, 158, 11, 0.35)',
+                background: 'rgba(245, 158, 11, 0.05)',
+                borderRadius: '10px',
+                padding: '1.25rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.5rem',
+                boxShadow: '0 8px 32px rgba(245, 158, 11, 0.08)',
+                backdropFilter: 'blur(4px)'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, color: '#fbbf24', fontSize: '0.95rem' }}>
+                <span>⚠️</span>
+                <span>Cloud Engine Offline — Safe Fallback Active</span>
+                <span style={{ fontSize: '0.75rem', padding: '2px 6px', background: 'rgba(245, 158, 11, 0.15)', borderRadius: '4px', fontFamily: 'monospace', fontWeight: 600 }}>
+                  {result.cloudError.code}
+                </span>
+              </div>
+              <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-primary)', lineHeight: '1.5' }}>
+                {result.cloudError.message}
+              </p>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
+                Your search query was immediately routed to the local offline indexing engine to prevent service disruption.
+              </p>
+              <button
+                type="button"
+                onClick={onOpenSettings}
+                style={{
+                  alignSelf: 'flex-start',
+                  marginTop: '0.25rem',
+                  background: 'rgba(245, 158, 11, 0.15)',
+                  border: '1px solid rgba(245, 158, 11, 0.3)',
+                  borderRadius: '6px',
+                  color: '#fbbf24',
+                  padding: '5px 12px',
+                  fontSize: '0.8rem',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                  transition: 'all 0.2s',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.35rem'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.background = '#fbbf24';
+                  e.currentTarget.style.color = '#080c14';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.background = 'rgba(245, 158, 11, 0.15)';
+                  e.currentTarget.style.color = '#fbbf24';
+                }}
+              >
+                <span>⚙️</span>
+                <span>Manage API Credentials</span>
+              </button>
+            </div>
+          )}
+          <div className="answer-header" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '1rem' }}>
             <span className="answer-domain">{result.domain}</span>
             <div className="answer-confidence">
               <span>Search Confidence:</span>
@@ -383,9 +577,7 @@ export const SearchConsole: React.FC<SearchConsoleProps> = ({ onSearchResult, on
 
               <div style={{ marginTop: '1rem' }}>
                 <span className="drawer-meta-label" style={{ display: 'block', marginBottom: '0.5rem' }}>Indexed Ground-Truth Text Segment:</span>
-                <div className="drawer-snippet-box">
-                  "{activeCitation.matchedSnippet}"
-                </div>
+                {renderSnippetContent(activeCitation.matchedSnippet, activeCitation.fileName)}
               </div>
             </div>
           </div>

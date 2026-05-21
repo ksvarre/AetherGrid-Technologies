@@ -1,10 +1,11 @@
-import { QueryResponse, SuggestedRouting } from './nlp';
+import { QueryResponse, SuggestedRouting, DocumentChunk } from './nlp';
 
 export interface ExpertProfile {
   name: string;
   email: string;
   domain: string;
   role: string;
+  pronoun: 'He' | 'She' | 'They';
   details: string;
 }
 
@@ -15,6 +16,7 @@ export const EXPERT_DIRECTORY: ExpertProfile[] = [
     email: 'elena@aethergrid.com',
     domain: 'Project Quantum',
     role: 'Chief Scientist & AI Architect',
+    pronoun: 'She',
     details: 'Author of the Quantum ML forecasting specification, creator of neural TFT models, and leader of model training audits.'
   },
   {
@@ -22,6 +24,7 @@ export const EXPERT_DIRECTORY: ExpertProfile[] = [
     email: 'marcus@aethergrid.com',
     domain: 'Project Helium',
     role: 'VP of Engineering',
+    pronoun: 'He',
     details: 'Author of the Helium edge node enclosure hardware design, thermal test manager, and substation antenna bracket designer.'
   },
   {
@@ -29,6 +32,7 @@ export const EXPERT_DIRECTORY: ExpertProfile[] = [
     email: 'sarah@aethergrid.com',
     domain: 'Product Commercials',
     role: 'Director of Product',
+    pronoun: 'She',
     details: 'Creator of the GridPulse pricing matrix, standard licensing tiers, and client onboarding roadmap reviewer.'
   },
   {
@@ -36,6 +40,7 @@ export const EXPERT_DIRECTORY: ExpertProfile[] = [
     email: 'david@aethergrid.com',
     domain: 'DevOps / Infrastructure',
     role: 'Lead DevOps & Infrastructure',
+    pronoun: 'He',
     details: 'Writer of edge Kubernetes scaling specifications, designer of active container synchronization, and TimescaleDB scaling manager.'
   },
   {
@@ -43,44 +48,88 @@ export const EXPERT_DIRECTORY: ExpertProfile[] = [
     email: 'amira@aethergrid.com',
     domain: 'Project Horizon',
     role: 'Senior Grid Engineer',
+    pronoun: 'She',
     details: 'Author of microgrid integration presentations, developer of community solar batteries discharge rules, and compliance auditor.'
   }
 ];
 
+/**
+ * Domain keyword map used to detect if a query is even remotely related to
+ * AetherGrid's knowledge domains. Used to differentiate Tier 2 (domain-related
+ * but no match) from Tier 3 (completely off-topic).
+ */
+const DOMAIN_KEYWORDS: Record<string, string[]> = {
+  'Project Quantum': ['quantum', 'forecast', 'predict', 'mae', 'neural', 'model', 'ml', 'elena', 'rostova', 'tft', 'training'],
+  'Project Helium': ['helium', 'enclosure', 'thermal', 'chassis', 'edge', 'sensor', 'antenna', 'firmware', 'hardware', 'marcus', 'vance', 'substation'],
+  'Product Commercials': ['price', 'pricing', 'license', 'tier', 'cost', 'commercial', 'gridpulse', 'sarah', 'chen', 'onboarding'],
+  'DevOps / Infrastructure': ['kubernetes', 'k3s', 'database', 'postgre', 'timescale', 'scaling', 'container', 'deploy', 'david', 'kross', 'devops', 'infrastructure'],
+  'Project Horizon': ['horizon', 'microgrid', 'battery', 'solar', 'discharge', 'compliance', 'amira', 'patel', 'grid', 'community'],
+};
+
 export class RoutingService {
   /**
-   * Appends suggested expert routing to a query response if confidence is low.
+   * Three-tier intelligent routing:
+   *
+   *  Tier 1 — Domain match + content snippet found
+   *    → Route to expert with snippet-level rationale ("The closest match was X from doc Y")
+   *
+   *  Tier 2 — Domain keywords detected in query but zero/very-low corpus match
+   *    → Route to domain expert with honest "no matching content found" disclosure
+   *
+   *  Tier 3 — Completely off-topic (no domain keywords, no content overlap)
+   *    → Return null (don't route). The UI will show an "out of scope" message instead.
    */
-  public generateRouting(query: string, domain: string): SuggestedRouting {
+  public generateRouting(query: string, domain: string, topMatchedChunks?: DocumentChunk[]): SuggestedRouting | null {
     const queryLower = query.toLowerCase();
+    const hasContentMatch = topMatchedChunks && topMatchedChunks.length > 0;
 
-    // 1. Match expert by query keywords
+    // 1. Try exact domain match from NLP engine
     let matchedExpert = EXPERT_DIRECTORY.find(e => e.domain.toLowerCase() === domain.toLowerCase());
+    let matchedViaDomainKeyword = false;
 
-    if (!matchedExpert) {
-      // Fallback keyword scanning
-      if (queryLower.includes('quantum') || queryLower.includes('forecast') || queryLower.includes('predict') || queryLower.includes('mae') || queryLower.includes('elena')) {
-        matchedExpert = EXPERT_DIRECTORY[0]; // Elena
-      } else if (queryLower.includes('helium') || queryLower.includes('enclosure') || queryLower.includes('thermal') || queryLower.includes('chassis') || queryLower.includes('marcus')) {
-        matchedExpert = EXPERT_DIRECTORY[1]; // Marcus
-      } else if (queryLower.includes('price') || queryLower.includes('license') || queryLower.includes('pricing') || queryLower.includes('sarah') || queryLower.includes('cost')) {
-        matchedExpert = EXPERT_DIRECTORY[2]; // Sarah
-      } else if (queryLower.includes('kubernetes') || queryLower.includes('k3s') || queryLower.includes('database') || queryLower.includes('postgre') || queryLower.includes('scaling') || queryLower.includes('david')) {
-        matchedExpert = EXPERT_DIRECTORY[3]; // David
-      } else if (queryLower.includes('horizon') || queryLower.includes('microgrid') || queryLower.includes('battery') || queryLower.includes('solar') || queryLower.includes('amira')) {
-        matchedExpert = EXPERT_DIRECTORY[4]; // Amira
-      } else {
-        // Absolute fallback to VP of Engineering
-        matchedExpert = EXPERT_DIRECTORY[1]; // Marcus
+    if (!matchedExpert || matchedExpert.domain === 'General') {
+      // 2. Keyword scan across all domain vocabularies
+      for (const [domainName, keywords] of Object.entries(DOMAIN_KEYWORDS)) {
+        if (keywords.some(kw => queryLower.includes(kw))) {
+          matchedExpert = EXPERT_DIRECTORY.find(e => e.domain === domainName);
+          matchedViaDomainKeyword = true;
+          break;
+        }
       }
     }
 
-    // 2. Draft customized rationale
-    const rationale = `${matchedExpert.name} is the designated topic expert for ${matchedExpert.domain}. She is the ${matchedExpert.role} at AetherGrid Technologies and is the primary contributor for all technical designs, meeting decisions, and compliance standards relating to this domain.`;
+    // TIER 3: Completely off-topic — no domain keyword match AND no content match
+    if (!matchedExpert && !hasContentMatch) {
+      return null; // Signal to the UI: show "out of scope" instead of a forced routing
+    }
 
-    // 3. Draft customized Slack/Email question
+    // If still no expert but we have content matches, use the content's domain to find one
+    if (!matchedExpert && hasContentMatch) {
+      const contentDomain = topMatchedChunks![0].domain;
+      matchedExpert = EXPERT_DIRECTORY.find(e => e.domain.toLowerCase() === contentDomain?.toLowerCase()) || EXPERT_DIRECTORY[1];
+    }
+
+    // Safety net (should never reach here but TypeScript requires it)
+    if (!matchedExpert) {
+      matchedExpert = EXPERT_DIRECTORY[1]; // VP of Engineering
+    }
+
+    // 3. Build tiered rationale
+    let rationale = '';
+
+    if (hasContentMatch) {
+      // TIER 1: Content snippet found — explain what was found and why this expert
+      const topChunk = topMatchedChunks![0];
+      const snippet = topChunk.content.length > 120 ? topChunk.content.substring(0, 120) + '...' : topChunk.content;
+      rationale = `The closest matching content found was from "${topChunk.fileName}" (authored by ${topChunk.author}): "${snippet}". However, the match confidence was below the 40% reliability threshold. ${matchedExpert.name} is the designated topic expert for ${matchedExpert.domain}. ${matchedExpert.pronoun} is the ${matchedExpert.role} at AetherGrid Technologies and is the primary contributor for all technical designs, meeting decisions, and compliance standards relating to this domain.`;
+    } else {
+      // TIER 2: Domain keyword matched but no corpus content found
+      rationale = `No matching content was found in the knowledge base for this query. However, the query contains keywords associated with the "${matchedExpert.domain}" domain. ${matchedExpert.name} is the designated topic expert for this area. ${matchedExpert.pronoun} is the ${matchedExpert.role} at AetherGrid Technologies and may be able to provide guidance or identify where this information should be documented.`;
+    }
+
+    // 4. Draft customized Microsoft Teams question
     const queryTopic = query.replace(/[?.]/g, '').trim();
-    const draftedQuestion = `Hi ${matchedExpert.name.split(' ')[0]},\n\nI was trying to find information regarding: "${queryTopic}". Our automated knowledge tracer yielded low confidence. Since you are our Topic Expert for ${matchedExpert.domain} and have led our technical specs in this area, could you help clarify this? Let me know if we can sync on Slack.\n\nThanks!`;
+    const draftedQuestion = `Hi ${matchedExpert.name.split(' ')[0]},\n\nI was trying to find information regarding: "${queryTopic}". Our automated knowledge tracer yielded low confidence. Since you are our Topic Expert for ${matchedExpert.domain} and have led our technical specs in this area, could you help clarify this? Let me know if we can sync on Teams.\n\nThanks!`;
 
     return {
       recipientName: matchedExpert.name,

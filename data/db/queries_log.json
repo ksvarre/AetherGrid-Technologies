@@ -64,5 +64,83 @@
     "confidenceScore": 0.95,
     "domain": "Project Quantum",
     "timestamp": "2026-05-21T00:13:08.439Z"
+  },
+  {
+    "query": "What is the Project Quantum MAE forecasting target and validation status?",
+    "confidenceScore": 0.95,
+    "domain": "Project Quantum",
+    "timestamp": "2026-05-21T00:38:30.034Z"
+  },
+  {
+    "query": "What is the Project Quantum MAE forecasting target and validation status?",
+    "confidenceScore": 0.95,
+    "domain": "Project Quantum",
+    "timestamp": "2026-05-21T00:38:40.577Z"
+  },
+  {
+    "query": "What is the Project Quantum forecasting target and LSTM nodes Mean Absolute Error?",
+    "confidenceScore": 0.95,
+    "domain": "Project Quantum",
+    "timestamp": "2026-05-21T00:39:42.683Z"
+  },
+  {
+    "query": "Who was present in the meeting where Sarah Chen discussed Texas Electric forecasting accuracy?",
+    "confidenceScore": 0.95,
+    "domain": "Project Quantum",
+    "timestamp": "2026-05-21T00:39:43.196Z"
+  },
+  {
+    "query": "Project Helium thermal engineering hardware design substation reviews",
+    "confidenceScore": 0.95,
+    "domain": "Project Helium",
+    "timestamp": "2026-05-21T00:39:43.711Z"
+  },
+  {
+    "query": "What is the Project Quantum forecasting target and LSTM nodes Mean Absolute Error?",
+    "confidenceScore": 0.95,
+    "domain": "Project Quantum",
+    "timestamp": "2026-05-21T00:43:07.070Z"
+  },
+  {
+    "query": "Who was present in the meeting where Sarah Chen discussed Texas Electric forecasting accuracy?",
+    "confidenceScore": 0.95,
+    "domain": "Project Quantum",
+    "timestamp": "2026-05-21T00:43:07.584Z"
+  },
+  {
+    "query": "Project Helium thermal engineering hardware design substation reviews",
+    "confidenceScore": 0.95,
+    "domain": "Project Helium",
+    "timestamp": "2026-05-21T00:43:08.095Z"
+  },
+  {
+    "query": "What is the Project Quantum MAE forecasting target and validation status?",
+    "confidenceScore": 0.95,
+    "domain": "Project Quantum",
+    "timestamp": "2026-05-21T00:43:48.200Z"
+  },
+  {
+    "query": "What is the Project Quantum MAE forecasting target and validation status?",
+    "confidenceScore": 0.95,
+    "domain": "Project Quantum",
+    "timestamp": "2026-05-21T00:50:14.282Z"
+  },
+  {
+    "query": "What did David say about firmware?",
+    "confidenceScore": 0.95,
+    "domain": "Project Horizon",
+    "timestamp": "2026-05-21T00:51:47.292Z"
+  },
+  {
+    "query": "What did David say about firmware and helium",
+    "confidenceScore": 0.95,
+    "domain": "Project Helium",
+    "timestamp": "2026-05-21T00:53:15.112Z"
+  },
+  {
+    "query": "What was mentioned about the remote firmware?",
+    "confidenceScore": 0.95,
+    "domain": "Safety &amp; Compliance",
+    "timestamp": "2026-05-21T00:53:46.791Z"
   }
 ]

@@ -8,9 +8,8 @@ This document describes the structure, endpoints, parsing modules, and database 
 *   **Runtime Environment**: Node.js (v18.0+)
 *   **API Framework**: Express with TypeScript (`ts-node` for local execution).
 *   **Key Parsing Libraries**:
-    *   `mammoth`: Parses Word files (`.docx`) cleanly, extracting text elements.
-    *   `xlsx` (SheetJS): Parses Excel spreadsheets (`.xlsx`) sheet-by-sheet, returning tabular strings.
-    *   `officeparser`: Lightweight pure-JS zip-extractor that parses slide layouts from PowerPoint (`.pptx`).
+    *   `markdown/frontmatter` (internal): Parses raw Markdown transcripts and isolates structured YAML metadata attributes (`attendees` parsed as a trimmed array, `date` parsed, `domain` mapped, and `priority` classified).
+    *   *Bypassed Office Parsers*: `mammoth` (Word), `xlsx` (Excel), and `officeparser` (PowerPoint) have been completely bypassed for this pure Exercise 1 deliverable, keeping startup, memory usage, and build times exceptionally light and secure.
 *   **Local Storage**: Standard file-based JSON streams (acting as the lightweight transactional DB).
 
 ---
@@ -19,15 +18,15 @@ This document describes the structure, endpoints, parsing modules, and database 
 
 ### 1. Ingestion Endpoint
 *   **`POST /api/ingest`**
-*   **Description**: Triggers a deep scan of `/data/transcripts` and `/data/documents`. It extracts text, derives structural metadata, builds semantic text chunks, and commits them to the in-memory document store.
+*   **Description**: Triggers a deep scan of the `/data/transcripts/` directory. It parses raw Markdown (`.md`) files exclusively, derives structural metadata from YAML frontmatter blocks, builds semantic text chunks, and commits them to the in-memory document store.
 *   **Payload**: None (scans workspace filesystem).
 *   **Response**:
     ```json
     {
       "success": true,
-      "message": "Ingested 24 documents successfully.",
-      "count": 24,
-      "chunksCount": 112
+      "message": "Ingested 66 chunks successfully from transcripts.",
+      "count": 66,
+      "chunksCount": 66
     }
     ```
 
@@ -178,9 +177,9 @@ To transition AetherGrid to an enterprise-ready posture, we implemented three ke
 ---
 
 ## 🚀 High-Speed Ingestion Caching (Warm Boots in <3ms)
-Parsing massive PowerPoint decks, multi-tab Excel files, and Word documents via SheetJS and Mammoth is highly intensive. To optimize server boots, the ingestion pipeline utilizes a structured caching engine:
+To optimize server boots and avoid scanning files repeatedly, the ingestion pipeline utilizes a structured caching engine:
 1.  **Cache Schema**: Search chunks are serialized to `data/db/indexed_chunks.json` under an `IngestionCache` type containing file paths, file sizes, modification timestamps (`mtimeMs`), and their parsed `DocumentChunk` arrays.
-2.  **Warm-Cache Checking**: On server boot, `ParserService.ingestAll()` retrieves filesystem metadata for transcripts and documents. It compares `mtimeMs` and `size` against the cache.
-    *   **Cache Hit**: If unchanged, parser execution is bypassed, loading chunks directly from the cached JSON index in **3ms** (a 99.2% speedup from the standard 387ms cold crawl).
+2.  **Warm-Cache Checking**: On server boot, `ParserService.ingestAll()` retrieves filesystem metadata for Markdown transcripts inside `data/transcripts/`. It compares `mtimeMs` and `size` against the cache.
+    *   **Cache Hit**: If unchanged, parser execution is bypassed, loading chunks directly from the cached JSON index in **2-3ms** (a 99% speedup).
     *   **Cache Miss**: If modified, only that file is parsed and its cache entry is updated.
-3.  **Self-Healing Pruning**: Files deleted from `/data` are automatically pruned from the cache records on server boot, ensuring stale or orphaned search references never persist.
+3.  **Self-Healing & Office Pruning**: Files deleted from `/data` are automatically pruned on server boot. Additionally, any legacy office documents (e.g. Word, Excel) previously cached are automatically identified as out of scope and pruned from `indexed_chunks.json` to keep the RAM index 100% transcript-focused.

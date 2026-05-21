@@ -10,6 +10,7 @@
     "build:frontend": "npm run build --prefix src/frontend",
     "build": "npm run build:backend && npm run build:frontend",
     "verify": "node src/backend/dist/scripts/verify_system.js || ts-node src/backend/scripts/verify_system.ts",
+    "review": "node scripts/review.js",
     "generate-data": "python scripts/generate_data.py"
   },
   "keywords": [

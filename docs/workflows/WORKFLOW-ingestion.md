@@ -5,25 +5,25 @@
 **Status**: Approved
 
 ## Overview
-This workflow describes how the AetherGrid backend scans the local filesystem for Markdown transcripts and Office documents, parses their textual contents, extracts metadata (author, date, attendees, topic domain, priority level), chunks the text into semantic units, and populates the in-memory retrieval index.
+This workflow describes how the AetherGrid backend scans the local filesystem for Markdown transcripts inside `data/transcripts/`, parses their textual contents, extracts metadata (author facilitator, date, attendees, topic domain, priority level) from YAML frontmatter blocks, chunks the text into paragraph units, and populates the in-memory retrieval index.
 
 ## Actors
 | Actor | Role in this workflow |
 |---|---|
 | System Operator | Triggers manual ingestion via the UI console |
 | Server Bootstrapper | Triggers automated ingestion during application boot |
-| `ParserService` | Orchestrates file discovery, parsing strategy, and chunk generation |
-| Extractor Libraries | Mammoth (.docx), SheetJS (.xlsx), Officeparser (.pptx) extract raw text |
+| `ParserService` | Orchestrates file discovery, frontmatter parsing, and chunk generation |
+| Extractor Libraries | Bypassed Word/Excel/PowerPoint parsers to maximize performance and security |
 | In-Memory Cache | Holds the compiled index array (`DocumentChunk[]`) for semantic search |
 
 ## Prerequisites
-- Files to ingest must exist in `data/transcripts/` or `data/documents/` (or default mock directory structures).
-- Server must have read access to the data directories.
+- Files to ingest must exist in `data/transcripts/`.
+- Server must have read access to the transcripts directory.
 - Parser service must be initialized.
 
 ## Trigger
 - System Boot: Automatically runs `bootstrapIndex()` on start.
-- Manual API: HTTP `POST /api/ingest` triggered by operator clicking "Re-scan System Data" in the UI.
+- Manual API: HTTP `POST /api/ingest` triggered by operator or test runners.
 
 ---
 
@@ -31,35 +31,29 @@ This workflow describes how the AetherGrid backend scans the local filesystem fo
 
 ### STEP 1: Scan Data Directories
 **Actor**: `ParserService`
-**Action**: Scans and reads files under `/data/transcripts` (Markdown) and `/data/documents` (Office documents).
+**Action**: Scans and reads Markdown transcripts (`.md`) under `/data/transcripts/`.
 **Timeout**: 5s
-**Input**: Directory paths
+**Input**: Directory path
 **Output on SUCCESS**: `filesList` -> GO TO STEP 2
 **Output on FAILURE**:
-  - `FAILURE(dir_missing)`: `/data` or subfolders do not exist -> [recovery: Create directory paths recursively, return empty results, log error, GO TO STEP 4]
+  - `FAILURE(dir_missing)`: `/data/transcripts` does not exist -> [recovery: Create directory recursively, return empty results, log error, GO TO STEP 4]
   - `FAILURE(fs_read_error)`: Disk read/access permission error -> [recovery: Log critical permission issue, abort with 500 error status, notify operator]
 
 **Observable states during this step**:
-  - **Operator sees**: "Re-scanning..." status badge on navbar / spinning loader.
-  - **Database**: In-memory `documentIndex` remains unchanged.
-  - **Logs**: `[Parser] Scanning directories /data/transcripts and /data/documents`
+  - **Logs**: `[Parser] Scanning directory /data/transcripts`
 
 ---
 
 ### STEP 2: Parse File Formats & Extract Metadata
-**Actor**: `ParserService` & Extractor libraries
-**Action**: Iterates through each discovered file and applies specific parser:
-  - **Markdown (`.md`)**: Parses frontmatter (YAML block) for metadata and splits body by paragraphs.
-  - **Word (`.docx`)**: Runs `mammoth` text extraction, searches text layout for author/date indicators.
-  - **Excel (`.xlsx`)**: Runs `SheetJS` to read sheets, parses customized metadata block, builds grid strings.
-  - **PowerPoint (`.pptx`)**: Runs `officeparser` to extract slide texts.
+**Actor**: `ParserService` & raw text parsers
+**Action**: Iterates through each discovered transcript file:
+  - **Markdown (`.md`)**: Parses frontmatter (YAML block) for metadata (date, trimmed attendees array, facilitator binding as author, domain, priority) and splits body by paragraphs.
+  - **Bypassed Formats**: Office documents (`.docx`, `.xlsx`, `.pptx`) are bypassed and automatically pruned from `indexed_chunks.json` cache database to keep the index clean.
 **Timeout**: 30s
 **Input**: `filesList` (array of file paths)
 **Output on SUCCESS**: `rawChunksList` -> GO TO STEP 3
 **Output on FAILURE**:
-  - `FAILURE(mammoth_error)`: Specific Word document corrupt or unreadable -> [recovery: Log warning, skip document, proceed with rest of the files]
-  - `FAILURE(sheetjs_error)`: Excel sheet corrupt or format invalid -> [recovery: Log warning, skip document, proceed with rest of the files]
-  - `FAILURE(officeparser_error)`: PowerPoint extraction crash -> [recovery: Log warning, skip document, proceed with rest of the files]
+  - `FAILURE(parse_error)`: Specific Markdown document unreadable or malformed -> [recovery: Log warning, skip document, proceed with rest of the files]
 
 **Observable states during this step**:
   - **Operator sees**: Typing-loader waves or spinning progress bars.

@@ -119,5 +119,49 @@
     "id": "fb_1779322388448_605",
     "timestamp": "2026-05-21T00:13:08.448Z",
     "resolved": true
+  },
+  {
+    "query": "How do you bake a chocolate chip cookie at home?",
+    "answer": "I couldn&#x27;t find any relevant documents or meeting records in our database matching those search parameters.",
+    "confidenceScore": 0.05,
+    "status": "rejection",
+    "correctedAnswer": "Need to consult commercial and operations ledgers manually.",
+    "domain": "General",
+    "id": "fb_1779323910039_905",
+    "timestamp": "2026-05-21T00:38:30.039Z",
+    "resolved": true
+  },
+  {
+    "query": "How do you bake a chocolate chip cookie at home?",
+    "answer": "I couldn&#x27;t find any relevant documents or meeting records in our database matching those search parameters.",
+    "confidenceScore": 0.05,
+    "status": "rejection",
+    "correctedAnswer": "Need to consult commercial and operations ledgers manually.",
+    "domain": "General",
+    "id": "fb_1779323920580_363",
+    "timestamp": "2026-05-21T00:38:40.580Z",
+    "resolved": true
+  },
+  {
+    "query": "How do you bake a chocolate chip cookie at home?",
+    "answer": "I couldn&#x27;t find any relevant documents or meeting records in our database matching those search parameters.",
+    "confidenceScore": 0.05,
+    "status": "rejection",
+    "correctedAnswer": "Need to consult commercial and operations ledgers manually.",
+    "domain": "General",
+    "id": "fb_1779324228208_58",
+    "timestamp": "2026-05-21T00:43:48.208Z",
+    "resolved": true
+  },
+  {
+    "query": "How do you bake a chocolate chip cookie at home?",
+    "answer": "I couldn&#x27;t find any relevant documents or meeting records in our database matching those search parameters.",
+    "confidenceScore": 0.05,
+    "status": "rejection",
+    "correctedAnswer": "Need to consult commercial and operations ledgers manually.",
+    "domain": "General",
+    "id": "fb_1779324614290_814",
+    "timestamp": "2026-05-21T00:50:14.290Z",
+    "resolved": true
   }
 ]

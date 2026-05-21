@@ -12,11 +12,11 @@ graph TD
     %% Ingestion Pipeline
     subgraph Ingestion ["Ingestion & Parsing Pipeline"]
         MD_Files["Markdown Transcripts (.md)"] --> MD_P["MD Frontmatter Parser"]
-        DOCX_Files["Word Specifications (.docx)"] --> DOCX_P["Mammoth Text Extractor"]
-        PPTX_Files["PowerPoint Decks (.pptx)"] --> PPTX_P["Officeparser Extractor"]
-        XLSX_Files["Excel Sheets (.xlsx)"] --> XLSX_P["SheetJS Tabular Extractor"]
+        DOCX_Files["Word Specifications (.docx)"] -.->|Bypassed & Pruned| MD_P
+        PPTX_Files["PowerPoint Decks (.pptx)"] -.->|Bypassed & Pruned| MD_P
+        XLSX_Files["Excel Sheets (.xlsx)"] -.->|Bypassed & Pruned| MD_P
         
-        MD_P & DOCX_P & PPTX_P & XLSX_P --> Chunking["Document Semantic Chunking"]
+        MD_P --> Chunking["Document Semantic Paragraph Chunking"]
         Chunking --> DocIndex["Local In-Memory Document Store"]
     end
 
@@ -179,24 +179,24 @@ sequenceDiagram
 
     Boot->>PS: ingestAll()
     PS->>Cache: Read stored cache index
-    PS->>Disk: Scan folders & get file stats (mtime, size)
+    PS->>Disk: Scan /data/transcripts/ & get stats (mtime, size)
     
     alt Stats Match Cache (Cache Hit)
-        PS-->>PS: Bypass mammoth / SheetJS parsers (Warm Boot)
-        Note over PS: Ingest time drops to <3ms (99.2% speedup)
+        PS-->>PS: Bypass Markdown raw parsing (Warm Boot)
+        Note over PS: Ingest time drops to <3ms (99% speedup)
     else Stats Differ / New File (Cache Miss)
-        PS->>Disk: Execute custom parsing library (mammoth, xlsx, etc.)
-        PS->>Cache: Atomically update cache index (safeWriteJson)
+        PS->>Disk: Execute Markdown parser & frontmatter extraction
+        PS->>Cache: Atomically update cache index & prune legacy office docs (safeWriteJson)
     end
     
     actor Lead as Team Lead Operator
     participant API as /api/feedback/resolve
     participant RAM as In-Memory documentIndex
-
+ 
     Lead->>API: Approve corrected answer
     API->>RAM: Inject virtual DocumentChunk
     Note over RAM: Live RAM index sync: new query immediately returns correction!
 ```
 
-1.  **Fast Path (Warm Cache)**: On boot, the server retrieves filesystem metadata (file sizes and modified timestamps `mtimeMs`). If the stats match the records in `data/db/indexed_chunks.json`, the intense Office parser crawls are skipped, reducing system boot time from 387ms to under **3ms**.
+1.  **Fast Path (Warm Cache)**: On boot, the server retrieves filesystem metadata (file sizes and modified timestamps `mtimeMs`) for `.md` transcripts inside `/data/transcripts/`. If the stats match the records in `data/db/indexed_chunks.json`, raw parsing is bypassed, reducing system boot time to under **3ms**. Stale cache entries and legacy office document records are automatically pruned.
 2.  **Dynamic RAM Re-Indexing**: On correction approval (`POST /api/feedback/resolve`), the system parses a virtual `DocumentChunk` and dynamically merges it into the in-memory RAM `documentIndex` vector. Search results self-heal immediately without requiring a server reboot, ensuring zero operational downtime.

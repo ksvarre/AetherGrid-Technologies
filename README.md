@@ -76,6 +76,35 @@ npm run dev
 
 ---
 
+## 🔬 Reviewer Verification Suite (Terminal-Based)
+
+To provide an elite, frictionless review experience, AetherGrid incorporates two terminal-based verification utilities that run completely offline without external network or API dependencies.
+
+> [!NOTE]
+> If Windows or PowerShell blocks execution of scripts on your machine with a script execution policy warning, use the standard `cmd.exe /c` wrapper commands documented below to run testing suites directly.
+
+### A. The Automated Ingestion & In-Memory Assertions Playbook
+This runs the entire system through an automated validation suite—checking that transcripts scan correctly, domains parse from frontmatter, attendees parse as formal arrays, search matching is stems-aware, and low-confidence triggers suggested expert routing:
+```bash
+# Bypass PowerShell blocking and run automated assertions
+cmd.exe /c "npx ts-node src/backend/scripts/verify_system.ts"
+```
+
+### B. The Interactive Review Portal & Natural Language Sandbox
+This starts a colorful, interactive ANSI-styled terminal application where you can trigger manual ingestions, type custom search queries, inspect inline citations, and review derived metadata:
+1. Ensure the Express API is running in the background (via `npm run dev`).
+2. Run the interactive console portal:
+   ```bash
+   # Start the Interactive CLI Reviewer Portal
+   cmd.exe /c "node scripts/review.js"
+   ```
+3. Use the menu options to:
+   * **Option 1**: Run automated Exercise 1 assertions.
+   * **Option 2**: Open a Natural Language Sandbox to type questions (e.g., *"What is Elena's MAE target?"*) and view the synthesized answers, citations, and synchronous execution trace logs.
+   * **Option 3**: Print ready-to-copy cURL commands.
+
+---
+
 ## 🔬 Core Exercise Deliverables
 
 ### [Exercise 1: Ingestion, Enrichment, & Query API]

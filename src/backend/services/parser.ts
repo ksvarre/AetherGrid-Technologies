@@ -72,7 +72,7 @@ export class ParserService {
 
     let cacheDirty = false;
 
-    // 1. Ingest Transcripts (.md)
+    // 1. Ingest Transcripts (.md) exclusively for Exercise 1
     if (fs.existsSync(TRANSCRIPTS_DIR)) {
       const files = await fs.promises.readdir(TRANSCRIPTS_DIR);
       for (const file of files) {
@@ -102,44 +102,10 @@ export class ParserService {
       }
     }
 
-    // 2. Ingest Office Documents (.docx, .pptx, .xlsx)
-    if (fs.existsSync(DOCUMENTS_DIR)) {
-      const files = await fs.promises.readdir(DOCUMENTS_DIR);
-      for (const file of files) {
-        const filePath = path.join(DOCUMENTS_DIR, file);
-        if (file.endsWith('.docx') || file.endsWith('.pptx') || file.endsWith('.xlsx')) {
-          seenPaths.add(filePath);
-          try {
-            const stat = await fs.promises.stat(filePath);
-            const mtime = stat.mtimeMs;
-            const size = stat.size;
+    // Note: Office Documents (.docx, .pptx, .xlsx) parsing is completely disabled 
+    // for this pure Exercise 1 scope to maximize speed and secure the API surface.
 
-            const cached = cache.files[filePath];
-            if (cached && cached.mtime === mtime && cached.size === size) {
-              allChunks.push(...cached.chunks);
-              hitCount++;
-            } else {
-              let chunks: DocumentChunk[] = [];
-              if (file.endsWith('.docx')) {
-                chunks = await this.parseDocx(filePath, file);
-              } else if (file.endsWith('.pptx')) {
-                chunks = await this.parsePptx(filePath, file);
-              } else if (file.endsWith('.xlsx')) {
-                chunks = await this.parseXlsx(filePath, file);
-              }
-              cache.files[filePath] = { mtime, size, chunks };
-              cacheDirty = true;
-              allChunks.push(...chunks);
-              missCount++;
-            }
-          } catch (err) {
-            console.error(`❌ Error processing office file ${file}:`, err);
-          }
-        }
-      }
-    }
-
-    // Prune deleted files from the cache
+    // Prune deleted/disabled files from the cache automatically
     for (const cachedPath of Object.keys(cache.files)) {
       if (!seenPaths.has(cachedPath)) {
         delete cache.files[cachedPath];
@@ -151,14 +117,14 @@ export class ParserService {
     if (cacheDirty) {
       try {
         await safeWriteJson(CACHE_PATH, cache);
-        console.log(`💾 Ingestion cache updated at: ${CACHE_PATH}`);
+        console.log(`💾 Ingestion cache updated and pruned at: ${CACHE_PATH}`);
       } catch (err) {
         console.error("❌ Failed to write ingestion cache:", err);
       }
     }
 
     const duration = Date.now() - startTime;
-    console.log(`🚀 Ingestion complete: loaded ${allChunks.length} chunks. (Total Time: ${duration}ms | Cache Hits: ${hitCount} | Cache Misses/Parsed: ${missCount})`);
+    console.log(`🚀 Ingestion complete: loaded ${allChunks.length} transcript chunks. (Total Time: ${duration}ms | Cache Hits: ${hitCount} | Cache Misses/Parsed: ${missCount})`);
 
     return allChunks;
   }
@@ -174,6 +140,7 @@ export class ParserService {
     let attendees: string[] = [];
     let domain = 'General';
     let priority: 'High' | 'Medium' | 'Low' = 'Medium';
+    let facilitator = '';
 
     const frontmatterMatch = rawContent.match(/^---\r?\n([\s\S]*?)\r?\n---/);
     let cleanContent = rawContent;
@@ -186,18 +153,21 @@ export class ParserService {
         if (!key || valParts.length === 0) continue;
         const val = valParts.join(':').trim();
 
-        if (key.trim() === 'date') date = val;
-        else if (key.trim() === 'domain') domain = val;
-        else if (key.trim() === 'priority') {
+        const k = key.trim();
+        if (k === 'date') date = val;
+        else if (k === 'domain') domain = val;
+        else if (k === 'priority') {
           priority = (val as any) || 'Medium';
-        } else if (key.trim() === 'attendees') {
+        } else if (k === 'attendees') {
           attendees = val.split(',').map(s => s.trim());
+        } else if (k === 'facilitator') {
+          facilitator = val;
         }
       }
     }
 
     // Identify author (Facilitator or First Attendee)
-    const author = attendees[0] || 'Unknown Attendee';
+    const author = facilitator || attendees[0] || 'Unknown Attendee';
 
     // Chunking: Split into paragraphs for semantic index
     const paragraphs = cleanContent.split(/\r?\n\r?\n/).filter(p => p.trim().length > 10);

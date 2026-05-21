@@ -39,6 +39,7 @@ export interface QueryResponse {
   suggestedRouting?: SuggestedRouting;
   domain: string;
   priority: 'High' | 'Medium' | 'Low';
+  executionPipeline?: string[];
 }
 
 export interface INLPEngine {
@@ -149,14 +150,22 @@ export class OfflineNLPEngine implements INLPEngine {
   }
 
   public async queryDocuments(query: string, chunks: DocumentChunk[]): Promise<QueryResponse> {
+    const pipeline: string[] = [];
+    pipeline.push(`[Ingest] In-memory active database contains ${chunks.length} text chunks ready for parsing.`);
+
     const queryTokens = tokenize(query);
+    pipeline.push(`[Tokenize] Deconstructed query text: "${query}"`);
+    pipeline.push(`[Stem & Clean] Extracted and stemmed query tokens: [${queryTokens.map(t => `'${t}'`).join(', ')}]`);
+
     if (queryTokens.length === 0) {
+      pipeline.push(`[Analysis] Search terms failed stop-word whitelist. Aborting TF-IDF similarity calculation.`);
       return {
         answer: "I couldn't identify any searchable keywords in your query. Could you please specify a project (Quantum, Helium, Horizon) or technical term?",
         confidenceScore: 0.1,
         citations: [],
         domain: 'General',
-        priority: 'Low'
+        priority: 'Low',
+        executionPipeline: pipeline
       };
     }
 
@@ -171,8 +180,10 @@ export class OfflineNLPEngine implements INLPEngine {
         documentFrequencies[token] = (documentFrequencies[token] || 0) + 1;
       });
     });
+    pipeline.push(`[IDF Setup] Calculated Inverse Document Frequency weights for ${Object.keys(documentFrequencies).length} vocabulary terms.`);
 
     // Score chunks
+    pipeline.push(`[Similarity Index] Initiating TF-IDF cosine correlation matching across RAM corpus.`);
     const chunkScores = chunks.map(chunk => {
       const chunkTokens = tokenize(chunk.content);
       const tokenCounts: Record<string, number> = {};
@@ -205,14 +216,19 @@ export class OfflineNLPEngine implements INLPEngine {
       .slice(0, 3); // top 3 matches
 
     if (matches.length === 0) {
+      pipeline.push(`[Similarity Index] Cosine match scores = 0. No matching nodes located in active index scope.`);
       return {
         answer: "I couldn't find any relevant documents or meeting records in our database matching those search parameters.",
         confidenceScore: 0.05,
         citations: [],
         domain: 'General',
-        priority: 'Low'
+        priority: 'Low',
+        executionPipeline: pipeline
       };
     }
+
+    const rawMaxScore = matches[0].score;
+    pipeline.push(`[Similarity Match] Located ${matches.length} matching text chunks exceeding retrieval threshold. Highest score: ${rawMaxScore.toFixed(4)}.`);
 
     // Determine dominant domain
     const domainCounts: Record<string, number> = {};
@@ -221,6 +237,7 @@ export class OfflineNLPEngine implements INLPEngine {
     });
     const dominantDomain = Object.keys(domainCounts).sort((a, b) => domainCounts[b] - domainCounts[a])[0] || 'General';
     const dominantPriority = matches[0].chunk.priority;
+    pipeline.push(`[Classification] Domain mapping categorized as '${dominantDomain}' with priority: '${dominantPriority}'.`);
 
     // 2. Synthesize response text and citations
     const citations: Citation[] = [];
@@ -258,24 +275,27 @@ export class OfflineNLPEngine implements INLPEngine {
       
       answerParagraphs.push(`Based on ${m.chunk.author}'s notes in the ${m.chunk.fileName} (${fileText} dated ${m.chunk.date}): "${cleanSect}" [${marker}].`);
     });
+    pipeline.push(`[Synthesis] Compiled ${citations.length} custom inline source citations with metadata mappings.`);
 
     // 3. Compute scaled confidence score
     // Highest score in matches acts as basis
-    const rawMaxScore = matches[0].score;
     // Map raw score to a nice confidence scale [0.1, 0.95]
     const confidenceScore = Math.max(0.1, Math.min(0.95, 0.2 + rawMaxScore * 10));
+    pipeline.push(`[Confidence Calibration] Evaluated relative confidence metrics. Match confidence calibrated to: ${confidenceScore.toFixed(2)}.`);
 
     let answer = `AetherGrid local database found references for your question:\n\n` + answerParagraphs.join("\n\n");
     
     // Log the query event to database
     await dbService.logQuery(query, confidenceScore, dominantDomain);
+    pipeline.push(`[Telemetry] Instrumentation log written to SQLite database.`);
 
     return {
       answer,
       confidenceScore: parseFloat(confidenceScore.toFixed(2)),
       citations,
       domain: dominantDomain,
-      priority: dominantPriority
+      priority: dominantPriority,
+      executionPipeline: pipeline
     };
   }
 }

@@ -103,9 +103,13 @@ This starts a colorful, interactive ANSI-styled terminal application where you c
    cmd.exe /c "node scripts/review.js"
    ```
 3. Use the menu options to:
-   * **Option 1**: Run automated Exercise 1 assertions.
-   * **Option 2**: Open a Natural Language Sandbox to type questions (e.g., *"What is Elena's MAE target?"*) and view the synthesized answers, citations, and synchronous execution trace logs.
-   * **Option 3**: Print ready-to-copy cURL commands.
+   * **Option 1**: Run Exercise 1 (Transcript Ingestion & Local Query Engine Playbook).
+   * **Option 2**: Run Exercise 2 (Office Documents, Citations & Fallback Routing Playbook).
+   * **Option 3**: Run Exercise 3 (Lead Review Queue & Self-Healing Gateway Playbook).
+   * **Option 4**: Launch Interactive Natural Language Query Sandbox.
+   * **Option 5**: View 30-Day Success Metric & copy-paste cURL Reference Guides.
+   * **Option 6**: Exit the CLI Reviewer Portal.
+
 
 ---
 
@@ -117,7 +121,7 @@ This starts a colorful, interactive ANSI-styled terminal application where you c
 *   **Query API**: Serves `POST /api/query` accepting natural language questions, retrieving relevant meetings with their enriched structural metadata.
 *   👉 **How to Test & Validate**:
     1.  **Automated Ingestion Test**: Run `cmd.exe /c "npm run verify"` to execute automated assertions for Exercise 1 ingestion and metadata extraction, confirming a sub-10ms cached boot time.
-    2.  **CLI Sandbox Validation**: Open the **Interactive CLI Reviewer Portal** via `cmd.exe /c "npm run review"` and select **Option 2** (Natural Language Sandbox). Ask *"What is Elena's MAE target?"* or *"database scaling issue attendees"*. Observe how the system tokenizes, normalizes, stems plural/gerund terms, and returns a compiled answer with inline citations (`[1]`, `[2]`) and exact date/attendee arrays.
+    2.  **CLI Sandbox Validation**: Open the **Interactive CLI Reviewer Portal** via `cmd.exe /c "npm run review"` and select **Option 4** (Natural Language Sandbox). Ask *"What is Elena's MAE target?"* or *"database scaling issue attendees"*. Observe how the system tokenizes, normalizes, stems plural/gerund terms, and returns a compiled answer with inline citations (`[1]`, `[2]`) and exact date/attendee arrays.
     3.  **JSON API Check**: Send a raw cURL command to see the structured API response:
         ```bash
         curl -X POST http://localhost:5000/api/query -H "Content-Type: application/json" -d "{\"query\":\"database scaling crisis attendees\"}"

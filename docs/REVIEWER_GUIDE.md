@@ -254,3 +254,10 @@ npm run review
 npm run verify
 ```
 *(Executes programmatic assertions for Exercise 1 ingestion, Exercise 2 routing and feedback, and Exercise 3 metrics).*
+
+---
+
+## 🔮 Enterprise Staging Roadmap & Disclosures
+
+For a comprehensive technical analysis of the hybrid human-AI pair-programming workflow and the 7-phase architecture plan to deploy AetherGrid Knowledge Tracer into corporate production:
+*   **See**: **[Enterprise Staging Roadmap & AI Development Disclosures](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/docs/ROADMAP.md)**

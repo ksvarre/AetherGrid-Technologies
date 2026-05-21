@@ -131,50 +131,18 @@ This starts a colorful, interactive ANSI-styled terminal application where you c
 
 ## 🔮 Future Features & Development Roadmap
 
-To scale AetherGrid Knowledge Tracer into an enterprise-grade corporate portal, we have established an 8-point future feature backlog:
+To scale AetherGrid Knowledge Tracer into an enterprise-grade corporate portal, we have established a comprehensive 7-phase production engineering roadmap and AI development disclosure ledger.
 
-### 1. Admin Resolution Workflow for Reformulation Issues
-*   **Objective**: Transition search query friction from passive detection to active resolution by operators.
-*   **Proposed Solution**: Integrate a "Resolve Reformulation" action directly next to each pair in the Reformulation list in the Operator Portal. This opens a modal where a Team Lead can submit a custom "Golden Answer" for the reformulation pair. The backend will persist this to a new `data/db/reformulations_resolved.json` database, which compiles as a high-priority virtual chunk in the search index, self-healing that specific question immediately.
+Please refer to the complete **[Enterprise Staging Roadmap & AI Development Disclosures](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/docs/ROADMAP.md)** document for deep-dive technical plans covering:
 
-### 2. User-Facilitated Document Upload Gateway
-*   **Objective**: Democratize knowledge ingestion by enabling operators and administrators to upload new documents directly from the UI.
-*   **Proposed Solution**: Build a drag-and-drop file upload zone in the admin portal. A secure `POST /api/documents/upload` endpoint will enforce a 50MB file size limit, validate magic bytes (ZIP/OLE2 headers for DOCX, XLSX, PPTX, or standard headers for MD), and trigger an active hot-reindex to update search results instantly without server restarts.
-
-### 3. Microsoft Teams Collaborative Integration
-*   **Objective**: Turn suggested expert routing into active, collaborative corporate communication loops.
-*   **Proposed Solution**: Connect a Microsoft Teams incoming webhook or bot. When a low-confidence routing card is triggered, the user can click "Escalate to Teams", posting a rich interactive card in the expert's channel. The expert's reply will feed back into the feedback API to resolve the gap.
-
-### 4. Interactive Onboarding Guide & User How-To Suite
-*   **Objective**: Guide new operators and recruiters through the platform's advanced workflows with high-fidelity, interactive training prompts.
-*   **Proposed Solution**: Integrate a stateful step-by-step onboarding wizard (e.g. `react-joyride`) that walks new users through executing their first query, auditing citations, triggering suggested expert routing, and self-healing the knowledge base.
-
-### 5. Repository Publication Hardening & GitHub Cleanup
-*   **Objective**: Clean and standardize the repository for public or corporate distribution.
-*   **Proposed Solution**: Establish pre-configured `.gitignore` structures to exclude local development assets (e.g. active staging session database files, local keys), perform dependency security checks, run automated code formatting (Prettier), and supply clean empty JSON database templates under `data/db/` so the repository boots up instantly in a pristine state out-of-the-box.
-
-### 6. Institutional Database Migration & Cloud Hosting (e.g., Azure or Supabase)
-*   **Objective**: Transition from local file-based JSON storage and in-memory indexing to a production-ready, distributed relational database and semantic vector store, offloading compute heavy-lifting from the local server and frontend.
-*   **Proposed Solution**: Evaluate and establish an enterprise cloud-hosted data layer:
-    *   **Option A (Azure SQL + Azure AI Search)**: Deploy within an Azure subscription to align with enterprise corporate IT, using Azure SQL for relational metadata (feedback loops, metrics history) and Azure AI Search for highly scalable hybrid vector retrieval.
-    *   **Option B (Supabase / PostgreSQL with pgvector)**: Utilize Supabase's open-source Postgres cluster for unified structured tables and high-speed semantic embeddings matching.
-    *   Offload TF-IDF/Vector similarity computation, rolling diagnostics aggregation, and document indexing workloads from RAM to database views, remote trigger pipelines, and cloud-native background indexing engines. This ensures high availability and fast query execution across millions of organizational documents.
-
-### 7. Configurable Analytics Time-Frames & Reviewer Metrics Sandbox
-*   **Objective**: Adapt the performance trends visualization to support shorter, highly responsive time-frames (e.g., 7 days, 24 hours, or active session-based logs) and transition to a permanent, continuous instrumentation tracker rather than a fixed 30-day window, ensuring evaluators can immediately witness live changes to the health and confidence indexes.
-*   **Proposed Solution**:
-    *   **Configurable Time-Frames**: Add a time-period selector toggle (e.g., `24h`, `7d`, `30d`, `All Time`) on the System Health dashboard to filter metrics aggregates and trend lines dynamically.
-    *   **Reviewer Sandbox Simulation**: Introduce a "Simulator Mode" that allows reviewers to generate mock user search spikes, gaps, and lead resolution workflows compressed into a 5-minute interactive timeline. This enables instant visualization of system recovery metrics and proves the responsive telemetry tracking system works in real time under simulated evaluation scenarios.
-
-### 8. Secure Role-Based Access Control (RBAC) & User Authentication Gateway
-*   **Objective**: Guard administrative configurations and prevent unauthorized gap overrides by enforcing strict identity boundaries between standard users and team leads.
-*   **Proposed Solution**: 
-    *   **User Authentication**: Implement standard JWT-based authentication integrated with a secure enterprise Identity Provider (e.g. Auth0, Microsoft Entra ID / Azure AD, or Supabase Auth).
-    *   **Role-Based Gating**: Define two key roles:
-        *   `Operator / Reader`: Can execute natural language searches, view provenance citations, rate responses, submit corrections, and copy expert routing cards.
-        *   `Team Lead / Admin`: Can access the Audit Queue (to approve or disregard corrections), view detailed AetherPulse system health statistics, and customize BYOK model strategies in the Cloud Settings panel.
-    *   **Backend Gating Middleware**: Add a server-side `requireRole(['Admin'])` middleware to secure endpoints like `POST /api/feedback/resolve`, `GET /api/feedback`, `GET /api/metrics`, and `POST /api/ingest`.
-    *   **Frontend UI Hiding**: Enforce React-based routing guards and role checks to hide administrative tabs and disable unauthorized state changes for standard Operator logins.
+1.  **AI Co-Pilot & Development Disclosures**: Explicit breakdown of collaborative tooling including Antigravity, Gemini 3.5 Flash, Claude 3.6 Opus, GPT, and Copilot Chat.
+2.  **Phase 1: Secure Identity Gateway (SSO & RBAC)**: Gating the **Audit Queue** and analytics behind secure SSO (Microsoft Entra ID, Auth0) and Role-Based Access Control to prevent unauthorized approvals.
+3.  **Phase 2: Self-Service Document Ingestion Gateway**: Drag-and-drop file uploader in the React UI with ZIP PK header validations and dynamic hot-reindexing.
+4.  **Phase 3: Centralized Enterprise API Key Brokerage (No BYOK)**: Transitioning from client-managed keys to server-side enterprise secrets manager storage (Azure Key Vault, GCP Secret Manager) to control corporate billing and rate boundaries.
+5.  **Phase 4: Hybrid Sparse-Dense Search & Vector Database Migration**: Transitioning local files to PostgreSQL (Supabase with `pgvector`) and implementing hybrid search models (BM25 + Dense Vectors) with Reciprocal Rank Fusion.
+6.  **Phase 5: Continuous Evaluation & Automated Regression Pipeline**: Establishing automated CI/CD checks against a "golden dataset" using metrics like *Faithfulness* and *Context Recall* to prevent quality regressions on new uploads.
+7.  **Phase 6: Continuous Active Learning & Feedback Alignment Loops**: Periodically feeding approved corrections back into the LLM context as few-shot prompt alignments or incremental fine-tuning datasets.
+8.  **Phase 7: Collaborative Teams & Slack Action Loops**: Connecting low-confidence routing directly to interactive Teams/Slack messages so experts can resolve knowledge gaps with a single click.
 
 
 

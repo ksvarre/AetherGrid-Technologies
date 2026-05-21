@@ -91,6 +91,8 @@ These optimizations enhance search accuracy, track user search friction, and per
 - [x] Add an interactive **Reformulation Drill-Down Panel** showing anonymous query pairs (e.g. "pricing tier solar" $\rightarrow$ "Project Horizon pricing standard tier") to help identify gaps.
 - [x] Fix HTML entity double-encoding bug (`escapeHtml` excluding `'` and `/`) to render text like "couldn't" correctly.
 - [x] Add elegant HTML table grid styling for Excel citations in the citation slide-out panel.
+- [x] Implement robust regex-based markdown bold formatting parser (`parseBoldText`) in `SearchConsole.tsx` to cleanly handle arbitrary markdown double-asterisks (`**`) and format them as high-contrast `<strong>` React nodes.
+- [x] Refactor the static CSS grid in `.citations-list` to a responsive Flexbox-wrap layout to prevent card squeezing and handle long filenames without bounding overflows.
 
 ---
 

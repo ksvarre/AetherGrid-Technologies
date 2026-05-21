@@ -119,5 +119,16 @@
     "id": "fb_1779368915512_178",
     "timestamp": "2026-05-21T13:08:35.512Z",
     "resolved": false
+  },
+  {
+    "query": "What did Marcus say about firmware?",
+    "answer": "Marcus Vance stated that the fan curve in the current firmware was set to a low-RPM profile to minimize noise in residential substations [1]. However, this configuration, combined with high CPU usage from Elena's local telemetry pre-processing scripts, led to insufficient thermal dissipation and high core temperatures [1]. To address this, Marcus was tasked with modifying the firmware fan curve to activate maximum cooling when core temperatures surpass 75°C [2]. Additionally, Marcus also mentioned that precautions are necessary to prevent a random remote firmware update from bricking a node while it is in service [3].",
+    "confidenceScore": 1,
+    "status": "correct",
+    "domain": "Project Helium",
+    "id": "fb_1779376547865_874",
+    "timestamp": "2026-05-21T15:15:47.865Z",
+    "resolved": true,
+    "resolvedTimestamp": "2026-05-21T15:15:59.777Z"
   }
 ]

@@ -227,3 +227,16 @@ This document records the key architectural decisions, rationale, trade-offs, an
 *   **Trade-offs**: A custom wizard requires maintenance when component class names change (the spotlight targets CSS selectors). `react-joyride` handles DOM changes more gracefully via its `disableScrolling` and `spotlightPadding` props. However, the custom approach gives complete control over animations, positioning, and the cancellation UX. The 7-step configuration is declarative and easy to extend.
 *   **Verification**: TypeScript compiles clean (`tsc --noEmit`). Vite production build succeeds (23 modules, 0 errors). Manual testing confirms all 7 steps spotlight correctly, auto-tab switching works, all 3 cancel paths function, and `localStorage` persistence prevents re-launch after completion.
 
+---
+
+## Decision 22: Highly Resilient Regex-Based Markdown Bold Parser and Flexible Flexbox Citation Layout
+*   **Status**: Accepted
+*   **Context**: Under low-confidence and fallback search flows, local document sources are highlighted by wrapping metadocument headers (e.g., `Based on Amira Patel's notes in ...:`) in markdown double-asterisks (`**`). However, naive React split-based parsing or string slicing often broke when adjacent to punctuation, citation indices `[1]`, or custom paragraph markers, leading to literal `**` tags displaying directly. Additionally, the CSS grid columns in the Citation Ledger squeezed long file names, causing cards to overlap vertically or spill out of container boundaries on narrower browser resolutions.
+*   **Decision**: 
+    1. **Robust Regex-Based Bold Text Parser**: Implement a customized `parseBoldText` utility in `SearchConsole.tsx` leveraging a non-greedy regex `/\*\*([\s\S]+?)\*\*/g`. This utility isolates all text segments wrapped in double-asterisks and maps them to clean `<strong>` nodes.
+    2. **Inline Citation Integration**: Wire `parseBoldText` directly into the existing `renderFormattedAnswer` pipeline. This processes all generic text parts (before and after citation marks) through the parser, keeping superscript bracketed citations (e.g., `[1]`, `[2]`) 100% interactive and clickable.
+    3. **Fluid flex-wrap Layout**: Replace the `display: grid` pattern in `.citations-list` with a flexible flexbox wrap scheme (`display: flex; flex-wrap: wrap; gap: 1rem;`) alongside `flex: 1 1 calc(33.333% - 1rem)` and `overflow-wrap: anywhere` properties to wrap elements dynamically into balanced rows.
+*   **Rationale**: The regex pattern strips out double-asterisks securely and maps them to style-controlled elements with a high-contrast off-white (`var(--text-primary)`, `fontWeight: 800`), making attributions pop out clearly. The flex-wrap CSS layout guarantees that the Citation Ledger adapts to all screen sizes, automatically splitting cards into multiple rows as necessary.
+*   **Trade-offs**: None. This is a lightweight, pure-CSS and pure-React solution that completely preserves keyless offline operation and lightning-fast HMR load speeds.
+
+

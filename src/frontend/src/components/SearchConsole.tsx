@@ -136,9 +136,48 @@ export const SearchConsole: React.FC<SearchConsoleProps> = ({ onSearchResult, on
     }
   };
 
+  // Helper to parse **bold** markdown tags into <strong> elements
+  const parseBoldText = (input: string, keyPrefix: string): React.ReactNode[] => {
+    if (!input) return [];
+    if (!input.includes('**')) return [input];
+    
+    const regex = /\*\*([\s\S]+?)\*\*/g;
+    const parts: React.ReactNode[] = [];
+    let lastIndex = 0;
+    let match;
+
+    while ((match = regex.exec(input)) !== null) {
+      const matchIndex = match.index;
+      if (matchIndex > lastIndex) {
+        parts.push(input.substring(lastIndex, matchIndex));
+      }
+      parts.push(
+        <strong 
+          key={`${keyPrefix}-bold-${matchIndex}`} 
+          style={{ color: 'var(--text-primary)', fontWeight: 800 }}
+        >
+          {match[1]}
+        </strong>
+      );
+      lastIndex = regex.lastIndex;
+    }
+
+    if (lastIndex < input.length) {
+      parts.push(input.substring(lastIndex));
+    }
+
+    return parts.length > 0 ? parts : [input];
+  };
+
   // Turn [1], [2] annotations into beautiful clickable interactive elements
   const renderFormattedAnswer = (text: string) => {
-    if (!result || result.citations.length === 0) return <p className="answer-text">{text}</p>;
+    if (!result || result.citations.length === 0) {
+      return (
+        <div className="answer-text" style={{ whiteSpace: 'pre-wrap' }}>
+          {parseBoldText(text, 'fallback')}
+        </div>
+      );
+    }
 
     const parts: React.ReactNode[] = [];
     let currentIdx = 0;
@@ -153,7 +192,8 @@ export const SearchConsole: React.FC<SearchConsoleProps> = ({ onSearchResult, on
       
       // Push text segment leading up to match
       if (matchIndex > currentIdx) {
-        parts.push(text.substring(currentIdx, matchIndex));
+        const textSegment = text.substring(currentIdx, matchIndex);
+        parts.push(...parseBoldText(textSegment, `pre-${matchIndex}`));
       }
       
       // Verify citation index exists
@@ -177,7 +217,8 @@ export const SearchConsole: React.FC<SearchConsoleProps> = ({ onSearchResult, on
     }
     
     if (currentIdx < text.length) {
-      parts.push(text.substring(currentIdx));
+      const textSegment = text.substring(currentIdx);
+      parts.push(...parseBoldText(textSegment, `post-${currentIdx}`));
     }
 
     return (

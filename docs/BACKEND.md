@@ -208,7 +208,7 @@ When executing in local **Offline Mode**, the backend processes queries through 
 6.  **Refined Answer Synthesis**:
     *   If matching scores are high, the system compiles the text content of the top-ranking chunks.
     *   **Entity-Weighted Snippet Selector**: Extracts matching sentences/lines (split by `.`, `!`, `?`, and `\n`). The matching tokens are weighted (technical terms weight 3.0, speaker names 1.0, fillers 0.1), and the highest weighted sentence is chosen. This guarantees that technical context (like *"bricking the node"*) is quoted instead of dialogue headers like *"Marcus Vance: Good point"*.
-    *   It pieces them together into a readable response paragraph using structured text-connectors and inline numeric citations (`[1]`, `[2]`).
+    *   It pieces them together into a readable response paragraph using structured text-connectors and inline numeric citations (`[1]`, `[2]`), and uses double-asterisk template wrappers (`**Based on ...:**`) around document attribution headers to enable clean downstream visual partitioning.
     *   If no matching chunks score above the threshold, it sets confidence to `< 0.35` and triggers the suggested routing fallback.
 
 

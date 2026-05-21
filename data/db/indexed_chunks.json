@@ -1,8 +1,8 @@
 {
   "version": "1.0",
   "files": {
-    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\transcripts\\transcript_2026_01_12_quantum_kickoff.md": {
-      "mtime": 1779366104617.9363,
+    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_01_12_quantum_kickoff.md": {
+      "mtime": 1779325740000,
       "size": 1460,
       "chunks": [
         {
@@ -19,13 +19,7 @@
           ],
           "date": "2026-01-12",
           "domain": "Project Quantum",
-          "priority": "High",
-          "decisions": [
-            "Elena will lead the core training pipeline using weather forecast arrays."
-          ],
-          "actionItems": [
-            "Marcus to provision a PostgreSQL staging database with timescale DB extensions by January 20th."
-          ]
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_01_12_quantum_kickoff.md_chunk_1",
@@ -41,13 +35,7 @@
           ],
           "date": "2026-01-12",
           "domain": "Project Quantum",
-          "priority": "High",
-          "decisions": [
-            "Elena will lead the core training pipeline using weather forecast arrays."
-          ],
-          "actionItems": [
-            "Marcus to provision a PostgreSQL staging database with timescale DB extensions by January 20th."
-          ]
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_01_12_quantum_kickoff.md_chunk_2",
@@ -63,13 +51,7 @@
           ],
           "date": "2026-01-12",
           "domain": "Project Quantum",
-          "priority": "High",
-          "decisions": [
-            "Elena will lead the core training pipeline using weather forecast arrays."
-          ],
-          "actionItems": [
-            "Marcus to provision a PostgreSQL staging database with timescale DB extensions by January 20th."
-          ]
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_01_12_quantum_kickoff.md_chunk_3",
@@ -85,13 +67,7 @@
           ],
           "date": "2026-01-12",
           "domain": "Project Quantum",
-          "priority": "High",
-          "decisions": [
-            "Elena will lead the core training pipeline using weather forecast arrays."
-          ],
-          "actionItems": [
-            "Marcus to provision a PostgreSQL staging database with timescale DB extensions by January 20th."
-          ]
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_01_12_quantum_kickoff.md_chunk_4",
@@ -107,13 +83,7 @@
           ],
           "date": "2026-01-12",
           "domain": "Project Quantum",
-          "priority": "High",
-          "decisions": [
-            "Elena will lead the core training pipeline using weather forecast arrays."
-          ],
-          "actionItems": [
-            "Marcus to provision a PostgreSQL staging database with timescale DB extensions by January 20th."
-          ]
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_01_12_quantum_kickoff.md_chunk_5",
@@ -129,18 +99,12 @@
           ],
           "date": "2026-01-12",
           "domain": "Project Quantum",
-          "priority": "High",
-          "decisions": [
-            "Elena will lead the core training pipeline using weather forecast arrays."
-          ],
-          "actionItems": [
-            "Marcus to provision a PostgreSQL staging database with timescale DB extensions by January 20th."
-          ]
+          "priority": "Medium"
         }
       ]
     },
-    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\transcripts\\transcript_2026_01_28_helium_sensor_issue.md": {
-      "mtime": 1779366104617.9363,
+    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_01_28_helium_sensor_issue.md": {
+      "mtime": 1779325740000,
       "size": 1610,
       "chunks": [
         {
@@ -157,13 +121,7 @@
           ],
           "date": "2026-01-28",
           "domain": "Project Helium",
-          "priority": "High",
-          "decisions": [
-            "Marcus will modify the firmware fan curve to trigger maximum cooling when core temps exceed 75°C."
-          ],
-          "actionItems": [
-            "David to isolate the smart-meter subnet to stop the packet duplication storm by February 2nd."
-          ]
+          "priority": "High"
         },
         {
           "id": "transcript_2026_01_28_helium_sensor_issue.md_chunk_1",
@@ -179,13 +137,7 @@
           ],
           "date": "2026-01-28",
           "domain": "Project Helium",
-          "priority": "High",
-          "decisions": [
-            "Marcus will modify the firmware fan curve to trigger maximum cooling when core temps exceed 75°C."
-          ],
-          "actionItems": [
-            "David to isolate the smart-meter subnet to stop the packet duplication storm by February 2nd."
-          ]
+          "priority": "High"
         },
         {
           "id": "transcript_2026_01_28_helium_sensor_issue.md_chunk_2",
@@ -201,13 +153,7 @@
           ],
           "date": "2026-01-28",
           "domain": "Project Helium",
-          "priority": "High",
-          "decisions": [
-            "Marcus will modify the firmware fan curve to trigger maximum cooling when core temps exceed 75°C."
-          ],
-          "actionItems": [
-            "David to isolate the smart-meter subnet to stop the packet duplication storm by February 2nd."
-          ]
+          "priority": "High"
         },
         {
           "id": "transcript_2026_01_28_helium_sensor_issue.md_chunk_3",
@@ -223,13 +169,7 @@
           ],
           "date": "2026-01-28",
           "domain": "Project Helium",
-          "priority": "High",
-          "decisions": [
-            "Marcus will modify the firmware fan curve to trigger maximum cooling when core temps exceed 75°C."
-          ],
-          "actionItems": [
-            "David to isolate the smart-meter subnet to stop the packet duplication storm by February 2nd."
-          ]
+          "priority": "High"
         },
         {
           "id": "transcript_2026_01_28_helium_sensor_issue.md_chunk_4",
@@ -245,13 +185,7 @@
           ],
           "date": "2026-01-28",
           "domain": "Project Helium",
-          "priority": "High",
-          "decisions": [
-            "Marcus will modify the firmware fan curve to trigger maximum cooling when core temps exceed 75°C."
-          ],
-          "actionItems": [
-            "David to isolate the smart-meter subnet to stop the packet duplication storm by February 2nd."
-          ]
+          "priority": "High"
         },
         {
           "id": "transcript_2026_01_28_helium_sensor_issue.md_chunk_5",
@@ -267,18 +201,12 @@
           ],
           "date": "2026-01-28",
           "domain": "Project Helium",
-          "priority": "High",
-          "decisions": [
-            "Marcus will modify the firmware fan curve to trigger maximum cooling when core temps exceed 75°C."
-          ],
-          "actionItems": [
-            "David to isolate the smart-meter subnet to stop the packet duplication storm by February 2nd."
-          ]
+          "priority": "High"
         }
       ]
     },
-    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\transcripts\\transcript_2026_02_15_horizon_municipal_sales.md": {
-      "mtime": 1779366104618.936,
+    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_02_15_horizon_municipal_sales.md": {
+      "mtime": 1779325740000,
       "size": 1548,
       "chunks": [
         {
@@ -295,13 +223,7 @@
           ],
           "date": "2026-02-15",
           "domain": "Project Horizon",
-          "priority": "Medium",
-          "decisions": [
-            "Recommending LTO cells as the default for the high-frequency municipal tier."
-          ],
-          "actionItems": [
-            "Amira to deliver the Austin microgrid grid flow diagram by February 20th."
-          ]
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_02_15_horizon_municipal_sales.md_chunk_1",
@@ -317,13 +239,7 @@
           ],
           "date": "2026-02-15",
           "domain": "Project Horizon",
-          "priority": "Medium",
-          "decisions": [
-            "Recommending LTO cells as the default for the high-frequency municipal tier."
-          ],
-          "actionItems": [
-            "Amira to deliver the Austin microgrid grid flow diagram by February 20th."
-          ]
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_02_15_horizon_municipal_sales.md_chunk_2",
@@ -339,13 +255,7 @@
           ],
           "date": "2026-02-15",
           "domain": "Project Horizon",
-          "priority": "Medium",
-          "decisions": [
-            "Recommending LTO cells as the default for the high-frequency municipal tier."
-          ],
-          "actionItems": [
-            "Amira to deliver the Austin microgrid grid flow diagram by February 20th."
-          ]
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_02_15_horizon_municipal_sales.md_chunk_3",
@@ -361,13 +271,7 @@
           ],
           "date": "2026-02-15",
           "domain": "Project Horizon",
-          "priority": "Medium",
-          "decisions": [
-            "Recommending LTO cells as the default for the high-frequency municipal tier."
-          ],
-          "actionItems": [
-            "Amira to deliver the Austin microgrid grid flow diagram by February 20th."
-          ]
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_02_15_horizon_municipal_sales.md_chunk_4",
@@ -383,13 +287,7 @@
           ],
           "date": "2026-02-15",
           "domain": "Project Horizon",
-          "priority": "Medium",
-          "decisions": [
-            "Recommending LTO cells as the default for the high-frequency municipal tier."
-          ],
-          "actionItems": [
-            "Amira to deliver the Austin microgrid grid flow diagram by February 20th."
-          ]
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_02_15_horizon_municipal_sales.md_chunk_5",
@@ -405,18 +303,12 @@
           ],
           "date": "2026-02-15",
           "domain": "Project Horizon",
-          "priority": "Medium",
-          "decisions": [
-            "Recommending LTO cells as the default for the high-frequency municipal tier."
-          ],
-          "actionItems": [
-            "Amira to deliver the Austin microgrid grid flow diagram by February 20th."
-          ]
+          "priority": "Medium"
         }
       ]
     },
-    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\transcripts\\transcript_2026_03_02_database_scaling_crisis.md": {
-      "mtime": 1779366104619.9363,
+    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_03_02_database_scaling_crisis.md": {
+      "mtime": 1779325740000,
       "size": 1449,
       "chunks": [
         {
@@ -517,8 +409,8 @@
         }
       ]
     },
-    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\transcripts\\transcript_2026_03_19_gridpulse_pricing.md": {
-      "mtime": 1779366104619.9363,
+    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_03_19_gridpulse_pricing.md": {
+      "mtime": 1779325740000,
       "size": 1503,
       "chunks": [
         {
@@ -619,8 +511,8 @@
         }
       ]
     },
-    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\transcripts\\transcript_2026_04_05_substation_safety_audit.md": {
-      "mtime": 1779366104620.936,
+    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_04_05_substation_safety_audit.md": {
+      "mtime": 1779325740000,
       "size": 1242,
       "chunks": [
         {
@@ -705,8 +597,8 @@
         }
       ]
     },
-    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\transcripts\\transcript_2026_04_20_quantum_training_gaps.md": {
-      "mtime": 1779366104621.9375,
+    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_04_20_quantum_training_gaps.md": {
+      "mtime": 1779325740000,
       "size": 1322,
       "chunks": [
         {
@@ -807,8 +699,8 @@
         }
       ]
     },
-    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\transcripts\\transcript_2026_05_01_helium_antenna_planning.md": {
-      "mtime": 1779366104621.9375,
+    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_05_01_helium_antenna_planning.md": {
+      "mtime": 1779325740000,
       "size": 1196,
       "chunks": [
         {
@@ -893,8 +785,8 @@
         }
       ]
     },
-    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\transcripts\\transcript_2026_05_10_horizon_microgrid_rules.md": {
-      "mtime": 1779366104622.9363,
+    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_05_10_horizon_microgrid_rules.md": {
+      "mtime": 1779325740000,
       "size": 1170,
       "chunks": [
         {
@@ -979,8 +871,8 @@
         }
       ]
     },
-    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\transcripts\\transcript_2026_05_15_quarterly_roadmap_review.md": {
-      "mtime": 1779366104622.9363,
+    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_05_15_quarterly_roadmap_review.md": {
+      "mtime": 1779325740000,
       "size": 1075,
       "chunks": [
         {
@@ -1070,8 +962,8 @@
         }
       ]
     },
-    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\transcripts\\transcript_2026_05_18_devops_kubernetes_edge.md": {
-      "mtime": 1779366104623.9387,
+    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_05_18_devops_kubernetes_edge.md": {
+      "mtime": 1779325740000,
       "size": 1142,
       "chunks": [
         {
@@ -1156,8 +1048,8 @@
         }
       ]
     },
-    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\transcripts\\transcript_2026_05_19_emergency_load_simulation.md": {
-      "mtime": 1779366104624.341,
+    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_05_19_emergency_load_simulation.md": {
+      "mtime": 1779325740000,
       "size": 1169,
       "chunks": [
         {
@@ -1242,8 +1134,8 @@
         }
       ]
     },
-    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\documents\\devops_edge_infrastructure_scaling.docx": {
-      "mtime": 1779366104608.9382,
+    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\documents\\devops_edge_infrastructure_scaling.docx": {
+      "mtime": 1779325740000,
       "size": 37271,
       "chunks": [
         {
@@ -1332,8 +1224,8 @@
         }
       ]
     },
-    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\documents\\gridpulse_licensing_pricing_matrix.xlsx": {
-      "mtime": 1779366104609.937,
+    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\documents\\gridpulse_licensing_pricing_matrix.xlsx": {
+      "mtime": 1779325740000,
       "size": 5338,
       "chunks": [
         {
@@ -1350,8 +1242,8 @@
         }
       ]
     },
-    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\documents\\gridpulse_product_roadmap_q2_2026.pptx": {
-      "mtime": 1779366104610.936,
+    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\documents\\gridpulse_product_roadmap_q2_2026.pptx": {
+      "mtime": 1779325740000,
       "size": 30334,
       "chunks": [
         {
@@ -1368,8 +1260,8 @@
         }
       ]
     },
-    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\documents\\helium_edge_node_hardware_v2.docx": {
-      "mtime": 1779366104610.936,
+    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\documents\\helium_edge_node_hardware_v2.docx": {
+      "mtime": 1779325740000,
       "size": 37418,
       "chunks": [
         {
@@ -1470,8 +1362,8 @@
         }
       ]
     },
-    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\documents\\helium_hardware_thermal_tests.xlsx": {
-      "mtime": 1779366104611.9363,
+    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\documents\\helium_hardware_thermal_tests.xlsx": {
+      "mtime": 1779325740000,
       "size": 5353,
       "chunks": [
         {
@@ -1488,8 +1380,8 @@
         }
       ]
     },
-    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\documents\\helium_substation_deployment_plan.pptx": {
-      "mtime": 1779366104612.9363,
+    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\documents\\helium_substation_deployment_plan.pptx": {
+      "mtime": 1779325740000,
       "size": 30289,
       "chunks": [
         {
@@ -1506,8 +1398,8 @@
         }
       ]
     },
-    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\documents\\horizon_decentralized_microgrid_pitch.pptx": {
-      "mtime": 1779366104612.9363,
+    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\documents\\horizon_decentralized_microgrid_pitch.pptx": {
+      "mtime": 1779325740000,
       "size": 30297,
       "chunks": [
         {
@@ -1524,8 +1416,8 @@
         }
       ]
     },
-    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\documents\\infrastructure_node_capacity_allocations.xlsx": {
-      "mtime": 1779366104613.936,
+    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\documents\\infrastructure_node_capacity_allocations.xlsx": {
+      "mtime": 1779325740000,
       "size": 5288,
       "chunks": [
         {
@@ -1542,8 +1434,8 @@
         }
       ]
     },
-    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\documents\\quantum_load_prediction_demo.pptx": {
-      "mtime": 1779366104614.937,
+    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\documents\\quantum_load_prediction_demo.pptx": {
+      "mtime": 1779325740000,
       "size": 30278,
       "chunks": [
         {
@@ -1560,8 +1452,8 @@
         }
       ]
     },
-    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\documents\\quantum_ml_forecasting_spec.docx": {
-      "mtime": 1779366104615.937,
+    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\documents\\quantum_ml_forecasting_spec.docx": {
+      "mtime": 1779325740000,
       "size": 37419,
       "chunks": [
         {
@@ -1674,8 +1566,8 @@
         }
       ]
     },
-    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\documents\\quantum_model_benchmarks_v1.xlsx": {
-      "mtime": 1779366104616.9363,
+    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\documents\\quantum_model_benchmarks_v1.xlsx": {
+      "mtime": 1779325740000,
       "size": 5276,
       "chunks": [
         {
@@ -1692,8 +1584,8 @@
         }
       ]
     },
-    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\documents\\substation_operations_compliance_sop.docx": {
-      "mtime": 1779366104616.9363,
+    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\documents\\substation_operations_compliance_sop.docx": {
+      "mtime": 1779325740000,
       "size": 37198,
       "chunks": [
         {

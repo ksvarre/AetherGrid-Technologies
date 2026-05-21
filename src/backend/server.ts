@@ -10,6 +10,7 @@ import { INLPEngine, OfflineNLPEngine, GeminiNLPEngine, AzureOpenAINLPEngine, Do
 import { routingService } from './services/routing';
 import { dbService } from './services/database';
 
+// Trigger nodemon reload again
 const getDir = (sub: string) => {
   let p = path.resolve(__dirname, `../../${sub}`);
   if (fs.existsSync(p)) return p;

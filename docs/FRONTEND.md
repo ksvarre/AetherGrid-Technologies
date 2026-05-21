@@ -125,6 +125,16 @@ When a user queries the Search Console and clicks on a citation that originates 
 ### 5. Repositioned SVG Performance Trends Chart
 To allow space for the unified telemetry row and interactive drawers, the 30-day performance trends line chart has been moved to the bottom of the System Health page, serving as a comprehensive history footer.
 
+### 6. Robust Markdown Bold Parser
+The search console features a built-in `parseBoldText` markdown compiler:
+* **Regex Engine**: Replaced index splits with a non-greedy regex `/\*\*([\s\S]+?)\*\*/g` to cleanly parse double-asterisks across line breaks and punctuation.
+* **Inline Attributions**: Bold parsed segments map to high-contrast `<strong>` nodes (styled with `var(--text-primary)` and `fontWeight: 800`) while preserving clickability and interactivity of superscript citations (`[1]`, `[2]`).
+
+### 7. Fluid Flexbox Citations Ledger Layout
+The citation ledger has been updated to handle massive filenames and dense content on various screen resolutions:
+* **Flexible Sizing**: Replaced static columns with a fluid `.citations-list` flex-wrap layout using `flex: 1 1 calc(33.333% - 1rem)` and `min-width: 280px`.
+* **Ellipsis & Wraps**: Integrated `overflow-wrap: anywhere` and `word-break: break-all` rules on all file links and meta drawers to prevent layout squeezing and text overflows.
+
 ---
 
 ## 🛡️ Frontend Security Hardening

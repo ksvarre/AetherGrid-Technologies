@@ -178,6 +178,109 @@ function validateLLMResponse(parsed: any): {
   };
 }
 
+/**
+ * Repairs typical syntax anomalies found in LLM JSON responses (e.g. unescaped inner quotes, newlines, trailing commas).
+ */
+function repairJSON(str: string): string {
+  let cleaned = str.trim();
+
+  // 1. Remove markdown code blocks if any remain
+  cleaned = cleaned.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim();
+
+  // 2. Ensure it starts with { and ends with } (strip any trailing text/garbage from LLMs)
+  const firstCurly = cleaned.indexOf('{');
+  const lastCurly = cleaned.lastIndexOf('}');
+  if (firstCurly !== -1 && lastCurly !== -1 && lastCurly > firstCurly) {
+    cleaned = cleaned.substring(firstCurly, lastCurly + 1);
+  }
+
+  // 3. Replace actual control newlines/tabs inside string values with escaped \n, \t
+  let inString = false;
+  let escapeActive = false;
+  let result = '';
+
+  for (let i = 0; i < cleaned.length; i++) {
+    const char = cleaned[i];
+
+    if (escapeActive) {
+      result += char;
+      escapeActive = false;
+      continue;
+    }
+
+    if (char === '\\') {
+      result += char;
+      escapeActive = true;
+      continue;
+    }
+
+    if (char === '"') {
+      inString = !inString;
+      result += char;
+      continue;
+    }
+
+    if (inString) {
+      if (char === '\n') {
+        result += '\\n';
+      } else if (char === '\r') {
+        result += '\\r';
+      } else if (char === '\t') {
+        result += '\\t';
+      } else {
+        result += char;
+      }
+    } else {
+      result += char;
+    }
+  }
+  
+  cleaned = result;
+
+  // 4. Remove trailing commas before closing braces/brackets
+  cleaned = cleaned.replace(/,\s*([}\]])/g, '$1');
+
+  // 5. Escape unescaped double quotes inside the "answer" property
+  const answerRegex = /("answer"\s*:\s*")([\s\S]*?)("\s*,\s*"(?:confidenceScore|domain|priority|citations|citationsList)")/i;
+  const match = cleaned.match(answerRegex);
+  if (match) {
+    const prefix = match[1];
+    const content = match[2];
+    const suffix = match[3];
+    // Escape all double quotes inside the captured content unless they are already escaped
+    const escapedContent = content.replace(/(?<!\\)"/g, '\\"');
+    cleaned = cleaned.replace(answerRegex, `${prefix}${escapedContent}${suffix}`);
+  }
+
+  // 6. Escape unescaped double quotes inside the "matchedSnippet" property inside citations list
+  const citationRegex = /("matchedSnippet"\s*:\s*")([\s\S]*?)("\s*([},]))/gi;
+  cleaned = cleaned.replace(citationRegex, (m, prefix, content, suffix) => {
+    const escapedContent = content.replace(/(?<!\\)"/g, '\\"');
+    return `${prefix}${escapedContent}${suffix}`;
+  });
+
+  return cleaned;
+}
+
+/**
+ * Robustly parses JSON from LLM string outputs, employing self-healing heuristics on failure.
+ */
+function robustJSONParse(text: string): any {
+  const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
+  try {
+    return JSON.parse(cleaned);
+  } catch (err) {
+    console.warn("⚠️ Initial JSON parse failed. Attempting robust self-healing repair. Raw response:\n", text);
+    try {
+      const repaired = repairJSON(cleaned);
+      return JSON.parse(repaired);
+    } catch (repairErr) {
+      console.error("❌ Both initial parse and self-healing repair failed. Repair attempted on:\n", cleaned);
+      throw err; // throw original parse error
+    }
+  }
+}
+
 function getChunkSpeaker(chunk: DocumentChunk): string {
   const match = chunk.content.match(/^\*\*([^*:]+)\*\*:/);
   if (match) {
@@ -447,7 +550,7 @@ export class OfflineNLPEngine implements INLPEngine {
       const cleanSect = bestSentence.length > 180 ? bestSentence.substring(0, 180) + '...' : bestSentence;
       const fileText = m.chunk.fileType === 'transcript' ? 'meeting minutes' : `${m.chunk.fileType} file`;
       
-      answerParagraphs.push(`Based on ${m.chunk.author}'s notes in the ${m.chunk.fileName} (${fileText} dated ${m.chunk.date}): "${cleanSect}" [${marker}].`);
+      answerParagraphs.push(`**Based on ${m.chunk.author}'s notes in the ${m.chunk.fileName} (${fileText} dated ${m.chunk.date}):** "${cleanSect}" [${marker}].`);
     });
     pipeline.push(`[Synthesis] Compiled ${citations.length} custom inline source citations with metadata mappings.`);
 
@@ -531,11 +634,14 @@ Return ONLY a JSON object with this shape (no markdown wrapping, no extra keys):
   "decisions": ["string"],
   "actionItems": ["string"]
 }`,
+        config: {
+          responseMimeType: 'application/json'
+        }
       });
 
       const responseText = response.text || '{}';
       const cleanText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
-      const parsed = JSON.parse(cleanText);
+      const parsed = robustJSONParse(cleanText);
       return {
         domain: parsed.domain || 'General',
         priority: parsed.priority || 'Medium',
@@ -612,7 +718,9 @@ ${sanitizedQuery}
 
 Instructions:
 1. Synthesize a comprehensive, professional, natural language answer from the context above.
-2. Embed the Chunk ID inline at the end of claims (e.g. "Project Quantum validation achieved an MAE of 1.15 MW [quantum_spec_c1].")
+2. Embed the Chunk ID inline at the end of claims (e.g. "Project Quantum validation achieved an MAE of 1.15 MW [quantum_spec_c1].").
+   - NEVER group multiple Chunk IDs in a single set of brackets (e.g., do NOT write [ID1, ID2]). Write them separately: [ID1][ID2].
+   - NEVER use sequential numerical indexes like [1] or [6] in your text; always cite the exact [Chunk ID] string.
 3. Assess your confidence score in the answer (on a scale from 0.0 to 1.0) based on how well the context answered the question.
 4. Output your response as a strict JSON object with this exact shape:
 {
@@ -632,50 +740,85 @@ Return ONLY the raw JSON object. Do not wrap in markdown \`\`\`json blocks.`;
       const ai = await this.getAIInstance();
       const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
-        contents: prompt
+        contents: prompt,
+        config: {
+          responseMimeType: 'application/json'
+        }
       });
 
       const responseText = response.text || '{}';
       const cleanText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
-      const parsed = validateLLMResponse(JSON.parse(cleanText));
+      const parsed = validateLLMResponse(robustJSONParse(cleanText));
 
-      // Re-map full citation details from topChunks
-      const fullCitations = (parsed.citations || []).map((cit: any) => {
-        const original = topChunks.find(c => c.id === cit.chunkId);
-        if (original) {
-          return {
-            chunkId: original.id,
-            fileName: original.fileName,
-            filePath: original.filePath,
-            author: original.author,
-            attendees: original.attendees,
-            date: original.date,
-            matchedSnippet: cit.matchedSnippet || original.content.substring(0, 200),
-            decisions: original.decisions || [],
-            actionItems: original.actionItems || []
-          };
-        }
-        return null;
-      }).filter(Boolean) as Citation[];
-
-      // Replace Gemini Chunk ID annotations in answer string to user friendly numbers (e.g. [1], [2])
+      // Extract and map all citations robustly from LLM response
       let UserAnswer = parsed.answer || '';
       const finalCitations: Citation[] = [];
+      const parsedCitations = parsed.citations || [];
 
-      fullCitations.forEach((cit, idx) => {
-        const marker = idx + 1;
-        const markerRegex = new RegExp(`\\[${cit.chunkId}\\]`, 'g');
-        if (UserAnswer.match(markerRegex)) {
-          UserAnswer = UserAnswer.replace(markerRegex, `[${marker}]`);
-          finalCitations.push(cit);
+      // Helper to add a chunk as a citation and return its 1-based index
+      const addCitation = (chunk: DocumentChunk): number => {
+        let index = finalCitations.findIndex(c => c.chunkId === chunk.id);
+        if (index === -1) {
+          const parsedCit = parsedCitations.find((c: any) => c.chunkId === chunk.id);
+          const matchedSnippet = parsedCit?.matchedSnippet || chunk.content.substring(0, 200);
+
+          finalCitations.push({
+            chunkId: chunk.id,
+            fileName: chunk.fileName,
+            filePath: chunk.filePath,
+            author: chunk.author,
+            attendees: chunk.attendees || [],
+            date: chunk.date,
+            matchedSnippet,
+            decisions: chunk.decisions || [],
+            actionItems: chunk.actionItems || []
+          });
+          index = finalCitations.length - 1;
         }
+        return index + 1;
+      };
+
+      // Scan and replace bracketed citations (including grouped ones and numeric indexes)
+      const bracketRegex = /\[([^\]]+)\]/g;
+      UserAnswer = UserAnswer.replace(bracketRegex, (match, innerContent) => {
+        const tokens = innerContent.split(/[,;\s]+/).map((t: string) => t.trim()).filter(Boolean);
+        const resolvedIndices: number[] = [];
+
+        for (const token of tokens) {
+          if (/^\d+$/.test(token)) {
+            const num = parseInt(token, 10);
+            if (num >= 1 && num <= topChunks.length) {
+              const chunk = topChunks[num - 1];
+              const marker = addCitation(chunk);
+              resolvedIndices.push(marker);
+            }
+          } else {
+            const chunk = topChunks.find(c => 
+              c.id === token || 
+              (token.length >= 10 && c.id.includes(token)) || 
+              (token.length >= 10 && token.includes(c.id))
+            );
+            if (chunk) {
+              const marker = addCitation(chunk);
+              resolvedIndices.push(marker);
+            }
+          }
+        }
+
+        if (resolvedIndices.length > 0) {
+          return resolvedIndices.map(idx => `[${idx}]`).join('');
+        }
+        return match;
       });
 
-      // If no markers matched but we have citations, append them
-      if (finalCitations.length === 0 && fullCitations.length > 0) {
-        fullCitations.forEach((cit, idx) => {
-          finalCitations.push(cit);
-          UserAnswer += ` [${idx + 1}]`;
+      // Fallback if no citations were resolved but citations exist in JSON
+      if (finalCitations.length === 0 && parsedCitations.length > 0) {
+        parsedCitations.forEach((cit: any) => {
+          const original = topChunks.find(c => c.id === cit.chunkId);
+          if (original) {
+            const marker = addCitation(original);
+            UserAnswer += ` [${marker}]`;
+          }
         });
       }
 
@@ -777,7 +920,7 @@ Return ONLY a JSON object with this shape (no markdown wrapping, no extra keys):
       const responseData: any = await res.json();
       const responseText = responseData.choices?.[0]?.message?.content || '{}';
       const cleanText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
-      const parsed = JSON.parse(cleanText);
+      const parsed = robustJSONParse(cleanText);
 
       return {
         domain: parsed.domain || 'General',
@@ -827,7 +970,9 @@ ${sanitizedQuery}
 
 Instructions:
 1. Synthesize a comprehensive, professional, natural language answer from the context above.
-2. Embed the Chunk ID inline at the end of claims (e.g. "Project Quantum validation achieved an MAE of 1.15 MW [quantum_spec_c1].")
+2. Embed the Chunk ID inline at the end of claims (e.g. "Project Quantum validation achieved an MAE of 1.15 MW [quantum_spec_c1].").
+   - NEVER group multiple Chunk IDs in a single set of brackets (e.g., do NOT write [ID1, ID2]). Write them separately: [ID1][ID2].
+   - NEVER use sequential numerical indexes like [1] or [6] in your text; always cite the exact [Chunk ID] string.
 3. Assess your confidence score in the answer (on a scale from 0.0 to 1.0) based on how well the context answered the question.
 4. Output your response as a strict JSON object with this exact shape:
 {
@@ -870,42 +1015,77 @@ Return ONLY the raw JSON object. Do not wrap in markdown \`\`\`json blocks.`;
       const responseData: any = await res.json();
       const responseText = responseData.choices?.[0]?.message?.content || '{}';
       const cleanText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
-      const parsed = validateLLMResponse(JSON.parse(cleanText));
+      const parsed = validateLLMResponse(robustJSONParse(cleanText));
 
-      const fullCitations = (parsed.citations || []).map((cit: any) => {
-        const original = topChunks.find(c => c.id === cit.chunkId);
-        if (original) {
-          return {
-            chunkId: original.id,
-            fileName: original.fileName,
-            filePath: original.filePath,
-            author: original.author,
-            attendees: original.attendees || [],
-            date: original.date,
-            matchedSnippet: cit.matchedSnippet || original.content.substring(0, 200),
-            decisions: original.decisions || [],
-            actionItems: original.actionItems || []
-          };
-        }
-        return null;
-      }).filter(Boolean) as Citation[];
-
+      // Extract and map all citations robustly from LLM response
       let UserAnswer = parsed.answer || '';
       const finalCitations: Citation[] = [];
+      const parsedCitations = parsed.citations || [];
 
-      fullCitations.forEach((cit, idx) => {
-        const marker = idx + 1;
-        const markerRegex = new RegExp(`\\[${cit.chunkId}\\]`, 'g');
-        if (UserAnswer.match(markerRegex)) {
-          UserAnswer = UserAnswer.replace(markerRegex, `[${marker}]`);
-          finalCitations.push(cit);
+      // Helper to add a chunk as a citation and return its 1-based index
+      const addCitation = (chunk: DocumentChunk): number => {
+        let index = finalCitations.findIndex(c => c.chunkId === chunk.id);
+        if (index === -1) {
+          const parsedCit = parsedCitations.find((c: any) => c.chunkId === chunk.id);
+          const matchedSnippet = parsedCit?.matchedSnippet || chunk.content.substring(0, 200);
+
+          finalCitations.push({
+            chunkId: chunk.id,
+            fileName: chunk.fileName,
+            filePath: chunk.filePath,
+            author: chunk.author,
+            attendees: chunk.attendees || [],
+            date: chunk.date,
+            matchedSnippet,
+            decisions: chunk.decisions || [],
+            actionItems: chunk.actionItems || []
+          });
+          index = finalCitations.length - 1;
         }
+        return index + 1;
+      };
+
+      // Scan and replace bracketed citations (including grouped ones and numeric indexes)
+      const bracketRegex = /\[([^\]]+)\]/g;
+      UserAnswer = UserAnswer.replace(bracketRegex, (match, innerContent) => {
+        const tokens = innerContent.split(/[,;\s]+/).map((t: string) => t.trim()).filter(Boolean);
+        const resolvedIndices: number[] = [];
+
+        for (const token of tokens) {
+          if (/^\d+$/.test(token)) {
+            const num = parseInt(token, 10);
+            if (num >= 1 && num <= topChunks.length) {
+              const chunk = topChunks[num - 1];
+              const marker = addCitation(chunk);
+              resolvedIndices.push(marker);
+            }
+          } else {
+            const chunk = topChunks.find(c => 
+              c.id === token || 
+              (token.length >= 10 && c.id.includes(token)) || 
+              (token.length >= 10 && token.includes(c.id))
+            );
+            if (chunk) {
+              const marker = addCitation(chunk);
+              resolvedIndices.push(marker);
+            }
+          }
+        }
+
+        if (resolvedIndices.length > 0) {
+          return resolvedIndices.map(idx => `[${idx}]`).join('');
+        }
+        return match;
       });
 
-      if (finalCitations.length === 0 && fullCitations.length > 0) {
-        fullCitations.forEach((cit, idx) => {
-          finalCitations.push(cit);
-          UserAnswer += ` [${idx + 1}]`;
+      // Fallback if no citations were resolved but citations exist in JSON
+      if (finalCitations.length === 0 && parsedCitations.length > 0) {
+        parsedCitations.forEach((cit: any) => {
+          const original = topChunks.find(c => c.id === cit.chunkId);
+          if (original) {
+            const marker = addCitation(original);
+            UserAnswer += ` [${marker}]`;
+          }
         });
       }
 

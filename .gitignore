@@ -39,4 +39,9 @@ data/db/*.tmp
 
 # Agent Workspace Rules - Ignore locked system skills, track all custom skills
 .agents/skills/agency-*/
+!.agents/skills/agency-backend-architect/
+!.agents/skills/agency-security-engineer/
+!.agents/skills/agency-senior-developer/
+!.agents/skills/agency-frontend-developer/
+!.agents/skills/agency-code-reviewer/
 .agents/skills/core-directives/

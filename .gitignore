@@ -44,4 +44,5 @@ data/db/*.tmp
 !.agents/skills/agency-senior-developer/
 !.agents/skills/agency-frontend-developer/
 !.agents/skills/agency-code-reviewer/
+!.agents/skills/agency-workflow-architect/
 .agents/skills/core-directives/

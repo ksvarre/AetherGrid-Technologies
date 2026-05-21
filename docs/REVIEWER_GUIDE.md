@@ -211,6 +211,23 @@ The AetherGrid Knowledge Tracer is enhanced with Phase 3 diagnostics that can be
 *   **Body Size Limit**: POST >100KB JSON body → HTTP 413 `Payload Too Large`.
 *   **Automated Security Test Suite**: Run `npx ts-node test_security.ts` from `src/backend/` to execute all 13 security integration tests.
 
+### 6. Verification of Interactive Onboarding Walkthrough
+*   **First-Visit Auto-Launch**: Open the app in an incognito window or clear `localStorage` → the welcome screen appears automatically after ~800ms.
+*   **Welcome Screen Options**: The centered glassmorphic card offers "Start Tour" and "Skip Tour" buttons.
+*   **Skip Tour**: Click "Skip Tour" on the welcome screen → wizard closes, `localStorage` is set, wizard does NOT auto-launch on next visit.
+*   **7-Step Tour**: Click "Start Tour" and walk through all 7 steps:
+    1.  Sidebar navigation is spotlighted
+    2.  Search bar is spotlighted
+    3.  Answer/results card is spotlighted (requires a search result to be present)
+    4.  Feedback buttons are spotlighted
+    5.  Tab auto-switches to Audit Queue, audit table is spotlighted
+    6.  Tab auto-switches to Analytics, KPI grid is spotlighted
+    7.  Settings gear button is spotlighted
+*   **Cancel Paths**: At any step, the tour can be exited via: (1) "Skip" button, (2) ✕ close button in the tooltip corner, (3) pressing the Escape key.
+*   **Keyboard Navigation**: Use ← → arrow keys to go back/forward, Enter to advance, Escape to dismiss.
+*   **Persistence**: After completing or skipping, refresh the page → wizard does NOT auto-launch again.
+*   **Re-Launch**: Click the "?" button in the main header (next to the settings gear) → wizard re-launches from the welcome screen.
+
 ---
 
 ## 🚀 Playbooks & Verification Commands

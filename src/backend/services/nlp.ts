@@ -114,6 +114,13 @@ function tokenize(text: string): string[] {
     .filter(word => word.length > 2 && !STOP_WORDS.has(word))
     .map(word => stem(word));
 }
+function getChunkSpeaker(chunk: DocumentChunk): string {
+  const match = chunk.content.match(/^\*\*([^*:]+)\*\*:/);
+  if (match) {
+    return match[1].trim();
+  }
+  return chunk.author;
+}
 
 
 /**
@@ -190,21 +197,76 @@ export class OfflineNLPEngine implements INLPEngine {
       chunkTokens.forEach(t => { tokenCounts[t] = (tokenCounts[t] || 0) + 1; });
 
       let score = 0;
+      const fillerWords = ['say', 'said', 'says', 'ask', 'asked', 'asks', 'tell', 'told', 'tells', 'talk', 'talks', 'spoke', 'speak'];
+      const speakerNames = ['marcus', 'vance', 'amira', 'patel', 'david', 'kross', 'sarah', 'chen', 'elena', 'rostova'];
+
       queryTokens.forEach(token => {
         if (tokenCounts[token]) {
           const tf = tokenCounts[token] / chunkTokens.length;
           const df = documentFrequencies[token] || 1;
-          const idf = Math.log(1 + N / df);
+          let idf = Math.log(1 + N / df);
           
-          // Boost score if keyword represents specific entities
+          // Downweight conversational filler words by 90%
+          if (fillerWords.includes(token)) {
+            idf = idf * 0.1;
+          }
+          
+          // Boost score if keyword represents specific entities (includes first & last names)
           let boost = 1.0;
-          if (['quantum', 'helium', 'horizon', 'rostova', 'vance', 'kross', 'patel', 'chen'].includes(token)) {
+          if (['quantum', 'helium', 'horizon', 'rostova', 'vance', 'kross', 'patel', 'chen', 'marcus', 'amira', 'david', 'sarah', 'elena'].includes(token)) {
             boost = 2.0;
           }
           
           score += tf * idf * boost;
         }
       });
+
+      // Metadata-aware Dialogue Speaker & Topic Affinity Boosts
+      const activeSpeaker = getChunkSpeaker(chunk).toLowerCase();
+      let speakerMatched = false;
+      
+      queryTokens.forEach(token => {
+        if (speakerNames.includes(token) && activeSpeaker.includes(token)) {
+          speakerMatched = true;
+        }
+      });
+
+      if (speakerMatched) {
+        score += 0.5; // Baseline speaker match boost
+        
+        // High affinity boost: if they matched the active speaker AND the dialogue contains
+        // technical keywords (excluding speaker names and conversational filler words)
+        const technicalQueryTokens = queryTokens.filter(t => 
+          !fillerWords.includes(t) && !speakerNames.includes(t)
+        );
+        
+        const contentTokens = new Set(chunkTokens);
+        let technicalMatches = 0;
+        technicalQueryTokens.forEach(t => {
+          if (contentTokens.has(t)) {
+            technicalMatches++;
+          }
+        });
+        
+        if (technicalMatches > 0) {
+          score += 1.5 * technicalMatches; // Technical speaker-topic affinity boost
+        }
+      }
+
+      // Attendee presence boost (minor query-attendant matching)
+      let attendeeMatched = false;
+      const attendeesLower = chunk.attendees.map(a => a.toLowerCase());
+      queryTokens.forEach(token => {
+        if (speakerNames.includes(token)) {
+          const matchFound = attendeesLower.some(att => att.includes(token));
+          if (matchFound) {
+            attendeeMatched = true;
+          }
+        }
+      });
+      if (attendeeMatched) {
+        score += 0.1; // minor baseline attendee presence boost
+      }
 
       return { chunk, score };
     });
@@ -256,15 +318,28 @@ export class OfflineNLPEngine implements INLPEngine {
       });
 
       // Extract the most relevant sentence containing query keywords
-      const sentences = m.chunk.content.split(/[.!?]+/).map(s => s.trim()).filter(Boolean);
+      const sentences = m.chunk.content.split(/[.!?\r\n]+/).map(s => s.trim()).filter(Boolean);
       let bestSentence = sentences[0] || m.chunk.content;
-      let maxKeywordMatches = 0;
+      let maxWeight = -1;
 
       sentences.forEach(sentence => {
         const sentenceTokens = new Set(tokenize(sentence));
-        const matchCount = queryTokens.filter(t => sentenceTokens.has(t)).length;
-        if (matchCount > maxKeywordMatches) {
-          maxKeywordMatches = matchCount;
+        let weight = 0;
+        queryTokens.forEach(t => {
+          if (sentenceTokens.has(t)) {
+            const isSpeaker = ['marcus', 'vance', 'amira', 'patel', 'david', 'kross', 'sarah', 'chen', 'elena', 'rostova'].includes(t);
+            const isFiller = ['say', 'said', 'says', 'ask', 'asked', 'asks', 'tell', 'told', 'tells', 'talk', 'talks', 'spoke', 'speak'].includes(t);
+            if (isFiller) {
+              weight += 0.1;
+            } else if (isSpeaker) {
+              weight += 1.0;
+            } else {
+              weight += 3.0; // High weight for technical keywords
+            }
+          }
+        });
+        if (weight > maxWeight || (weight === maxWeight && sentence.length > bestSentence.length && bestSentence.length < 50)) {
+          maxWeight = weight;
           bestSentence = sentence;
         }
       });

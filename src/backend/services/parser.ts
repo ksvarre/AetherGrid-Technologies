@@ -134,14 +134,87 @@ export class ParserService {
    */
   private async parseTranscript(filePath: string, fileName: string): Promise<DocumentChunk[]> {
     const rawContent = await fs.promises.readFile(filePath, 'utf-8');
+    const contentLower = rawContent.toLowerCase();
 
-    // Parse Frontmatter
+    // 1. Dynamic Date Extraction Heuristics (from filename YYYY_MM_DD)
     let date = '2026-05-20';
-    let attendees: string[] = [];
-    let domain = 'General';
-    let priority: 'High' | 'Medium' | 'Low' = 'Medium';
-    let facilitator = '';
+    const dateMatch = fileName.match(/(\d{4})_(\d{2})_(\d{2})/);
+    if (dateMatch) {
+      date = `${dateMatch[1]}-${dateMatch[2]}-${dateMatch[3]}`;
+    }
 
+    // 2. Dynamic Attendees/Speakers Extraction Heuristics
+    // Match dialogue lines starting with "**Speaker Name**:" or "**Dr. Speaker Name**:"
+    const speakerRegex = /^\*\*([^*:]+)\*\*:/gm;
+    const uniqueSpeakers = new Set<string>();
+    let match;
+    let firstSpeaker = '';
+
+    // Reset regex index and find matches in raw content
+    speakerRegex.lastIndex = 0;
+    while ((match = speakerRegex.exec(rawContent)) !== null) {
+      const name = match[1].trim();
+      if (name) {
+        uniqueSpeakers.add(name);
+        if (!firstSpeaker) {
+          firstSpeaker = name;
+        }
+      }
+    }
+    let attendees: string[] = Array.from(uniqueSpeakers);
+
+    // 3. Dynamic Topic Domain Categorization Heuristics
+    let domain = 'General';
+    if (contentLower.includes('quantum') || contentLower.includes('temporal fusion') || contentLower.includes('forecasting') || contentLower.includes('mae')) {
+      domain = 'Project Quantum';
+    } else if (contentLower.includes('helium') || contentLower.includes('sensor') || contentLower.includes('overheating') || contentLower.includes('chassis') || contentLower.includes('fan')) {
+      domain = 'Project Helium';
+    } else if (contentLower.includes('horizon') || contentLower.includes('microgrid') || contentLower.includes('discharge') || contentLower.includes('solar')) {
+      domain = 'Project Horizon';
+    } else if (contentLower.includes('database') || contentLower.includes('postgresql') || contentLower.includes('timescaledb') || contentLower.includes('scaling') || contentLower.includes('lock')) {
+      domain = 'DevOps / Database';
+    } else if (contentLower.includes('compliance') || contentLower.includes('safety') || contentLower.includes('arc flash') || contentLower.includes('sop')) {
+      domain = 'Safety & Compliance';
+    } else if (contentLower.includes('pricing') || contentLower.includes('gridpulse') || contentLower.includes('commercials') || contentLower.includes('licensing') || contentLower.includes('tier')) {
+      domain = 'Product Commercials';
+    } else if (contentLower.includes('roadmap') || contentLower.includes('milestone') || contentLower.includes('tech roadmap')) {
+      domain = 'Product Roadmap';
+    } else if (contentLower.includes('simulation') || contentLower.includes('solar flare') || contentLower.includes('emp') || contentLower.includes('resilience')) {
+      domain = 'AI Testing / Grid Simulation';
+    }
+
+    // 4. Dynamic Priority Severity Rating Heuristics
+    let priority: 'High' | 'Medium' | 'Low' = 'Medium';
+    if (
+      contentLower.includes('crisis') ||
+      contentLower.includes('blocker') ||
+      contentLower.includes('emergency') ||
+      contentLower.includes('disaster') ||
+      contentLower.includes('danger') ||
+      contentLower.includes('lock up') ||
+      contentLower.includes('91°c') ||
+      contentLower.includes('high-voltage') ||
+      contentLower.includes('spike') ||
+      contentLower.includes('critical')
+    ) {
+      priority = 'High';
+    } else if (
+      contentLower.includes('warning') ||
+      contentLower.includes('milestone') ||
+      contentLower.includes('kickoff') ||
+      contentLower.includes('sop') ||
+      contentLower.includes('alignment') ||
+      contentLower.includes('design')
+    ) {
+      priority = 'Medium';
+    } else {
+      priority = 'Low';
+    }
+
+    // Facilitator / Author fallback
+    let facilitator = firstSpeaker;
+
+    // Backward-Compatible Frontmatter Support
     const frontmatterMatch = rawContent.match(/^---\r?\n([\s\S]*?)\r?\n---/);
     let cleanContent = rawContent;
 
@@ -166,7 +239,7 @@ export class ParserService {
       }
     }
 
-    // Identify author (Facilitator or First Attendee)
+    // Determine finalized author
     const author = facilitator || attendees[0] || 'Unknown Attendee';
 
     // Chunking: Split into paragraphs for semantic index

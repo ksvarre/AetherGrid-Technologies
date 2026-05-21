@@ -1,10 +1,3 @@
----
-date: 2026-04-20
-attendees: Dr. Elena Rostova, Sarah Chen, David Kross
-facilitator: Dr. Elena Rostova
-domain: Project Quantum
-priority: High
----
 # Algorithm Review: Weather Sensor Gaps in ML Training Data
 
 **Dr. Elena Rostova**: I am seeing a worrying drop in our Project Quantum forecasting accuracy. The MAE for the North region spiked to 2.4 MW yesterday. The model is misinterpreting sudden wind speed changes, which led to incorrect wind turbine output predictions.

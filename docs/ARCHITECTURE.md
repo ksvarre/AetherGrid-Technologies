@@ -11,7 +11,7 @@ AetherGrid Knowledge Tracer is built as a highly responsive, modern, self-contai
 graph TD
     %% Ingestion Pipeline
     subgraph Ingestion ["Ingestion & Parsing Pipeline"]
-        MD_Files["Markdown Transcripts (.md)"] --> MD_P["MD Frontmatter Parser"]
+        MD_Files["Markdown Transcripts (.md)"] --> MD_P["MD Dynamic Metadata Dialogue Parser"]
         DOCX_Files["Word Specifications (.docx)"] -.->|Bypassed & Pruned| MD_P
         PPTX_Files["PowerPoint Decks (.pptx)"] -.->|Bypassed & Pruned| MD_P
         XLSX_Files["Excel Sheets (.xlsx)"] -.->|Bypassed & Pruned| MD_P
@@ -185,7 +185,7 @@ sequenceDiagram
         PS-->>PS: Bypass Markdown raw parsing (Warm Boot)
         Note over PS: Ingest time drops to <3ms (99% speedup)
     else Stats Differ / New File (Cache Miss)
-        PS->>Disk: Execute Markdown parser & frontmatter extraction
+        PS->>Disk: Execute MD dialogue parser & dynamic metadata extraction
         PS->>Cache: Atomically update cache index & prune legacy office docs (safeWriteJson)
     end
     

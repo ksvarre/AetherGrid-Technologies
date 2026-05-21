@@ -10,7 +10,7 @@ These features represent the foundational RAG search console, multi-format parse
 
 ### 📁 Ingestion & Document Parsing
 - [x] Create automated script (`scripts/generate_data.py`) to build a realistic synthetic corpus of 24 corporate assets (transcripts, docs, presentations, sheets).
-- [x] Implement Markdown transcript parser with frontmatter metadata extraction (date, domain, priority, attendees).
+- [x] Implement Markdown transcript parser with dynamic heuristic metadata extraction (date, domain, priority, attendees, author from filename/dialogue) and frontmatter fallback.
 - [x] Integrate Microsoft Word (`.docx`) parsing service utilizing `mammoth`.
 - [x] Integrate Microsoft PowerPoint (`.pptx`) slide parser utilizing `officeparser`.
 - [x] Integrate Microsoft Excel (`.xlsx`) sheet rows parsing utilizing `xlsx` (SheetJS).

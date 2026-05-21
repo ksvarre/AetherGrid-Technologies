@@ -1,10 +1,3 @@
----
-date: 2026-04-05
-attendees: Marcus Vance, Amira Patel, David Kross
-facilitator: Marcus Vance
-domain: Safety & Compliance
-priority: Medium
----
 # Compliance Review: Substation Physical Access Safety SOP
 
 **Marcus Vance**: Safety audit is next week, everyone. We need to formalize the Standard Operating Procedure (SOP) for when technicians enter a physical high-voltage substation to upgrade our Project Helium edge nodes.

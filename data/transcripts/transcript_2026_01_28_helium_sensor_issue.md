@@ -1,10 +1,3 @@
----
-date: 2026-01-28
-attendees: Marcus Vance, Dr. Elena Rostova, David Kross
-facilitator: Marcus Vance
-domain: Project Helium
-priority: High
----
 # Technical Alignment: Helium Sub-station Node Overheating
 
 **Marcus Vance**: Okay team, we have a major blocker. The new Project Helium prototype nodes deployed at the Oak Creek sub-station are running extremely hot. During peak midday operations, the core enclosure temperatures reached 91°C, and the CPU throttled down to 800 MHz. This is causing sub-second latency spikes in the grid balancing loop.

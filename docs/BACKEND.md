@@ -7,8 +7,8 @@ This document describes the structure, endpoints, parsing modules, and database 
 ## 🛠️ Technology Stack & Dependencies
 *   **Runtime Environment**: Node.js (v18.0+)
 *   **API Framework**: Express with TypeScript (`ts-node` for local execution).
-*   **Key Parsing Libraries**:
-    *   `markdown/frontmatter` (internal): Parses raw Markdown transcripts and isolates structured YAML metadata attributes (`attendees` parsed as a trimmed array, `date` parsed, `domain` mapped, and `priority` classified).
+*   **Key Parsing Heuristics**:
+    *   `dialogue/dynamic-metadata` (internal): Programmatically parses raw conversational Markdown transcripts to extract dates from filename structures, scans dialogues for unique speaker signatures to construct the attendees array, classifies domains using vocabulary rules, and identifies authors from the first dialogue speakers. Maintains fallback compatibility for manual YAML frontmatter blocks.
     *   *Bypassed Office Parsers*: `mammoth` (Word), `xlsx` (Excel), and `officeparser` (PowerPoint) have been completely bypassed for this pure Exercise 1 deliverable, keeping startup, memory usage, and build times exceptionally light and secure.
 *   **Local Storage**: Standard file-based JSON streams (acting as the lightweight transactional DB).
 
@@ -18,7 +18,7 @@ This document describes the structure, endpoints, parsing modules, and database 
 
 ### 1. Ingestion Endpoint
 *   **`POST /api/ingest`**
-*   **Description**: Triggers a deep scan of the `/data/transcripts/` directory. It parses raw Markdown (`.md`) files exclusively, derives structural metadata from YAML frontmatter blocks, builds semantic text chunks, and commits them to the in-memory document store.
+*   **Description**: Triggers a deep scan of the `/data/transcripts/` directory. It parses raw Markdown (`.md`) files exclusively, dynamically derives structural metadata from meeting dialogue markers and filenames (with frontmatter fallback support), builds semantic text chunks, and commits them to the in-memory document store.
 *   **Payload**: None (scans workspace filesystem).
 *   **Response**:
     ```json
@@ -153,17 +153,18 @@ This document describes the structure, endpoints, parsing modules, and database 
 
 ## 🔍 Offline Search Retrieval Logic (The Local Engine)
 When executing in local **Offline Mode**, the backend processes queries through a custom-built, lightweight retrieval engine:
-1.  **Tokenization, Suffix Stemming & Lowercasing**: Queries and document chunks are split into words, stripped of punctuation, and filtered to remove common English stop words ("the", "is", "at", "which", etc.). A Porter-style stemming filter is then applied to normalize common trailing suffix endings (`"s"`, `"es"`, `"ing"`, `"ed"`), ensuring robust singular/plural query matches.
-2.  **TF-IDF Weighting**: 
-    *   **Term Frequency (TF)**: Frequency of terms in a chunk divided by total words in that chunk.
-    *   **Inverse Document Frequency (IDF)**: $\log(1 + N / (1 + n_t))$, where $N$ is total chunks, and $n_t$ is count of chunks containing term $t$.
-3.  **BM25 Term Match**: Chunk scores are calculated using a traditional search matching matrix.
-4.  **Keyword Matching Boost**: Chunks containing exact phrases or specialized names matching query tokens receive a score boost (e.g. "Rostova", "Helium", "MAE").
-5.  **Answer Synthesis**:
+1.  **Tokenization, Suffix Stemming & Lowercasing**: Queries and document chunks are split into words, stripped of punctuation, and filtered to remove common English stop words ("the", "is", "at", "which", etc.). A Porter-style stemming filter is then applied to normalize common trailing suffix endings (`"s"`, `"es"`, `"ies"`, `"ing"`, `"ed"`), ensuring robust singular/plural query matches.
+2.  **Conversational Filler Word Downweighting**: Conversational transition terms (e.g., `says`, `said`, `asks`, `talk`, `spoke`) are downweighted by 90% in the IDF scoring loop to prevent filler words from inflating document scores.
+3.  **Specialized Entity & Name Boosting**: Query terms matching key project names (Quantum, Helium, Horizon) or employee first/last names (e.g. `marcus`, `vance`, `amira`, `patel`, `david`, `kross`, `sarah`, `chen`, `elena`, `rostova`) receive a double TF-IDF scoring boost.
+4.  **Dialogue Speaker & Topic Affinity Boosts**:
+    *   **Speaker Attribution**: Extracted via `getChunkSpeaker` which parses raw dialogue headers (e.g. `**Marcus Vance**: ...`) to identify the true dialogue speaker instead of falling back to the meeting facilitator.
+    *   **Baseline Speaker Match**: $+0.5$ added to the chunk's score if the query keywords match the active dialogue speaker's name.
+    *   **Technical Topic Affinity**: $+1.5$ per query keyword matching terms in the dialogue text (excluding filler words and speaker names), ensuring highly targeted speaker-to-topic correlation.
+    *   **Attendee Presence Match**: $+0.1$ added if a query speaker name is listed in the chunk's attendees array.
+5.  **Refined Answer Synthesis**:
     *   If matching scores are high, the system compiles the text content of the top-ranking chunks.
-    *   It extracts matching sentences containing the query keywords.
-    *   It pieces them together into a readable response paragraph using structured text-connectors.
-    *   It places inline numeric citation markers corresponding to the chunk indices.
+    *   **Entity-Weighted Snippet Selector**: Extracts matching sentences/lines (split by `.`, `!`, `?`, and `\n`). The matching tokens are weighted (technical terms weight 3.0, speaker names 1.0, fillers 0.1), and the highest weighted sentence is chosen. This guarantees that technical context (like *"bricking the node"*) is quoted instead of dialogue headers like *"Marcus Vance: Good point"*.
+    *   It pieces them together into a readable response paragraph using structured text-connectors and inline numeric citations (`[1]`, `[2]`).
     *   If no matching chunks score above the threshold, it sets confidence to `< 0.35` and triggers the suggested routing fallback.
 
 ---

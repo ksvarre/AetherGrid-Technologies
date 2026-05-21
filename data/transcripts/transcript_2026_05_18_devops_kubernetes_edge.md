@@ -1,10 +1,3 @@
----
-date: 2026-05-18
-attendees: David Kross, Marcus Vance, Dr. Elena Rostova
-facilitator: David Kross
-domain: DevOps / Helium
-priority: Medium
----
 # DevOps Alignment: Edge Cluster Container Orchestration
 
 **David Kross**: We are aligning on container management for the Project Helium edge nodes. Since these nodes are physically distributed, standard heavy Kubernetes is out of the question. We are using Rancher K3s.

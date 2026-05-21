@@ -1,10 +1,3 @@
----
-date: 2026-01-12
-attendees: Dr. Elena Rostova, Marcus Vance, Sarah Chen
-facilitator: Sarah Chen
-domain: Project Quantum
-priority: Medium
----
 # Meeting Transcript: Project Quantum Kickoff
 
 **Sarah Chen**: Thanks for jumping in, everyone. We are kicking off Project Quantum today. The objective is to build our next-generation load forecasting model. Elena, where do we stand on the algorithm design?

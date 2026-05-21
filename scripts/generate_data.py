@@ -291,10 +291,13 @@ priority: High
         }
     ]
 
+    import re
     for t in transcripts:
         filepath = f"data/transcripts/{t['filename']}"
+        # Programmatically strip frontmatter block to ensure transcripts on disk are PURE dialogue
+        pure_content = re.sub(r"^---\r?\n([\s\S]*?)\r?\n---\r?\n", "", t["content"])
         with open(filepath, "w", encoding="utf-8") as f:
-            f.write(t["content"])
+            f.write(pure_content)
     print(f"Generated {len(transcripts)} meeting transcripts.")
 
 def generate_docx():

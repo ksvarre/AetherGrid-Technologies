@@ -22,16 +22,20 @@ The system operates as an **in-memory semantic query indexer** backed by a **pru
 
 ---
 
-## 🏷️ Enrichment & Structured Metadata Preservation
+## 🏷️ Enrichment & Dynamic Metadata Extraction (Exercise 1)
 
-Transcripts contain YAML frontmatter blocks defining `date`, `attendees`, `facilitator`, `domain`, and `priority`. The parser isolates and preserves these attributes with complete fidelity:
+The pipeline dynamically extracts and derives structured metadata directly from pure Markdown dialogue transcripts using clean, zero-dependency TS/JS heuristics, with a backward-compatible parser for YAML frontmatter headers if present:
 
-1.  **Attendees Array**: Preservation of commas-separated attendees as an array (not a string).
-    *   *Verification Location*: [parser.ts:L157](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/src/backend/services/parser.ts#L157)
-2.  **Facilitator-to-Author Binding**: The facilitator is parsed from the YAML block and assigned to the chunk's primary `author` property, falling back to the first attendee if missing.
-    *   *Verification Location*: [parser.ts:L166](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/src/backend/services/parser.ts#L166)
-3.  **Domain & Priority**: Domain and priority attributes are mapped to each paragraph chunk to enable citation-level topic filtering.
-    *   *Verification Location*: [parser.ts:L151-155](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/src/backend/services/parser.ts#L151-L155)
+1.  **Date Extraction**: Derived from filename patterns using a regex that extracts `YYYY_MM_DD` structures (e.g., `transcript_2026_03_02_database_scaling_crisis.md` $\rightarrow$ `2026-03-02`).
+    *   *Verification Location*: [parser.ts:L139-144](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/src/backend/services/parser.ts#L139-L144)
+2.  **Attendees (Unique Speakers)**: Formulated by scanning the transcript dialogue using regex matching dialogue headers `**Speaker Name**:` or `**Dr. Speaker Name**:` and converting them into a unique trimmed array.
+    *   *Verification Location*: [parser.ts:L146-164](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/src/backend/services/parser.ts#L146-L164)
+3.  **Facilitator (Author Binding)**: Deduced dynamically as the first speaker identified in the transcript dialogue. The facilitator is bound to the chunk's primary `author` property.
+    *   *Verification Location*: [parser.ts:L214-215](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/src/backend/services/parser.ts#L214-L215)
+4.  **Domain & Priority**: The file contents are evaluated against key-phrase vocabularies to determine the topic `domain` (e.g., "quantum", "MAE" $\rightarrow$ Project Quantum; "sensor", "helium" $\rightarrow$ Project Helium) and `priority` level (classified as High, Medium, or Low based on critical keywords).
+    *   *Verification Location*: [parser.ts:L166-212](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/src/backend/services/parser.ts#L166-L212)
+5.  **Backward Compatibility**: The system maintains the frontmatter parser block as a fallback strategy. If a reviewer supplies a custom Markdown transcript that starts with `---`, the system will honor the defined fields.
+    *   *Verification Location*: [parser.ts:L217-240](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/src/backend/services/parser.ts#L217-L240)
 
 ---
 
@@ -43,14 +47,18 @@ The Express query API receives user queries, processes them offline via TF-IDF c
 *   Queries and chunks are split and cleaned of standard noise stop words. Suffixes (`-s`, `-es`, `-ies`, `-ing`, `-ed`) are stemmed using a robust Porter-style grammatical stemmer.
 *   *Verification Location*: [nlp.ts:L68-116](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/src/backend/services/nlp.ts#L68-L116)
 
-### 2. Semantic Query Scoring
-*   Cosine similarity weights are calibrated across the RAM corpus to match the stemmed query tokens. Boosts are given for project names (Quantum, Helium, Horizon) and employee names (Rostova, Vance, Patel, Chen).
-*   *Verification Location*: [nlp.ts:L172-210](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/src/backend/services/nlp.ts#L172-L210)
+### 2. Semantic Query Scoring & Affinity Boosting
+*   **Cosine similarity weights** are calibrated across the RAM corpus to match the stemmed query tokens. Boosts are given for project names (Quantum, Helium, Horizon) and employee first/last names (Vance, Rostova, Patel, Chen, Marcus, Amira, David, Sarah, Elena).
+*   **Conversational Filler Downweighting**: Transition words (e.g., `say`, `said`, `says`, `ask`, `asks`) are downweighted by 90% in IDF to avoid transitions crowding out true relevance.
+*   **Dialogue-Attribution Extraction**: Active dialogue speakers are extracted via `getChunkSpeaker` parsing speaker prefixes (e.g. `**Marcus Vance**:`) rather than attributing quotes to the facilitator.
+*   **Dialogue Speaker-Topic Affinity Boost**: Adds a $+0.5$ baseline for active speaker query matches, plus a $+1.5$ boost per matching technical keyword contained in that active speaker's dialog block.
+*   *Verification Location*: [nlp.ts:L117-123](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/src/backend/services/nlp.ts#L117-L123) (speaker attribution) and [nlp.ts:L200-269](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/src/backend/services/nlp.ts#L200-L269) (boosting and affinity scoring)
 
 ### 3. Citations & Synthesized Answers
 *   Inline citations return a user-friendly index marker (`[1]`, `[2]`).
-*   The query result contains an detailed citation mapping representing chunk IDs, source file names, virtualized file paths, original authors (facilitators), exact matched quotes, dates, and the attendees array.
-*   *Verification Location*: [nlp.ts:L243-279](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/src/backend/services/nlp.ts#L243-L279)
+*   **Entity-Weighted Snippet Selector**: Snippets are split by newlines as well as traditional punctuation. Matching query tokens are weighted (technical keywords 3.0, speaker names 1.0, fillers 0.1) to select the most relevant sentence for citation. This guarantees technical terms (e.g., `"firmware update bricking"`) are quoted instead of standard speaker names or greetings.
+*   The query result contains a detailed citation mapping representing chunk IDs, source file names, virtualized file paths, original authors (facilitators), exact matched quotes, dates, and the attendees array.
+*   *Verification Location*: [nlp.ts:L320-344](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/src/backend/services/nlp.ts#L320-L344) (weighted sentence selection) and [nlp.ts:L305-319](file:///d:/Antigravity%20Projects/TER%20Take%20Home%20Exercise/src/backend/services/nlp.ts#L305-L319) (citation metadata)
 
 ---
 
@@ -87,6 +95,6 @@ npm run review
 ```
 *(Runs in another console pane. High-fidelity ANSI menus will guide you through testing).*
 
-*   **Option 1: Run Automated Verification Suite**: Instantly executes Exercise 1 assertions, checking topic matching, frontmatter parsed array preservation, and date mapping.
+*   **Option 1: Run Automated Verification Suite**: Instantly executes Exercise 1 assertions, checking topic matching, dialogue speaker preservation, derived date mapping, and domain classification.
 *   **Option 2: Interactive Query Sandbox**: Type free-form queries (e.g. "What did Elena target for MAE?") to see the full synthesized answer, granular metadata, and the **synchronous `executionPipeline` trace logging** showing stemmed query tokens, calculated weights, and scores.
 *   **Option 3: Print cURL Commands**: Displays pre-formatted copy-pasteable `cURL` commands to query the Express API.

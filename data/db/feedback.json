@@ -163,5 +163,60 @@
     "id": "fb_1779324614290_814",
     "timestamp": "2026-05-21T00:50:14.290Z",
     "resolved": true
+  },
+  {
+    "query": "How do you bake a chocolate chip cookie at home?",
+    "answer": "I couldn&#x27;t find any relevant documents or meeting records in our database matching those search parameters.",
+    "confidenceScore": 0.05,
+    "status": "rejection",
+    "correctedAnswer": "Need to consult commercial and operations ledgers manually.",
+    "domain": "General",
+    "id": "fb_1779325750722_559",
+    "timestamp": "2026-05-21T01:09:10.722Z",
+    "resolved": true
+  },
+  {
+    "query": "How do you bake a chocolate chip cookie at home?",
+    "answer": "I couldn&#x27;t find any relevant documents or meeting records in our database matching those search parameters.",
+    "confidenceScore": 0.05,
+    "status": "rejection",
+    "correctedAnswer": "Need to consult commercial and operations ledgers manually.",
+    "domain": "General",
+    "id": "fb_1779325828412_621",
+    "timestamp": "2026-05-21T01:10:28.412Z",
+    "resolved": true
+  },
+  {
+    "query": "How do you bake a chocolate chip cookie at home?",
+    "answer": "I couldn&#x27;t find any relevant documents or meeting records in our database matching those search parameters.",
+    "confidenceScore": 0.05,
+    "status": "rejection",
+    "correctedAnswer": "Need to consult commercial and operations ledgers manually.",
+    "domain": "General",
+    "id": "fb_1779326443922_592",
+    "timestamp": "2026-05-21T01:20:43.922Z",
+    "resolved": true
+  },
+  {
+    "query": "How do you bake a chocolate chip cookie at home?",
+    "answer": "I couldn&#x27;t find any relevant documents or meeting records in our database matching those search parameters.",
+    "confidenceScore": 0.05,
+    "status": "rejection",
+    "correctedAnswer": "Need to consult commercial and operations ledgers manually.",
+    "domain": "General",
+    "id": "fb_1779326495757_459",
+    "timestamp": "2026-05-21T01:21:35.757Z",
+    "resolved": true
+  },
+  {
+    "query": "How do you bake a chocolate chip cookie at home?",
+    "answer": "I couldn&#x27;t find any relevant documents or meeting records in our database matching those search parameters.",
+    "confidenceScore": 0.05,
+    "status": "rejection",
+    "correctedAnswer": "Need to consult commercial and operations ledgers manually.",
+    "domain": "General",
+    "id": "fb_1779326547211_993",
+    "timestamp": "2026-05-21T01:22:27.211Z",
+    "resolved": true
   }
 ]

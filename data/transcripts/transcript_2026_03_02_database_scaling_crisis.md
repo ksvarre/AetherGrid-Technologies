@@ -1,10 +1,3 @@
----
-date: 2026-03-02
-attendees: David Kross, Dr. Elena Rostova, Marcus Vance
-facilitator: David Kross
-domain: DevOps / Database
-priority: High
----
 # Incident Review: Database Scaling Lock during Load Surge
 
 **David Kross**: Let's review what happened yesterday. At 14:05 CST, during a regional heatwave, our main PostgreSQL metrics table locked up completely. The write latency went from 4ms to 48 seconds. Elena's load forecasting engine went blind because it couldn't retrieve recent Smart-Meter logs.

@@ -2,8 +2,8 @@
   "version": "1.0",
   "files": {
     "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_01_12_quantum_kickoff.md": {
-      "mtime": 1779317280000,
-      "size": 1612,
+      "mtime": 1779325740000,
+      "size": 1460,
       "chunks": [
         {
           "id": "transcript_2026_01_12_quantum_kickoff.md_chunk_0",
@@ -11,11 +11,11 @@
           "fileName": "transcript_2026_01_12_quantum_kickoff.md",
           "fileType": "transcript",
           "content": "# Meeting Transcript: Project Quantum Kickoff",
-          "author": "Dr. Elena Rostova",
+          "author": "Sarah Chen",
           "attendees": [
+            "Sarah Chen",
             "Dr. Elena Rostova",
-            "Marcus Vance",
-            "Sarah Chen"
+            "Marcus Vance"
           ],
           "date": "2026-01-12",
           "domain": "Project Quantum",
@@ -27,11 +27,11 @@
           "fileName": "transcript_2026_01_12_quantum_kickoff.md",
           "fileType": "transcript",
           "content": "**Sarah Chen**: Thanks for jumping in, everyone. We are kicking off Project Quantum today. The objective is to build our next-generation load forecasting model. Elena, where do we stand on the algorithm design?",
-          "author": "Dr. Elena Rostova",
+          "author": "Sarah Chen",
           "attendees": [
+            "Sarah Chen",
             "Dr. Elena Rostova",
-            "Marcus Vance",
-            "Sarah Chen"
+            "Marcus Vance"
           ],
           "date": "2026-01-12",
           "domain": "Project Quantum",
@@ -43,11 +43,11 @@
           "fileName": "transcript_2026_01_12_quantum_kickoff.md",
           "fileType": "transcript",
           "content": "**Dr. Elena Rostova**: Yes, hello. We are moving away from traditional auto-regressive models. I am planning a hybrid neural network architecture that integrates temporal fusion transformers with LSTM nodes. The target is to predict regional grid loads 24 hours in advance with a Mean Absolute Error (MAE) under 1.5 MW.",
-          "author": "Dr. Elena Rostova",
+          "author": "Sarah Chen",
           "attendees": [
+            "Sarah Chen",
             "Dr. Elena Rostova",
-            "Marcus Vance",
-            "Sarah Chen"
+            "Marcus Vance"
           ],
           "date": "2026-01-12",
           "domain": "Project Quantum",
@@ -59,11 +59,11 @@
           "fileName": "transcript_2026_01_12_quantum_kickoff.md",
           "fileType": "transcript",
           "content": "**Marcus Vance**: That sounds solid, Elena. But remember, the model has to ingest smart-meter telemetry in real-time. Can we run this prediction loop on our standard cloud instances, or do we need dedicated GPU nodes?",
-          "author": "Dr. Elena Rostova",
+          "author": "Sarah Chen",
           "attendees": [
+            "Sarah Chen",
             "Dr. Elena Rostova",
-            "Marcus Vance",
-            "Sarah Chen"
+            "Marcus Vance"
           ],
           "date": "2026-01-12",
           "domain": "Project Quantum",
@@ -75,11 +75,11 @@
           "fileName": "transcript_2026_01_12_quantum_kickoff.md",
           "fileType": "transcript",
           "content": "**Dr. Elena Rostova**: The training phase definitely requires GPU acceleration, likely NVIDIA A10G instances. But the inference stage will be lightweight. We can run inference on standard CPU instances. We just need to ensure the database can stream substation load records without blocking.",
-          "author": "Dr. Elena Rostova",
+          "author": "Sarah Chen",
           "attendees": [
+            "Sarah Chen",
             "Dr. Elena Rostova",
-            "Marcus Vance",
-            "Sarah Chen"
+            "Marcus Vance"
           ],
           "date": "2026-01-12",
           "domain": "Project Quantum",
@@ -91,11 +91,11 @@
           "fileName": "transcript_2026_01_12_quantum_kickoff.md",
           "fileType": "transcript",
           "content": "**Sarah Chen**: Excellent. I have client meetings with Texas Electric next week, and they are extremely excited about the load prediction accuracy. \r\n- **Decision**: Elena will lead the core training pipeline using weather forecast arrays.\r\n- **Action Item**: Marcus to provision a PostgreSQL staging database with timescale DB extensions by January 20th.",
-          "author": "Dr. Elena Rostova",
+          "author": "Sarah Chen",
           "attendees": [
+            "Sarah Chen",
             "Dr. Elena Rostova",
-            "Marcus Vance",
-            "Sarah Chen"
+            "Marcus Vance"
           ],
           "date": "2026-01-12",
           "domain": "Project Quantum",
@@ -104,8 +104,8 @@
       ]
     },
     "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_01_28_helium_sensor_issue.md": {
-      "mtime": 1779317280000,
-      "size": 1762,
+      "mtime": 1779325740000,
+      "size": 1610,
       "chunks": [
         {
           "id": "transcript_2026_01_28_helium_sensor_issue.md_chunk_0",
@@ -116,8 +116,8 @@
           "author": "Marcus Vance",
           "attendees": [
             "Marcus Vance",
-            "Dr. Elena Rostova",
-            "David Kross"
+            "David Kross",
+            "Dr. Elena Rostova"
           ],
           "date": "2026-01-28",
           "domain": "Project Helium",
@@ -132,8 +132,8 @@
           "author": "Marcus Vance",
           "attendees": [
             "Marcus Vance",
-            "Dr. Elena Rostova",
-            "David Kross"
+            "David Kross",
+            "Dr. Elena Rostova"
           ],
           "date": "2026-01-28",
           "domain": "Project Helium",
@@ -148,8 +148,8 @@
           "author": "Marcus Vance",
           "attendees": [
             "Marcus Vance",
-            "Dr. Elena Rostova",
-            "David Kross"
+            "David Kross",
+            "Dr. Elena Rostova"
           ],
           "date": "2026-01-28",
           "domain": "Project Helium",
@@ -164,8 +164,8 @@
           "author": "Marcus Vance",
           "attendees": [
             "Marcus Vance",
-            "Dr. Elena Rostova",
-            "David Kross"
+            "David Kross",
+            "Dr. Elena Rostova"
           ],
           "date": "2026-01-28",
           "domain": "Project Helium",
@@ -180,8 +180,8 @@
           "author": "Marcus Vance",
           "attendees": [
             "Marcus Vance",
-            "Dr. Elena Rostova",
-            "David Kross"
+            "David Kross",
+            "Dr. Elena Rostova"
           ],
           "date": "2026-01-28",
           "domain": "Project Helium",
@@ -196,8 +196,8 @@
           "author": "Marcus Vance",
           "attendees": [
             "Marcus Vance",
-            "Dr. Elena Rostova",
-            "David Kross"
+            "David Kross",
+            "Dr. Elena Rostova"
           ],
           "date": "2026-01-28",
           "domain": "Project Helium",
@@ -206,8 +206,8 @@
       ]
     },
     "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_02_15_horizon_municipal_sales.md": {
-      "mtime": 1779317280000,
-      "size": 1694,
+      "mtime": 1779325740000,
+      "size": 1548,
       "chunks": [
         {
           "id": "transcript_2026_02_15_horizon_municipal_sales.md_chunk_0",
@@ -308,8 +308,8 @@
       ]
     },
     "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_03_02_database_scaling_crisis.md": {
-      "mtime": 1779317280000,
-      "size": 1603,
+      "mtime": 1779325740000,
+      "size": 1449,
       "chunks": [
         {
           "id": "transcript_2026_03_02_database_scaling_crisis.md_chunk_0",
@@ -324,7 +324,7 @@
             "Marcus Vance"
           ],
           "date": "2026-03-02",
-          "domain": "DevOps / Database",
+          "domain": "Project Quantum",
           "priority": "High"
         },
         {
@@ -340,7 +340,7 @@
             "Marcus Vance"
           ],
           "date": "2026-03-02",
-          "domain": "DevOps / Database",
+          "domain": "Project Quantum",
           "priority": "High"
         },
         {
@@ -356,7 +356,7 @@
             "Marcus Vance"
           ],
           "date": "2026-03-02",
-          "domain": "DevOps / Database",
+          "domain": "Project Quantum",
           "priority": "High"
         },
         {
@@ -372,7 +372,7 @@
             "Marcus Vance"
           ],
           "date": "2026-03-02",
-          "domain": "DevOps / Database",
+          "domain": "Project Quantum",
           "priority": "High"
         },
         {
@@ -388,7 +388,7 @@
             "Marcus Vance"
           ],
           "date": "2026-03-02",
-          "domain": "DevOps / Database",
+          "domain": "Project Quantum",
           "priority": "High"
         },
         {
@@ -404,14 +404,14 @@
             "Marcus Vance"
           ],
           "date": "2026-03-02",
-          "domain": "DevOps / Database",
+          "domain": "Project Quantum",
           "priority": "High"
         }
       ]
     },
     "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_03_19_gridpulse_pricing.md": {
-      "mtime": 1779317280000,
-      "size": 1656,
+      "mtime": 1779325740000,
+      "size": 1503,
       "chunks": [
         {
           "id": "transcript_2026_03_19_gridpulse_pricing.md_chunk_0",
@@ -426,8 +426,8 @@
             "Dr. Elena Rostova"
           ],
           "date": "2026-03-19",
-          "domain": "Product Commercials",
-          "priority": "Low"
+          "domain": "Project Quantum",
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_03_19_gridpulse_pricing.md_chunk_1",
@@ -442,8 +442,8 @@
             "Dr. Elena Rostova"
           ],
           "date": "2026-03-19",
-          "domain": "Product Commercials",
-          "priority": "Low"
+          "domain": "Project Quantum",
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_03_19_gridpulse_pricing.md_chunk_2",
@@ -458,8 +458,8 @@
             "Dr. Elena Rostova"
           ],
           "date": "2026-03-19",
-          "domain": "Product Commercials",
-          "priority": "Low"
+          "domain": "Project Quantum",
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_03_19_gridpulse_pricing.md_chunk_3",
@@ -474,8 +474,8 @@
             "Dr. Elena Rostova"
           ],
           "date": "2026-03-19",
-          "domain": "Product Commercials",
-          "priority": "Low"
+          "domain": "Project Quantum",
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_03_19_gridpulse_pricing.md_chunk_4",
@@ -490,8 +490,8 @@
             "Dr. Elena Rostova"
           ],
           "date": "2026-03-19",
-          "domain": "Product Commercials",
-          "priority": "Low"
+          "domain": "Project Quantum",
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_03_19_gridpulse_pricing.md_chunk_5",
@@ -506,14 +506,14 @@
             "Dr. Elena Rostova"
           ],
           "date": "2026-03-19",
-          "domain": "Product Commercials",
-          "priority": "Low"
+          "domain": "Project Quantum",
+          "priority": "Medium"
         }
       ]
     },
     "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_04_05_substation_safety_audit.md": {
-      "mtime": 1779317280000,
-      "size": 1395,
+      "mtime": 1779325740000,
+      "size": 1242,
       "chunks": [
         {
           "id": "transcript_2026_04_05_substation_safety_audit.md_chunk_0",
@@ -528,8 +528,8 @@
             "David Kross"
           ],
           "date": "2026-04-05",
-          "domain": "Safety & Compliance",
-          "priority": "Medium"
+          "domain": "Project Helium",
+          "priority": "High"
         },
         {
           "id": "transcript_2026_04_05_substation_safety_audit.md_chunk_1",
@@ -544,8 +544,8 @@
             "David Kross"
           ],
           "date": "2026-04-05",
-          "domain": "Safety & Compliance",
-          "priority": "Medium"
+          "domain": "Project Helium",
+          "priority": "High"
         },
         {
           "id": "transcript_2026_04_05_substation_safety_audit.md_chunk_2",
@@ -560,8 +560,8 @@
             "David Kross"
           ],
           "date": "2026-04-05",
-          "domain": "Safety & Compliance",
-          "priority": "Medium"
+          "domain": "Project Helium",
+          "priority": "High"
         },
         {
           "id": "transcript_2026_04_05_substation_safety_audit.md_chunk_3",
@@ -576,8 +576,8 @@
             "David Kross"
           ],
           "date": "2026-04-05",
-          "domain": "Safety & Compliance",
-          "priority": "Medium"
+          "domain": "Project Helium",
+          "priority": "High"
         },
         {
           "id": "transcript_2026_04_05_substation_safety_audit.md_chunk_4",
@@ -592,14 +592,14 @@
             "David Kross"
           ],
           "date": "2026-04-05",
-          "domain": "Safety & Compliance",
-          "priority": "Medium"
+          "domain": "Project Helium",
+          "priority": "High"
         }
       ]
     },
     "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_04_20_quantum_training_gaps.md": {
-      "mtime": 1779317280000,
-      "size": 1478,
+      "mtime": 1779325740000,
+      "size": 1322,
       "chunks": [
         {
           "id": "transcript_2026_04_20_quantum_training_gaps.md_chunk_0",
@@ -700,8 +700,8 @@
       ]
     },
     "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_05_01_helium_antenna_planning.md": {
-      "mtime": 1779317280000,
-      "size": 1350,
+      "mtime": 1779325740000,
+      "size": 1196,
       "chunks": [
         {
           "id": "transcript_2026_05_01_helium_antenna_planning.md_chunk_0",
@@ -717,7 +717,7 @@
           ],
           "date": "2026-05-01",
           "domain": "Project Helium",
-          "priority": "Medium"
+          "priority": "High"
         },
         {
           "id": "transcript_2026_05_01_helium_antenna_planning.md_chunk_1",
@@ -733,7 +733,7 @@
           ],
           "date": "2026-05-01",
           "domain": "Project Helium",
-          "priority": "Medium"
+          "priority": "High"
         },
         {
           "id": "transcript_2026_05_01_helium_antenna_planning.md_chunk_2",
@@ -749,7 +749,7 @@
           ],
           "date": "2026-05-01",
           "domain": "Project Helium",
-          "priority": "Medium"
+          "priority": "High"
         },
         {
           "id": "transcript_2026_05_01_helium_antenna_planning.md_chunk_3",
@@ -765,7 +765,7 @@
           ],
           "date": "2026-05-01",
           "domain": "Project Helium",
-          "priority": "Medium"
+          "priority": "High"
         },
         {
           "id": "transcript_2026_05_01_helium_antenna_planning.md_chunk_4",
@@ -781,13 +781,13 @@
           ],
           "date": "2026-05-01",
           "domain": "Project Helium",
-          "priority": "Medium"
+          "priority": "High"
         }
       ]
     },
     "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_05_10_horizon_microgrid_rules.md": {
-      "mtime": 1779317280000,
-      "size": 1317,
+      "mtime": 1779325740000,
+      "size": 1170,
       "chunks": [
         {
           "id": "transcript_2026_05_10_horizon_microgrid_rules.md_chunk_0",
@@ -803,7 +803,7 @@
           ],
           "date": "2026-05-10",
           "domain": "Project Horizon",
-          "priority": "Medium"
+          "priority": "High"
         },
         {
           "id": "transcript_2026_05_10_horizon_microgrid_rules.md_chunk_1",
@@ -819,7 +819,7 @@
           ],
           "date": "2026-05-10",
           "domain": "Project Horizon",
-          "priority": "Medium"
+          "priority": "High"
         },
         {
           "id": "transcript_2026_05_10_horizon_microgrid_rules.md_chunk_2",
@@ -835,7 +835,7 @@
           ],
           "date": "2026-05-10",
           "domain": "Project Horizon",
-          "priority": "Medium"
+          "priority": "High"
         },
         {
           "id": "transcript_2026_05_10_horizon_microgrid_rules.md_chunk_3",
@@ -851,7 +851,7 @@
           ],
           "date": "2026-05-10",
           "domain": "Project Horizon",
-          "priority": "Medium"
+          "priority": "High"
         },
         {
           "id": "transcript_2026_05_10_horizon_microgrid_rules.md_chunk_4",
@@ -867,13 +867,13 @@
           ],
           "date": "2026-05-10",
           "domain": "Project Horizon",
-          "priority": "Medium"
+          "priority": "High"
         }
       ]
     },
     "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_05_15_quarterly_roadmap_review.md": {
-      "mtime": 1779317280000,
-      "size": 1240,
+      "mtime": 1779325740000,
+      "size": 1075,
       "chunks": [
         {
           "id": "transcript_2026_05_15_quarterly_roadmap_review.md_chunk_0",
@@ -885,11 +885,11 @@
           "attendees": [
             "Sarah Chen",
             "Dr. Elena Rostova",
-            "Marcus Vance",
-            "David Kross"
+            "David Kross",
+            "Marcus Vance"
           ],
           "date": "2026-05-15",
-          "domain": "Product Roadmap",
+          "domain": "Project Quantum",
           "priority": "Medium"
         },
         {
@@ -902,11 +902,11 @@
           "attendees": [
             "Sarah Chen",
             "Dr. Elena Rostova",
-            "Marcus Vance",
-            "David Kross"
+            "David Kross",
+            "Marcus Vance"
           ],
           "date": "2026-05-15",
-          "domain": "Product Roadmap",
+          "domain": "Project Quantum",
           "priority": "Medium"
         },
         {
@@ -919,11 +919,11 @@
           "attendees": [
             "Sarah Chen",
             "Dr. Elena Rostova",
-            "Marcus Vance",
-            "David Kross"
+            "David Kross",
+            "Marcus Vance"
           ],
           "date": "2026-05-15",
-          "domain": "Product Roadmap",
+          "domain": "Project Quantum",
           "priority": "Medium"
         },
         {
@@ -936,11 +936,11 @@
           "attendees": [
             "Sarah Chen",
             "Dr. Elena Rostova",
-            "Marcus Vance",
-            "David Kross"
+            "David Kross",
+            "Marcus Vance"
           ],
           "date": "2026-05-15",
-          "domain": "Product Roadmap",
+          "domain": "Project Quantum",
           "priority": "Medium"
         },
         {
@@ -953,18 +953,18 @@
           "attendees": [
             "Sarah Chen",
             "Dr. Elena Rostova",
-            "Marcus Vance",
-            "David Kross"
+            "David Kross",
+            "Marcus Vance"
           ],
           "date": "2026-05-15",
-          "domain": "Product Roadmap",
+          "domain": "Project Quantum",
           "priority": "Medium"
         }
       ]
     },
     "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_05_18_devops_kubernetes_edge.md": {
-      "mtime": 1779317280000,
-      "size": 1296,
+      "mtime": 1779325740000,
+      "size": 1142,
       "chunks": [
         {
           "id": "transcript_2026_05_18_devops_kubernetes_edge.md_chunk_0",
@@ -979,7 +979,7 @@
             "Dr. Elena Rostova"
           ],
           "date": "2026-05-18",
-          "domain": "DevOps / Helium",
+          "domain": "Project Helium",
           "priority": "Medium"
         },
         {
@@ -995,7 +995,7 @@
             "Dr. Elena Rostova"
           ],
           "date": "2026-05-18",
-          "domain": "DevOps / Helium",
+          "domain": "Project Helium",
           "priority": "Medium"
         },
         {
@@ -1011,7 +1011,7 @@
             "Dr. Elena Rostova"
           ],
           "date": "2026-05-18",
-          "domain": "DevOps / Helium",
+          "domain": "Project Helium",
           "priority": "Medium"
         },
         {
@@ -1027,7 +1027,7 @@
             "Dr. Elena Rostova"
           ],
           "date": "2026-05-18",
-          "domain": "DevOps / Helium",
+          "domain": "Project Helium",
           "priority": "Medium"
         },
         {
@@ -1043,14 +1043,14 @@
             "Dr. Elena Rostova"
           ],
           "date": "2026-05-18",
-          "domain": "DevOps / Helium",
+          "domain": "Project Helium",
           "priority": "Medium"
         }
       ]
     },
     "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_05_19_emergency_load_simulation.md": {
-      "mtime": 1779317280000,
-      "size": 1339,
+      "mtime": 1779325740000,
+      "size": 1169,
       "chunks": [
         {
           "id": "transcript_2026_05_19_emergency_load_simulation.md_chunk_0",
@@ -1065,7 +1065,7 @@
             "David Kross"
           ],
           "date": "2026-05-19",
-          "domain": "AI Testing / Grid Simulation",
+          "domain": "Project Horizon",
           "priority": "High"
         },
         {
@@ -1081,7 +1081,7 @@
             "David Kross"
           ],
           "date": "2026-05-19",
-          "domain": "AI Testing / Grid Simulation",
+          "domain": "Project Horizon",
           "priority": "High"
         },
         {
@@ -1097,7 +1097,7 @@
             "David Kross"
           ],
           "date": "2026-05-19",
-          "domain": "AI Testing / Grid Simulation",
+          "domain": "Project Horizon",
           "priority": "High"
         },
         {
@@ -1113,7 +1113,7 @@
             "David Kross"
           ],
           "date": "2026-05-19",
-          "domain": "AI Testing / Grid Simulation",
+          "domain": "Project Horizon",
           "priority": "High"
         },
         {
@@ -1129,7 +1129,7 @@
             "David Kross"
           ],
           "date": "2026-05-19",
-          "domain": "AI Testing / Grid Simulation",
+          "domain": "Project Horizon",
           "priority": "High"
         }
       ]

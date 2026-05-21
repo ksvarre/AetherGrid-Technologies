@@ -1,10 +1,3 @@
----
-date: 2026-05-15
-attendees: Sarah Chen, Dr. Elena Rostova, Marcus Vance, David Kross
-facilitator: Sarah Chen
-domain: Product Roadmap
-priority: Medium
----
 # Strategy Alignment: Q2 Product and Tech Roadmap Review
 
 **Sarah Chen**: It's time for our quarterly roadmap review. We have major milestones coming up. Elena, what is the status of the Project Quantum model integration?

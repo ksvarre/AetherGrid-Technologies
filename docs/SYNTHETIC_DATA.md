@@ -35,8 +35,8 @@ We generate a varied corpus to ensure test coverage across authors, topics, prio
 
 ### Category 1: Meeting Transcripts (12 Files in `/data/transcripts/`)
 Transcripts are generated as Markdown (`.md`) files containing:
-- Metadata block: Date, Attendees, Facilitator.
-- Free-form dialogue mimicking natural conversational behavior (includes banter, off-topic chats, and technical debates).
+- Pure, raw conversational dialogues mimicking natural behavior (includes banter, off-topic chats, and technical debates).
+- Structured meeting attributes (such as dates, attendees, facilitators/authors, priority ratings, and topic domains) derived programmatically by the ingestion engine from raw text and filenames.
 - Explicit and implicit decisions/action items.
 
 | Filename | Date | Key Attendees | Topic Domain | Details |

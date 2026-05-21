@@ -1,10 +1,3 @@
----
-date: 2026-05-10
-attendees: Amira Patel, Sarah Chen, Marcus Vance
-facilitator: Amira Patel
-domain: Project Horizon
-priority: Medium
----
 # Policy Design: Community Battery Discharge Regulations
 
 **Amira Patel**: We need to set the software rules for Project Horizon community battery discharging. If a local residential battery system is enrolled, how much capacity can the public utility draw during a grid alert?

@@ -142,5 +142,95 @@
     "confidenceScore": 0.95,
     "domain": "Safety &amp; Compliance",
     "timestamp": "2026-05-21T00:53:46.791Z"
+  },
+  {
+    "query": "What is the Project Quantum forecasting target and LSTM nodes Mean Absolute Error?",
+    "confidenceScore": 0.95,
+    "domain": "Project Quantum",
+    "timestamp": "2026-05-21T00:58:39.542Z"
+  },
+  {
+    "query": "Who was present in the meeting where Sarah Chen discussed Texas Electric forecasting accuracy?",
+    "confidenceScore": 0.95,
+    "domain": "Project Quantum",
+    "timestamp": "2026-05-21T00:58:40.062Z"
+  },
+  {
+    "query": "Project Helium thermal engineering hardware design substation reviews",
+    "confidenceScore": 0.95,
+    "domain": "Project Helium",
+    "timestamp": "2026-05-21T00:58:40.580Z"
+  },
+  {
+    "query": "What is the Project Quantum forecasting target and LSTM nodes Mean Absolute Error?",
+    "confidenceScore": 0.95,
+    "domain": "Project Quantum",
+    "timestamp": "2026-05-21T01:00:30.346Z"
+  },
+  {
+    "query": "What is the Project Quantum MAE forecasting target and validation status?",
+    "confidenceScore": 0.95,
+    "domain": "Project Quantum",
+    "timestamp": "2026-05-21T01:09:10.718Z"
+  },
+  {
+    "query": "What is the Project Quantum MAE forecasting target and validation status?",
+    "confidenceScore": 0.95,
+    "domain": "Project Quantum",
+    "timestamp": "2026-05-21T01:10:28.404Z"
+  },
+  {
+    "query": "Mean Average?",
+    "confidenceScore": 0.95,
+    "domain": "Project Quantum",
+    "timestamp": "2026-05-21T01:13:46.927Z"
+  },
+  {
+    "query": "What did Marcus say about firmware?",
+    "confidenceScore": 0.95,
+    "domain": "Project Horizon",
+    "timestamp": "2026-05-21T01:14:34.763Z"
+  },
+  {
+    "query": "What did Marcus say about the firmware?",
+    "confidenceScore": 0.95,
+    "domain": "Project Horizon",
+    "timestamp": "2026-05-21T01:15:19.852Z"
+  },
+  {
+    "query": "What is the Project Quantum MAE forecasting target and validation status?",
+    "confidenceScore": 0.95,
+    "domain": "Project Quantum",
+    "timestamp": "2026-05-21T01:20:43.914Z"
+  },
+  {
+    "query": "What did Marcus say about the firmware?",
+    "confidenceScore": 0.95,
+    "domain": "Project Helium",
+    "timestamp": "2026-05-21T01:21:17.480Z"
+  },
+  {
+    "query": "What is the Project Quantum MAE forecasting target and validation status?",
+    "confidenceScore": 0.95,
+    "domain": "Project Quantum",
+    "timestamp": "2026-05-21T01:21:35.749Z"
+  },
+  {
+    "query": "What did Marcus say about the firmware?",
+    "confidenceScore": 0.95,
+    "domain": "Project Helium",
+    "timestamp": "2026-05-21T01:21:48.718Z"
+  },
+  {
+    "query": "What did Marcus say about the firmware?",
+    "confidenceScore": 0.95,
+    "domain": "Project Helium",
+    "timestamp": "2026-05-21T01:22:24.033Z"
+  },
+  {
+    "query": "What is the Project Quantum MAE forecasting target and validation status?",
+    "confidenceScore": 0.95,
+    "domain": "Project Quantum",
+    "timestamp": "2026-05-21T01:22:27.203Z"
   }
 ]

@@ -1,10 +1,3 @@
----
-date: 2026-02-15
-attendees: Sarah Chen, Amira Patel, Marcus Vance
-facilitator: Sarah Chen
-domain: Project Horizon
-priority: Medium
----
 # Sales Alignment: Horizon Municipal Pitch for City of Austin
 
 **Sarah Chen**: Welcome, everyone. We are finalizing our municipal pitch for the City of Austin's green energy initiative. They want to integrate 50 local solar microgrids into their central grid. Amira, how does Project Horizon solve their main integration concern?

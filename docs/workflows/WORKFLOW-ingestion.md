@@ -5,14 +5,14 @@
 **Status**: Approved
 
 ## Overview
-This workflow describes how the AetherGrid backend scans the local filesystem for Markdown transcripts inside `data/transcripts/`, parses their textual contents, extracts metadata (author facilitator, date, attendees, topic domain, priority level) from YAML frontmatter blocks, chunks the text into paragraph units, and populates the in-memory retrieval index.
+This workflow describes how the AetherGrid backend scans the local filesystem for Markdown transcripts inside `data/transcripts/`, parses their textual contents, extracts structured metadata (author/facilitator, date, attendees, topic domain, priority level) dynamically from raw dialogue text and filename patterns (with backward-compatible support for YAML frontmatter headers), chunks the text into paragraph units, and populates the in-memory retrieval index.
 
 ## Actors
 | Actor | Role in this workflow |
 |---|---|
 | System Operator | Triggers manual ingestion via the UI console |
 | Server Bootstrapper | Triggers automated ingestion during application boot |
-| `ParserService` | Orchestrates file discovery, frontmatter parsing, and chunk generation |
+| `ParserService` | Orchestrates file discovery, dynamic dialogue parsing, metadata extraction, and chunk generation |
 | Extractor Libraries | Bypassed Word/Excel/PowerPoint parsers to maximize performance and security |
 | In-Memory Cache | Holds the compiled index array (`DocumentChunk[]`) for semantic search |
 
@@ -45,9 +45,9 @@ This workflow describes how the AetherGrid backend scans the local filesystem fo
 ---
 
 ### STEP 2: Parse File Formats & Extract Metadata
-**Actor**: `ParserService` & raw text parsers
+**Actor**: `ParserService` & raw text dialogue parser
 **Action**: Iterates through each discovered transcript file:
-  - **Markdown (`.md`)**: Parses frontmatter (YAML block) for metadata (date, trimmed attendees array, facilitator binding as author, domain, priority) and splits body by paragraphs.
+  - **Markdown (`.md`)**: Programmatically extracts the meeting date from the filename (`YYYY_MM_DD` format), captures speaker markers (`**Name**:`) to compile a unique attendees array, maps topic domains using key-phrase vocabularies, classifies priority levels using urgency keywords, identifies the facilitator from the first dialogue speaker, and splits body by paragraphs. (Maintains a fallback parser to support standard YAML frontmatter blocks for backward compatibility).
   - **Bypassed Formats**: Office documents (`.docx`, `.xlsx`, `.pptx`) are bypassed and automatically pruned from `indexed_chunks.json` cache database to keep the index clean.
 **Timeout**: 30s
 **Input**: `filesList` (array of file paths)

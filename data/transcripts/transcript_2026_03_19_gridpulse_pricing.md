@@ -1,10 +1,3 @@
----
-date: 2026-03-19
-attendees: Sarah Chen, Marcus Vance, Dr. Elena Rostova
-facilitator: Sarah Chen
-domain: Product Commercials
-priority: Low
----
 # Product Alignment: GridPulse Tiered Pricing Redesign
 
 **Sarah Chen**: We need to update the commercial model for GridPulse. Our municipal clients are pushing back on the flat monthly fee. They want a value-based model tied to active smart-meters.

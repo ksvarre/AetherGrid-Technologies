@@ -1,10 +1,3 @@
----
-date: 2026-05-01
-attendees: Marcus Vance, Amira Patel, Dr. Elena Rostova
-facilitator: Marcus Vance
-domain: Project Helium
-priority: Medium
----
 # Engineering Review: Substation Wireless Telemetry Antennas
 
 **Marcus Vance**: We are designing the antenna bracket layouts for Project Helium edge nodes. We need reliable cellular backup connections because some municipal substations lack landline fiber links.

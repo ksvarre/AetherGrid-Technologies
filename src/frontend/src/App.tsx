@@ -5,6 +5,7 @@ import { SuggestedRoutingPanel } from './components/SuggestedRoutingPanel';
 import { AuditQueue } from './components/AuditQueue';
 import { AetherPulseAnalytics } from './components/AetherPulseAnalytics';
 import { CloudSettingsPanel } from './components/CloudSettingsPanel';
+import { OnboardingWizard } from './components/OnboardingWizard';
 
 export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'search' | 'audit' | 'analytics'>('search');
@@ -13,6 +14,17 @@ export const App: React.FC = () => {
   const [isSearchLoading, setIsSearchLoading] = useState<boolean>(false);
   const [systemHealth, setSystemHealth] = useState<'Healthy' | 'Warning' | 'Critical'>('Healthy');
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState<boolean>(false);
+
+  // Auto-launch onboarding on first visit
+  useEffect(() => {
+    const hasCompleted = localStorage.getItem('aethergrid_onboarding_complete');
+    if (!hasCompleted) {
+      // Small delay to let the app render first
+      const timer = setTimeout(() => setIsOnboardingOpen(true), 800);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   const fetchSystemStatus = async () => {
     try {
@@ -102,7 +114,7 @@ export const App: React.FC = () => {
             <p>Smart Utility Balance & Grid Optimization Asset Ledger</p>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             {/* Glowing led badge */}
             <div className="status-badge">
               <div className={`status-dot ${
@@ -115,8 +127,18 @@ export const App: React.FC = () => {
               </span>
             </div>
 
+            {/* "?" Help / Restart Tour Button */}
+            <button
+              className="onboarding-help-btn"
+              onClick={() => setIsOnboardingOpen(true)}
+              title="Launch guided walkthrough"
+            >
+              ?
+            </button>
+
             {/* Premium Settings Gear Button */}
             <button
+              className="settings-gear-btn"
               onClick={() => setIsSettingsOpen(true)}
               title="Cloud LLM & Ingestion Gateway Strategy Settings"
               style={{
@@ -206,6 +228,13 @@ export const App: React.FC = () => {
 
       {/* Glassmorphic Settings Drawer */}
       <CloudSettingsPanel isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+
+      {/* Interactive Onboarding Walkthrough */}
+      <OnboardingWizard
+        isOpen={isOnboardingOpen}
+        onClose={() => setIsOnboardingOpen(false)}
+        onNavigateTab={setActiveTab}
+      />
     </div>
   );
 };

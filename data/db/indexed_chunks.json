@@ -19,7 +19,13 @@
           ],
           "date": "2026-01-12",
           "domain": "Project Quantum",
-          "priority": "Medium"
+          "priority": "High",
+          "decisions": [
+            "Elena will lead the core training pipeline using weather forecast arrays."
+          ],
+          "actionItems": [
+            "Marcus to provision a PostgreSQL staging database with timescale DB extensions by January 20th."
+          ]
         },
         {
           "id": "transcript_2026_01_12_quantum_kickoff.md_chunk_1",
@@ -35,7 +41,13 @@
           ],
           "date": "2026-01-12",
           "domain": "Project Quantum",
-          "priority": "Medium"
+          "priority": "High",
+          "decisions": [
+            "Elena will lead the core training pipeline using weather forecast arrays."
+          ],
+          "actionItems": [
+            "Marcus to provision a PostgreSQL staging database with timescale DB extensions by January 20th."
+          ]
         },
         {
           "id": "transcript_2026_01_12_quantum_kickoff.md_chunk_2",
@@ -51,7 +63,13 @@
           ],
           "date": "2026-01-12",
           "domain": "Project Quantum",
-          "priority": "Medium"
+          "priority": "High",
+          "decisions": [
+            "Elena will lead the core training pipeline using weather forecast arrays."
+          ],
+          "actionItems": [
+            "Marcus to provision a PostgreSQL staging database with timescale DB extensions by January 20th."
+          ]
         },
         {
           "id": "transcript_2026_01_12_quantum_kickoff.md_chunk_3",
@@ -67,7 +85,13 @@
           ],
           "date": "2026-01-12",
           "domain": "Project Quantum",
-          "priority": "Medium"
+          "priority": "High",
+          "decisions": [
+            "Elena will lead the core training pipeline using weather forecast arrays."
+          ],
+          "actionItems": [
+            "Marcus to provision a PostgreSQL staging database with timescale DB extensions by January 20th."
+          ]
         },
         {
           "id": "transcript_2026_01_12_quantum_kickoff.md_chunk_4",
@@ -83,7 +107,13 @@
           ],
           "date": "2026-01-12",
           "domain": "Project Quantum",
-          "priority": "Medium"
+          "priority": "High",
+          "decisions": [
+            "Elena will lead the core training pipeline using weather forecast arrays."
+          ],
+          "actionItems": [
+            "Marcus to provision a PostgreSQL staging database with timescale DB extensions by January 20th."
+          ]
         },
         {
           "id": "transcript_2026_01_12_quantum_kickoff.md_chunk_5",
@@ -99,7 +129,13 @@
           ],
           "date": "2026-01-12",
           "domain": "Project Quantum",
-          "priority": "Medium"
+          "priority": "High",
+          "decisions": [
+            "Elena will lead the core training pipeline using weather forecast arrays."
+          ],
+          "actionItems": [
+            "Marcus to provision a PostgreSQL staging database with timescale DB extensions by January 20th."
+          ]
         }
       ]
     },
@@ -121,7 +157,13 @@
           ],
           "date": "2026-01-28",
           "domain": "Project Helium",
-          "priority": "High"
+          "priority": "High",
+          "decisions": [
+            "Marcus will modify the firmware fan curve to trigger maximum cooling when core temps exceed 75°C."
+          ],
+          "actionItems": [
+            "David to isolate the smart-meter subnet to stop the packet duplication storm by February 2nd."
+          ]
         },
         {
           "id": "transcript_2026_01_28_helium_sensor_issue.md_chunk_1",
@@ -137,7 +179,13 @@
           ],
           "date": "2026-01-28",
           "domain": "Project Helium",
-          "priority": "High"
+          "priority": "High",
+          "decisions": [
+            "Marcus will modify the firmware fan curve to trigger maximum cooling when core temps exceed 75°C."
+          ],
+          "actionItems": [
+            "David to isolate the smart-meter subnet to stop the packet duplication storm by February 2nd."
+          ]
         },
         {
           "id": "transcript_2026_01_28_helium_sensor_issue.md_chunk_2",
@@ -153,7 +201,13 @@
           ],
           "date": "2026-01-28",
           "domain": "Project Helium",
-          "priority": "High"
+          "priority": "High",
+          "decisions": [
+            "Marcus will modify the firmware fan curve to trigger maximum cooling when core temps exceed 75°C."
+          ],
+          "actionItems": [
+            "David to isolate the smart-meter subnet to stop the packet duplication storm by February 2nd."
+          ]
         },
         {
           "id": "transcript_2026_01_28_helium_sensor_issue.md_chunk_3",
@@ -169,7 +223,13 @@
           ],
           "date": "2026-01-28",
           "domain": "Project Helium",
-          "priority": "High"
+          "priority": "High",
+          "decisions": [
+            "Marcus will modify the firmware fan curve to trigger maximum cooling when core temps exceed 75°C."
+          ],
+          "actionItems": [
+            "David to isolate the smart-meter subnet to stop the packet duplication storm by February 2nd."
+          ]
         },
         {
           "id": "transcript_2026_01_28_helium_sensor_issue.md_chunk_4",
@@ -185,7 +245,13 @@
           ],
           "date": "2026-01-28",
           "domain": "Project Helium",
-          "priority": "High"
+          "priority": "High",
+          "decisions": [
+            "Marcus will modify the firmware fan curve to trigger maximum cooling when core temps exceed 75°C."
+          ],
+          "actionItems": [
+            "David to isolate the smart-meter subnet to stop the packet duplication storm by February 2nd."
+          ]
         },
         {
           "id": "transcript_2026_01_28_helium_sensor_issue.md_chunk_5",
@@ -201,7 +267,13 @@
           ],
           "date": "2026-01-28",
           "domain": "Project Helium",
-          "priority": "High"
+          "priority": "High",
+          "decisions": [
+            "Marcus will modify the firmware fan curve to trigger maximum cooling when core temps exceed 75°C."
+          ],
+          "actionItems": [
+            "David to isolate the smart-meter subnet to stop the packet duplication storm by February 2nd."
+          ]
         }
       ]
     },
@@ -223,7 +295,13 @@
           ],
           "date": "2026-02-15",
           "domain": "Project Horizon",
-          "priority": "Medium"
+          "priority": "Medium",
+          "decisions": [
+            "Recommending LTO cells as the default for the high-frequency municipal tier."
+          ],
+          "actionItems": [
+            "Amira to deliver the Austin microgrid grid flow diagram by February 20th."
+          ]
         },
         {
           "id": "transcript_2026_02_15_horizon_municipal_sales.md_chunk_1",
@@ -239,7 +317,13 @@
           ],
           "date": "2026-02-15",
           "domain": "Project Horizon",
-          "priority": "Medium"
+          "priority": "Medium",
+          "decisions": [
+            "Recommending LTO cells as the default for the high-frequency municipal tier."
+          ],
+          "actionItems": [
+            "Amira to deliver the Austin microgrid grid flow diagram by February 20th."
+          ]
         },
         {
           "id": "transcript_2026_02_15_horizon_municipal_sales.md_chunk_2",
@@ -255,7 +339,13 @@
           ],
           "date": "2026-02-15",
           "domain": "Project Horizon",
-          "priority": "Medium"
+          "priority": "Medium",
+          "decisions": [
+            "Recommending LTO cells as the default for the high-frequency municipal tier."
+          ],
+          "actionItems": [
+            "Amira to deliver the Austin microgrid grid flow diagram by February 20th."
+          ]
         },
         {
           "id": "transcript_2026_02_15_horizon_municipal_sales.md_chunk_3",
@@ -271,7 +361,13 @@
           ],
           "date": "2026-02-15",
           "domain": "Project Horizon",
-          "priority": "Medium"
+          "priority": "Medium",
+          "decisions": [
+            "Recommending LTO cells as the default for the high-frequency municipal tier."
+          ],
+          "actionItems": [
+            "Amira to deliver the Austin microgrid grid flow diagram by February 20th."
+          ]
         },
         {
           "id": "transcript_2026_02_15_horizon_municipal_sales.md_chunk_4",
@@ -287,7 +383,13 @@
           ],
           "date": "2026-02-15",
           "domain": "Project Horizon",
-          "priority": "Medium"
+          "priority": "Medium",
+          "decisions": [
+            "Recommending LTO cells as the default for the high-frequency municipal tier."
+          ],
+          "actionItems": [
+            "Amira to deliver the Austin microgrid grid flow diagram by February 20th."
+          ]
         },
         {
           "id": "transcript_2026_02_15_horizon_municipal_sales.md_chunk_5",
@@ -303,7 +405,13 @@
           ],
           "date": "2026-02-15",
           "domain": "Project Horizon",
-          "priority": "Medium"
+          "priority": "Medium",
+          "decisions": [
+            "Recommending LTO cells as the default for the high-frequency municipal tier."
+          ],
+          "actionItems": [
+            "Amira to deliver the Austin microgrid grid flow diagram by February 20th."
+          ]
         }
       ]
     },

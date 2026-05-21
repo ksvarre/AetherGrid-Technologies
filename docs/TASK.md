@@ -94,6 +94,24 @@ These optimizations enhance search accuracy, track user search friction, and per
 
 ---
 
+## 🟣 Phase 4: Interactive Onboarding Walkthrough — 100% COMPLETE
+
+A premium, custom-built guided walkthrough wizard that introduces new users to every major feature of the AetherGrid Knowledge Tracer.
+
+### 🚀 Onboarding Wizard (Zero Dependencies)
+- [x] Create `OnboardingWizard.tsx` component with 7-step guided tour (sidebar nav → search bar → citations → feedback → audit queue → analytics → settings).
+- [x] Create `onboarding.css` with glassmorphic styling matching the existing design system (spotlight overlay, animated tooltip cards, progress dots, welcome screen).
+- [x] Implement spotlight overlay using CSS `box-shadow` cutout that highlights the target element and darkens everything else.
+- [x] Implement auto-tab-switching: steps 5 and 6 automatically navigate to Audit Queue and Analytics tabs before spotlighting.
+- [x] Add `localStorage` persistence (`aethergrid_onboarding_complete`) — wizard auto-launches on first visit only.
+- [x] Add "?" help button in the main header to re-launch the walkthrough anytime.
+- [x] Support 3 cancel/exit paths: Skip button (every step), ✕ close button, Escape key.
+- [x] Implement keyboard navigation: ← → arrow keys, Enter to advance, Escape to dismiss.
+- [x] Integrate into `App.tsx` with `isOnboardingOpen` state and `onNavigateTab` callback.
+- [x] Add `settings-gear-btn` className to the settings gear button for spotlight targeting.
+
+---
+
 ## 🔮 Future Development Roadmap (Backlog)
 
 These items represent planned future enhancements to make the AetherGrid Knowledge Tracer an industry-leading enterprise solution.
@@ -110,22 +128,18 @@ These items represent planned future enhancements to make the AetherGrid Knowled
 - **Objective**: Turn suggested expert routing into active, collaborative Slack/Teams message loops.
 - **Proposed Flow**: Connect a Microsoft Teams incoming webhook or bot. When a low-confidence routing card is triggered, the user can click "Escalate to Teams", posting a rich interactive card in the expert's channel. The expert's reply will feed back into the feedback API to resolve the gap.
 
-### 4. Stateful Interactive Onboarding Guide & How-To Suite
-- **Objective**: Provide a premium guided wizard to onboard new operators and recruiters.
-- **Proposed Flow**: Integrate a step-by-step interactive onboarding overlay (e.g. `react-joyride`) that walks users through running a query, inspecting citations, copying escalation messages, and resolving gaps.
-
-### 5. Repository Publication Hardening & GitHub Cleanup
+### 4. Repository Publication Hardening & GitHub Cleanup
 - **Objective**: Clean and standardize the repository for public or corporate distribution.
 - **Proposed Flow**: Set up strict `.gitignore` patterns to exclude personal environment files or raw temporary session database writes, audit npm dependencies for security, and supply pre-configured, clean empty JSON database templates in `data/db/` for immediate cloning and deployment.
 
-### 6. Institutional Database Migration & Cloud Hosting (e.g., Azure or Supabase)
+### 5. Institutional Database Migration & Cloud Hosting (e.g., Azure or Supabase)
 - **Objective**: Transition from local file-based JSON storage and in-memory indexing to a production-ready, distributed relational database and semantic vector store, offloading compute heavy-lifting from the local server and frontend.
 - **Proposed Flow**: Evaluate and establish an enterprise cloud-hosted data layer:
   - **Option A (Azure SQL + Azure AI Search)**: Deploy within an Azure subscription to align with enterprise corporate IT, using Azure SQL for relational metadata (feedback loops, metrics history) and Azure AI Search for highly scalable hybrid vector retrieval.
   - **Option B (Supabase / PostgreSQL with pgvector)**: Utilize Supabase's open-source Postgres cluster for unified structured tables and high-speed semantic embeddings matching.
   - Offload TF-IDF/Vector similarity computation, rolling diagnostics aggregation, and document indexing workloads from RAM to database views, remote trigger pipelines, and cloud-native background indexing engines. This ensures high availability and fast query execution across millions of organizational documents.
 
-### 7. Configurable Analytics Time-Frames & Reviewer Metrics Sandbox
+### 6. Configurable Analytics Time-Frames & Reviewer Metrics Sandbox
 - **Objective**: Adapt the performance trends visualization to support shorter, highly responsive time-frames (e.g., 7 days, 24 hours, or active session-based logs) and transition to a permanent, continuous instrumentation tracker rather than a fixed 30-day window, ensuring evaluators can immediately witness live changes to the health and confidence indexes.
 - **Proposed Flow**:
   - **Configurable Time-Frames**: Add a time-period selector toggle (e.g., `24h`, `7d`, `30d`, `All Time`) on the System Health dashboard to filter metrics aggregates and trend lines dynamically.

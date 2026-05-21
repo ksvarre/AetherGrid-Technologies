@@ -383,5 +383,12 @@
     "domain": "Project Helium",
     "timestamp": "2026-05-21T13:08:35.643Z",
     "isReformulation": false
+  },
+  {
+    "query": "MAE forecasting error",
+    "confidenceScore": 0.95,
+    "domain": "Project Quantum",
+    "timestamp": "2026-05-21T14:56:16.088Z",
+    "isReformulation": false
   }
 ]

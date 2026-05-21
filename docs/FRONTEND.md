@@ -154,3 +154,44 @@ A `Content-Security-Policy` meta tag has been added to `index.html` to restrict 
 
 ### Page Title Update
 The `<title>` tag has been updated from generic `"frontend"` to the descriptive `"AetherGrid Knowledge Tracer"` for proper SEO and browser tab identification.
+
+---
+
+## 🚀 Interactive Onboarding Walkthrough (Phase 4)
+
+A custom-built, zero-dependency guided tour wizard that introduces new users to every major feature of the application. Built entirely with the existing glassmorphic design system — no third-party libraries like `react-joyride`.
+
+### Architecture
+
+| File | Purpose |
+|------|---------|
+| `OnboardingWizard.tsx` | Self-contained React component managing wizard state, spotlight positioning, keyboard events, and localStorage persistence |
+| `onboarding.css` | Dedicated stylesheet with glassmorphic overlay, spotlight cutout, tooltip cards, progress dots, and animations |
+
+### 7-Step Guided Tour
+
+| Step | Target Element | Tab | Description |
+|------|---------------|-----|-------------|
+| 1 | `.sidebar-menu` | Search | Navigate between Search, Audit Queue, and Analytics |
+| 2 | `.search-bar-container` | Search | Type natural language queries to search the knowledge base |
+| 3 | `.answer-box` | Search | Clickable citation markers `[1] [2]` linking to source documents |
+| 4 | `.feedback-actions` | Search | Flag knowledge gaps with 👎 and submit corrections |
+| 5 | `.audit-container` | Audit | Team lead review panel for approving/dismissing corrections |
+| 6 | `.analytics-grid` | Analytics | Rolling confidence, rejection rates, and performance trends |
+| 7 | `.settings-gear-btn` | Search | Configure LLM engine (Offline/Gemini/Azure OpenAI) |
+
+### Key Features
+*   **Welcome Screen**: Centered glassmorphic modal with "Start Tour" and "Skip Tour" options.
+*   **Spotlight Overlay**: CSS `box-shadow: 0 0 0 4000px` technique creates a dark overlay with a glowing cutout around the target element.
+*   **Auto-Tab Switching**: Steps 5 and 6 call `onNavigateTab()` to automatically switch the sidebar view before spotlighting the target.
+*   **3 Cancel Paths**: Skip button (every step), ✕ close button (tooltip corner), and Escape key — all set `localStorage` to prevent re-launch.
+*   **Keyboard Navigation**: Left/Right arrow keys, Enter to advance, Escape to dismiss.
+*   **localStorage Persistence**: Sets `aethergrid_onboarding_complete` on completion or skip. Auto-launches on first visit only.
+*   **Re-launchable**: "?" help button in the main header (next to settings gear) restarts the tour from the welcome screen.
+*   **Responsive**: Tooltip and welcome card adapt to viewport size with media queries.
+
+### Integration Points in App.tsx
+*   `isOnboardingOpen` state — controls wizard visibility.
+*   `useEffect` on mount checks `localStorage` and auto-opens after 800ms delay.
+*   `onNavigateTab={setActiveTab}` — passes the tab switching callback.
+*   `settings-gear-btn` className added to the settings gear button for spotlight targeting.

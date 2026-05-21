@@ -110,6 +110,8 @@ export class ParserService {
     let cacheDirty = false;
 
     // 1. Ingest Transcripts (.md)
+    // Security: Same 50MB file size limit applies to Markdown transcripts
+    const MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024;
     if (fs.existsSync(TRANSCRIPTS_DIR)) {
       const files = await fs.promises.readdir(TRANSCRIPTS_DIR);
       for (const file of files) {
@@ -120,6 +122,12 @@ export class ParserService {
             const stat = await fs.promises.stat(filePath);
             const mtime = stat.mtimeMs;
             const size = stat.size;
+
+            // Security: Reject oversized Markdown files to prevent memory exhaustion
+            if (size > MAX_FILE_SIZE_BYTES) {
+              console.warn(`🛡️ Security: Skipping oversized transcript "${file}" (${(size / 1024 / 1024).toFixed(1)}MB exceeds 50MB limit).`);
+              continue;
+            }
 
             const cached = cache.files[filePath];
             // Skip cache read if nlpEngine is active to ensure fresh LLM extraction, or if file changed
@@ -152,7 +160,7 @@ export class ParserService {
       };
 
       // Security: Maximum file size (50MB) to prevent resource exhaustion from oversized uploads
-      const MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024;
+      // (Shared constant with transcript parser above)
 
       for (const file of files) {
         const ext = path.extname(file).toLowerCase();
@@ -178,11 +186,13 @@ export class ParserService {
           await fd.read(headerBuf, 0, 8, 0);
           await fd.close();
 
-          const isZipBased = headerBuf[0] === 0x50 && headerBuf[1] === 0x4B; // PK header (.docx/.pptx/.xlsx)
+          // Security: Strengthened magic-byte validation using full ZIP local file header (PK\x03\x04)
+          // instead of just 2-byte PK prefix to prevent bypass with crafted files
+          const isZipBased = headerBuf[0] === 0x50 && headerBuf[1] === 0x4B && headerBuf[2] === 0x03 && headerBuf[3] === 0x04; // PK\x03\x04 full ZIP local file header (.docx/.pptx/.xlsx)
           const isOleBased = headerBuf[0] === 0xD0 && headerBuf[1] === 0xCF && headerBuf[2] === 0x11 && headerBuf[3] === 0xE0; // OLE2 header (.doc/.ppt/.xls)
 
           if (!isZipBased && !isOleBased) {
-            console.warn(`🛡️ Security: Skipping file "${file}" — file header does not match any known Office format (expected ZIP/PK or OLE2/CFB signature). File may be corrupted or disguised.`);
+            console.warn(`🛡️ Security: Skipping file "${file}" — file header does not match any known Office format (expected ZIP PK\\x03\\x04 or OLE2/CFB signature). File may be corrupted or disguised.`);
             continue;
           }
 

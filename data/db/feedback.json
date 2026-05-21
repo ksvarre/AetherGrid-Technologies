@@ -87,5 +87,37 @@
     "id": "fb_1779339599911_101",
     "timestamp": "2026-05-21T04:59:59.911Z",
     "resolved": true
+  },
+  {
+    "query": "How do you bake a chocolate chip cookie at home?",
+    "answer": "Unknown",
+    "confidenceScore": 0.1,
+    "status": "rejection",
+    "correctedAnswer": "Need to consult commercial and operations ledgers manually.",
+    "domain": "Operations",
+    "id": "fb_1779339779163_949",
+    "timestamp": "2026-05-21T05:02:59.163Z",
+    "resolved": true
+  },
+  {
+    "query": "How do you bake a chocolate chip cookie at home?",
+    "answer": "Unknown",
+    "confidenceScore": 0.1,
+    "status": "rejection",
+    "correctedAnswer": "Need to consult commercial and operations ledgers manually.",
+    "domain": "Operations",
+    "id": "fb_1779339908451_331",
+    "timestamp": "2026-05-21T05:05:08.451Z",
+    "resolved": true
+  },
+  {
+    "query": "test query",
+    "answer": "test answer",
+    "confidenceScore": 0.5,
+    "status": "correct",
+    "domain": "General",
+    "id": "fb_1779368915512_178",
+    "timestamp": "2026-05-21T13:08:35.512Z",
+    "resolved": false
   }
 ]

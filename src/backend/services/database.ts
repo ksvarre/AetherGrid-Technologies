@@ -86,6 +86,10 @@ function jaccardSimilarity(tokensA: string[], tokensB: string[]): number {
 }
 
 export class DatabaseService {
+  // Security: FIFO caps to prevent unbounded disk growth from abuse
+  private static readonly MAX_FEEDBACK_ENTRIES = 1000;
+  private static readonly MAX_QUERY_LOG_ENTRIES = 2000;
+
   constructor() {
     this.ensureDatabaseFiles();
   }
@@ -129,7 +133,13 @@ export class DatabaseService {
     };
 
     feedbackList.push(newItem);
-    await safeWriteJson(FEEDBACK_PATH, feedbackList);
+
+    // FIFO rotation: drop oldest entries if cap exceeded
+    const trimmed = feedbackList.length > DatabaseService.MAX_FEEDBACK_ENTRIES
+      ? feedbackList.slice(-DatabaseService.MAX_FEEDBACK_ENTRIES)
+      : feedbackList;
+
+    await safeWriteJson(FEEDBACK_PATH, trimmed);
     return id;
   }
 
@@ -191,7 +201,13 @@ export class DatabaseService {
         isReformulation,
         reformulationOf
       });
-      await safeWriteJson(QUERIES_LOG_PATH, log);
+
+      // FIFO rotation: drop oldest entries if cap exceeded
+      const trimmed = log.length > DatabaseService.MAX_QUERY_LOG_ENTRIES
+        ? log.slice(-DatabaseService.MAX_QUERY_LOG_ENTRIES)
+        : log;
+
+      await safeWriteJson(QUERIES_LOG_PATH, trimmed);
     } catch (err) {
       console.error("Error logging query metrics:", err);
     }

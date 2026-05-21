@@ -16,8 +16,9 @@ graph TD
         PPTX_Files["PowerPoint Decks (.pptx)"] --> PPTX_P["OfficeParser Slide Extractor"]
         XLSX_Files["Excel Sheets (.xlsx)"] --> XLSX_P["SheetJS Tabular Cell Row Parser"]
         
-        Word_P & PPTX_P & XLSX_P --> SecurityGate["Security Validation Gate<br>(50MB Limit & Magic Byte Header Check)"]
-        SecurityGate --> CacheCheck{"Warm Boot Cache<br>(indexed_chunks.json)"}
+        MD_P --> MD_SecurityGate["MD Security Gate<br>(50MB File Size Limit)"]
+        Word_P & PPTX_P & XLSX_P --> SecurityGate["Office Security Gate<br>(50MB Limit & Magic Byte Header Check)"]
+        MD_SecurityGate & SecurityGate --> CacheCheck{"Warm Boot Cache<br>(indexed_chunks.json)"}
         CacheCheck -->|Cache Hit| DocIndex["Local In-Memory Document Store"]
         CacheCheck -->|Cache Miss| RawParse["Execute Fresh Parser & Extract Metadata"]
         RawParse --> DocIndex
@@ -164,19 +165,38 @@ To complement UCRV (which relies on *explicit* user feedback), the system also t
 ---
 
 ## 🔒 Enterprise Security Boundaries (STRIDE Remediations)
-The application defines a strict perimeter around system resources to shield local developer hosts and prevent data disclosure or injection exploits:
+The application defines a strict, multi-layered security perimeter around system resources to shield local developer hosts and prevent data disclosure, injection exploits, denial-of-service, and prompt manipulation attacks:
 
 ```mermaid
 graph TD
-    subgraph UI ["React Frontend Security Panel"]
-        Input["User Input (Query / Correction)"] --> EscapeCheck["Strict UI Content Presentation"]
+    subgraph Frontend ["React Frontend Security Layer"]
+        CSP["Content Security Policy<br>(meta tag: script-src, connect-src, style-src)"] --> Input["User Input (Query / Correction)"]
+        Input --> QueryVal["Query Length Validation<br>(max 500 chars)"]
     end
 
-    subgraph BackendGate ["Express API Gateways"]
-        Input -->|POST /api/feedback| Esc["HTML Escaping (escapeHtml)"]
+    subgraph EdgeGate ["Express Edge Security Middleware"]
+        QueryVal --> Helmet["helmet() Security Headers<br>(X-Content-Type-Options, X-Frame-Options,<br>HSTS, Referrer-Policy)"]
+        Helmet --> CORS["CORS Origin Whitelist<br>(localhost:5173, localhost:3000)"]
+        CORS --> BodyLimit["Body Size Limit<br>(express.json 100kb)"]
+        BodyLimit --> RateLimit["3-Tier Rate Limiting<br>(General 60/min, NLP 30/min, Admin 5/min)"]
+        RateLimit --> AuthGate{"API Key Auth?"}
+        AuthGate -->|API_AUTH_KEY set| KeyCheck["x-api-key Header Validation"]
+        AuthGate -->|No key configured| PassThrough["Open Access"]
+        KeyCheck & PassThrough --> InputVal["Input Validation<br>(type checks, enum validation)"]
+    end
+
+    subgraph AppLogic ["Application Security Layer"]
+        InputVal -->|POST /api/feedback| Esc["HTML Escaping (escapeHtml)"]
+        InputVal -->|POST /api/query| PromptDef["Prompt Injection Defense<br>(sanitizeForLLM: 11+ pattern strip,<br>XML delimiters, anti-jailbreak rules)"]
+        PromptDef --> LLMVal["validateLLMResponse()<br>(Output schema constraint)"]
         Esc -->|Sanitized text| DBWriter["safeWriteJson (Atomic Write)"]
-        
-        DBWriter -->|Renamed temp-file| FeedbackDB[("feedback.json")]
+        DBWriter -->|Renamed temp-file| FeedbackDB[("feedback.json<br>(FIFO cap: 1000)")]
+        LLMVal --> QueryLog[("queries_log.json<br>(FIFO cap: 2000)")]
+    end
+
+    subgraph ErrorGate ["Error Boundary"]
+        AppLogic -->|Error thrown| ErrSan["sanitizeError()<br>(strips paths, stacks, internal details)"]
+        ErrSan --> SafeErr["Generic client-safe error response"]
     end
 
     subgraph StorageGate ["Storage Layer Isolation"]
@@ -186,9 +206,32 @@ graph TD
 ```
 
 ### STRIDE Boundary Remediations:
+
+#### Original Core Protections
 *   **Information Disclosure (Path Leaks)**: Absolute local disk pathing (`d:\Antigravity Projects\...`) is fully virtualized into workspace-relative paths (`data/documents/...`). The physical system's drive boundaries are completely invisible across frontend citations, downloads, and network logs.
 *   **Tampering & Denial of Service (File Corruption)**: Concurrent write transactions on metrics or feedback files are handled by an atomic file-swapping pipeline (`safeWriteJson`). Updates are serialized to an adjacent temporary file and renamed synchronously, ensuring zero risk of partial or corrupted JSON streams.
 *   **Spoofing / Stored Cross-Site Scripting (XSS)**: Team Lead administrative panels rendering user correction feedback are protected via strict server-side HTML entity escaping (`escapeHtml()`) applied before persistence.
+
+#### HTTP Transport Hardening
+*   **HTTP Security Headers (Helmet)**: `helmet()` middleware sets `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy`, `Strict-Transport-Security` (HSTS), and additional headers to prevent MIME-sniffing, clickjacking, and referrer leakage.
+*   **CORS Origin Restriction**: Cross-origin requests are restricted to an explicit whitelist (`localhost:5173` for Vite dev server, `localhost:3000` for API self-origin). The wildcard `*` origin has been replaced with a strict allowlist to prevent unauthorized cross-origin API access.
+*   **Content Security Policy (CSP)**: A `<meta>` CSP tag in the frontend restricts `script-src`, `connect-src`, and `style-src` directives to prevent inline script injection and unauthorized external resource loading.
+
+#### Denial of Service Mitigation
+*   **3-Tier Rate Limiting**: `express-rate-limit` enforces graduated throttling — **General endpoints** (60 req/min), **Query NLP endpoints** (30 req/min), and **Admin actions** (5 req/min) — preventing brute-force abuse and NLP resource exhaustion.
+*   **Request Body Size Limit**: `express.json({ limit: '100kb' })` rejects oversized payloads at the middleware level before any parsing or business logic executes.
+*   **Query Length Validation**: User queries are capped at **500 characters**, preventing NLP tokenization DoS attacks where adversarially long inputs could exhaust CPU during TF-IDF computation or LLM token allocation.
+*   **FIFO Log Rotation**: `feedback.json` is capped at **1,000 entries** and `queries_log.json` at **2,000 entries** with FIFO eviction. This prevents unbounded disk growth from sustained usage or automated probing.
+
+#### Prompt Injection & LLM Security
+*   **Prompt Injection Defense**: `sanitizeForLLM()` strips **11+ injection patterns** (e.g., `ignore previous instructions`, `system:`, role-switching attempts). XML delimiters (`<context>`, `<user_query>`) structurally isolate user input from system instructions in all LLM prompts. Anti-jailbreak rules are embedded in system prompts. `validateLLMResponse()` constrains LLM output to the expected response schema, rejecting free-form or manipulated outputs.
+
+#### Authentication & Input Validation
+*   **Optional API Key Authentication**: When the `API_AUTH_KEY` environment variable is set, all requests require a valid `x-api-key` header. Admin endpoints (`/api/feedback/resolve`) are additionally gated behind `requireAuth` middleware combined with the `adminLimiter` rate tier.
+*   **Input Validation**: Feedback `status` fields are validated against an enum set (`pending`, `approved`, `rejected`). `feedbackId` and `query` parameters are type-checked before processing to prevent type-confusion attacks.
+
+#### Error Handling & Observability Safety
+*   **Error Message Sanitization**: `sanitizeError()` strips file paths, stack traces, and internal implementation details from all error responses before they reach the client. Production error messages are generic and safe, preventing information disclosure through error channels.
 
 ---
 

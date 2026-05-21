@@ -124,3 +124,33 @@ When a user queries the Search Console and clicks on a citation that originates 
 
 ### 5. Repositioned SVG Performance Trends Chart
 To allow space for the unified telemetry row and interactive drawers, the 30-day performance trends line chart has been moved to the bottom of the System Health page, serving as a comprehensive history footer.
+
+---
+
+## 🛡️ Frontend Security Hardening
+
+### Content Security Policy (CSP)
+A `Content-Security-Policy` meta tag has been added to `index.html` to restrict resource loading origins:
+
+```html
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self';
+  style-src 'self' 'unsafe-inline';
+  connect-src 'self' http://localhost:5000 http://127.0.0.1:5000;
+  img-src 'self' data:;
+  font-src 'self';
+" />
+```
+
+| Directive | Value | Purpose |
+|-----------|-------|---------|
+| `default-src` | `'self'` | Baseline: only load from same origin |
+| `script-src` | `'self'` | Only execute scripts from the app bundle |
+| `style-src` | `'self' 'unsafe-inline'` | Allows inline styles (required by CSS design system) |
+| `connect-src` | `'self'` + API origins | Restricts fetch/XHR to known backend only |
+| `img-src` | `'self' data:` | Same origin + data URIs (inline SVGs/icons) |
+| `font-src` | `'self'` | Only load fonts from the app bundle |
+
+### Page Title Update
+The `<title>` tag has been updated from generic `"frontend"` to the descriptive `"AetherGrid Knowledge Tracer"` for proper SEO and browser tab identification.

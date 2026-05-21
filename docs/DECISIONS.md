@@ -193,4 +193,19 @@ This document records the key architectural decisions, rationale, trade-offs, an
 *   **Rationale**: Prevents malicious actors from uploading corrupt or exploit-laden files, protecting the host backend server while maximizing index retrieval quality for tabular spreadsheet data.
 *   **Trade-offs**: Performs additional sync FS stat checks during ingestion, but is completely covered by the sub-3ms warm boot cache.
 
+---
+
+## Decision 19: Full-Stack Security Hardening (OWASP/STRIDE Audit Remediation)
+*   **Status**: Accepted
+*   **Context**: A comprehensive security audit using STRIDE threat modeling and OWASP Top 10 analysis identified 29 findings across 5 severity levels. The application had zero authentication, zero rate limiting, unrestricted CORS (`*`), no HTTP security headers, direct user input interpolation into LLM prompts (prompt injection risk), raw `err.message` leaking in API responses, and unbounded log file growth.
+*   **Decision**: Implement a 5-phase remediation across all backend services and the frontend:
+    1. **Phase 1 — Stop the Bleeding**: Added `helmet()` for secure HTTP headers, restricted CORS to localhost origins, added `express-rate-limit` with 3 tiers (general 60/min, query 30/min, admin 5/min), set explicit `express.json({ limit: '100kb' })` body size cap, added 500-character query length validation, and replaced all raw `err.message` responses with `sanitizeError()` to strip file paths and stack traces.
+    2. **Phase 2 — Prompt Injection Hardening**: Implemented `sanitizeForLLM()` to strip 11+ injection pattern families ("ignore all instructions", "reveal system prompt", "DAN", "jailbreak", etc.). Wrapped all user queries in XML delimiters (`<user_query>`, `<context>`) to structurally separate user input from system instructions. Added anti-jailbreak rules to both Gemini and Azure OpenAI system prompts. Added `validateLLMResponse()` to constrain LLM output to expected schema (answer length cap, confidence clamped 0-1, priority enum enforced, citations capped at 10).
+    3. **Phase 3 — Authentication & Access Control**: Added optional API key authentication middleware (`API_AUTH_KEY` env var, `x-api-key` header). Gated admin endpoints (`/api/ingest`, `/api/feedback/resolve`) behind `requireAuth` + `adminLimiter`. Added runtime feedback `status` enum validation and `feedbackId` type checking.
+    4. **Phase 4 — File Processing Hardening**: Extended 50MB file size limit to Markdown transcripts (previously only Office files). Strengthened magic byte validation from 2-byte PK prefix to full 4-byte ZIP local file header (`PK\x03\x04`) to prevent bypass with crafted files.
+    5. **Phase 5 — Frontend & Operational**: Added Content-Security-Policy meta tag restricting script-src, connect-src, style-src, and img-src. Capped feedback.json at 1000 entries and queries_log.json at 2000 entries with FIFO rotation to prevent unbounded disk growth.
+*   **Rationale**: Security must be addressed proactively before deployment. The 5-phase approach prioritizes critical exposure (network-level) first and works inward to application-level defenses. All changes maintain backward compatibility — the app works identically in dev mode when `API_AUTH_KEY` is unset.
+*   **Trade-offs**: Rate limiting may need tuning for production load. `sanitizeForLLM()` is a blocklist approach (can be bypassed by novel injection patterns) — a more robust defense would use a separate classifier model, but the current approach handles known attack vectors. CSP `'unsafe-inline'` for styles is required by the current CSS architecture.
+*   **Verification**: All 13 security integration tests pass (normal query, length cap, empty query, invalid feedback status, valid feedback, feedbackId type check, helmet headers, body size limit, CORS restriction, CORS allowed, metrics, feedback list, rate limiter).
+
 

@@ -165,7 +165,18 @@ When no queries are logged, the system defaults to $C = 0.85$, $R = 0$, $H = 85\
 1.  **Path Traversal Prevention**: Physical absolute directories → virtualized relative workspace paths.
 2.  **HTML Input Neutralization (XSS Prevention)**: All user inputs processed via `escapeHtml()` before persistence.
 3.  **Atomic File Writes**: `safeWriteJson()` writes to temp file then renames, preventing corruption.
-4.  **Office File Validation**: Magic-byte header checks + 50MB size limits on ingested documents.
+4.  **Office File Validation**: Magic-byte header checks (full 4-byte ZIP PK\x03\x04 and OLE2 signatures) + 50MB size limits on all ingested documents including Markdown transcripts.
+5.  **HTTP Security Headers**: `helmet()` middleware sets X-Content-Type-Options, X-Frame-Options, HSTS, Referrer-Policy, and more.
+6.  **CORS Restriction**: Origin whitelist (`localhost:5173`, `localhost:3000`) replaces wildcard `*`.
+7.  **3-Tier Rate Limiting**: General API (60/min), Query NLP (30/min), Admin actions (5/min).
+8.  **Request Body Size Limit**: `express.json({ limit: '100kb' })` prevents oversized payloads (HTTP 413).
+9.  **Query Length Validation**: Max 500 characters to prevent NLP tokenization DoS.
+10. **Prompt Injection Defense**: `sanitizeForLLM()` strips injection patterns. XML delimiters isolate user input. Anti-jailbreak system prompt rules. `validateLLMResponse()` constrains LLM output schema.
+11. **Error Message Sanitization**: `sanitizeError()` strips file paths and stack traces from all error responses.
+12. **Optional API Key Authentication**: Set `API_AUTH_KEY` in `.env` to enable `x-api-key` header validation on all state-changing endpoints.
+13. **Input Validation**: Feedback `status` enum validation, `feedbackId` type checking, query type/length checks.
+14. **FIFO Log Rotation**: `feedback.json` capped at 1000 entries, `queries_log.json` at 2000 entries.
+15. **Frontend CSP**: Content-Security-Policy meta tag restricts script-src, connect-src, style-src, img-src.
 
 ---
 
@@ -190,6 +201,15 @@ The AetherGrid Knowledge Tracer is enhanced with Phase 3 diagnostics that can be
 
 ### 4. Verification of HTML Entity Sanitization Fix
 *   **Reviewer Test**: Submit a feedback correction containing the word `"couldn't"` or `"doesn't"`. In previous versions, Stored XSS mitigation escaped single quotes, causing it to display as `"couldn&#x27;t"`. The sanitization rules are now adjusted to preserve quotes safely, displaying correct text formatting across all inputs, tooltips, and lists.
+
+### 5. Verification of Security Hardening
+*   **Rate Limiting Test**: Send 31+ rapid POST requests to `/api/query`. After ~30 requests, the server responds with HTTP 429 `Query rate limit exceeded`.
+*   **Query Length Cap**: POST to `/api/query` with a query longer than 500 characters → HTTP 400 `Query exceeds maximum length`.
+*   **Invalid Feedback Status**: POST to `/api/feedback` with `status: "hacked"` → HTTP 400 `Invalid status`.
+*   **CORS Restriction**: Fetch `/api/metrics` with `Origin: http://evil-site.com` → No `Access-Control-Allow-Origin` header returned.
+*   **Helmet Headers**: Any API response includes `X-Content-Type-Options: nosniff` and `X-Frame-Options: SAMEORIGIN`.
+*   **Body Size Limit**: POST >100KB JSON body → HTTP 413 `Payload Too Large`.
+*   **Automated Security Test Suite**: Run `npx ts-node test_security.ts` from `src/backend/` to execute all 13 security integration tests.
 
 ---
 

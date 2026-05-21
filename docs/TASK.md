@@ -117,3 +117,17 @@ These items represent planned future enhancements to make the AetherGrid Knowled
 ### 5. Repository Publication Hardening & GitHub Cleanup
 - **Objective**: Clean and standardize the repository for public or corporate distribution.
 - **Proposed Flow**: Set up strict `.gitignore` patterns to exclude personal environment files or raw temporary session database writes, audit npm dependencies for security, and supply pre-configured, clean empty JSON database templates in `data/db/` for immediate cloning and deployment.
+
+### 6. Institutional Database Migration & Cloud Hosting (e.g., Azure or Supabase)
+- **Objective**: Transition from local file-based JSON storage and in-memory indexing to a production-ready, distributed relational database and semantic vector store, offloading compute heavy-lifting from the local server and frontend.
+- **Proposed Flow**: Evaluate and establish an enterprise cloud-hosted data layer:
+  - **Option A (Azure SQL + Azure AI Search)**: Deploy within an Azure subscription to align with enterprise corporate IT, using Azure SQL for relational metadata (feedback loops, metrics history) and Azure AI Search for highly scalable hybrid vector retrieval.
+  - **Option B (Supabase / PostgreSQL with pgvector)**: Utilize Supabase's open-source Postgres cluster for unified structured tables and high-speed semantic embeddings matching.
+  - Offload TF-IDF/Vector similarity computation, rolling diagnostics aggregation, and document indexing workloads from RAM to database views, remote trigger pipelines, and cloud-native background indexing engines. This ensures high availability and fast query execution across millions of organizational documents.
+
+### 7. Configurable Analytics Time-Frames & Reviewer Metrics Sandbox
+- **Objective**: Adapt the performance trends visualization to support shorter, highly responsive time-frames (e.g., 7 days, 24 hours, or active session-based logs) and transition to a permanent, continuous instrumentation tracker rather than a fixed 30-day window, ensuring evaluators can immediately witness live changes to the health and confidence indexes.
+- **Proposed Flow**:
+  - **Configurable Time-Frames**: Add a time-period selector toggle (e.g., `24h`, `7d`, `30d`, `All Time`) on the System Health dashboard to filter metrics aggregates and trend lines dynamically.
+  - **Reviewer Sandbox Simulation**: Introduce a "Simulator Mode" that allows reviewers to generate mock user search spikes, gaps, and lead resolution workflows compressed into a 5-minute interactive timeline. This enables instant visualization of system recovery metrics and proves the responsive telemetry tracking system works in real time under simulated evaluation scenarios.
+

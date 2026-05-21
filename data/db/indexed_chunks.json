@@ -1,8 +1,8 @@
 {
   "version": "1.0",
   "files": {
-    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_01_12_quantum_kickoff.md": {
-      "mtime": 1779325740000,
+    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\transcripts\\transcript_2026_01_12_quantum_kickoff.md": {
+      "mtime": 1779366104617.9363,
       "size": 1460,
       "chunks": [
         {
@@ -19,7 +19,7 @@
           ],
           "date": "2026-01-12",
           "domain": "Project Quantum",
-          "priority": "High"
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_01_12_quantum_kickoff.md_chunk_1",
@@ -35,7 +35,7 @@
           ],
           "date": "2026-01-12",
           "domain": "Project Quantum",
-          "priority": "High"
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_01_12_quantum_kickoff.md_chunk_2",
@@ -51,7 +51,7 @@
           ],
           "date": "2026-01-12",
           "domain": "Project Quantum",
-          "priority": "High"
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_01_12_quantum_kickoff.md_chunk_3",
@@ -67,7 +67,7 @@
           ],
           "date": "2026-01-12",
           "domain": "Project Quantum",
-          "priority": "High"
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_01_12_quantum_kickoff.md_chunk_4",
@@ -83,7 +83,7 @@
           ],
           "date": "2026-01-12",
           "domain": "Project Quantum",
-          "priority": "High"
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_01_12_quantum_kickoff.md_chunk_5",
@@ -99,12 +99,12 @@
           ],
           "date": "2026-01-12",
           "domain": "Project Quantum",
-          "priority": "High"
+          "priority": "Medium"
         }
       ]
     },
-    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_01_28_helium_sensor_issue.md": {
-      "mtime": 1779325740000,
+    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\transcripts\\transcript_2026_01_28_helium_sensor_issue.md": {
+      "mtime": 1779366104617.9363,
       "size": 1610,
       "chunks": [
         {
@@ -205,8 +205,8 @@
         }
       ]
     },
-    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_02_15_horizon_municipal_sales.md": {
-      "mtime": 1779325740000,
+    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\transcripts\\transcript_2026_02_15_horizon_municipal_sales.md": {
+      "mtime": 1779366104618.936,
       "size": 1548,
       "chunks": [
         {
@@ -222,8 +222,8 @@
             "Marcus Vance"
           ],
           "date": "2026-02-15",
-          "domain": "Project Helium",
-          "priority": "High"
+          "domain": "Project Horizon",
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_02_15_horizon_municipal_sales.md_chunk_1",
@@ -238,8 +238,8 @@
             "Marcus Vance"
           ],
           "date": "2026-02-15",
-          "domain": "Project Helium",
-          "priority": "High"
+          "domain": "Project Horizon",
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_02_15_horizon_municipal_sales.md_chunk_2",
@@ -254,8 +254,8 @@
             "Marcus Vance"
           ],
           "date": "2026-02-15",
-          "domain": "Project Helium",
-          "priority": "High"
+          "domain": "Project Horizon",
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_02_15_horizon_municipal_sales.md_chunk_3",
@@ -270,8 +270,8 @@
             "Marcus Vance"
           ],
           "date": "2026-02-15",
-          "domain": "Project Helium",
-          "priority": "High"
+          "domain": "Project Horizon",
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_02_15_horizon_municipal_sales.md_chunk_4",
@@ -286,8 +286,8 @@
             "Marcus Vance"
           ],
           "date": "2026-02-15",
-          "domain": "Project Helium",
-          "priority": "High"
+          "domain": "Project Horizon",
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_02_15_horizon_municipal_sales.md_chunk_5",
@@ -302,13 +302,13 @@
             "Marcus Vance"
           ],
           "date": "2026-02-15",
-          "domain": "Project Helium",
-          "priority": "High"
+          "domain": "Project Horizon",
+          "priority": "Medium"
         }
       ]
     },
-    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_03_02_database_scaling_crisis.md": {
-      "mtime": 1779325740000,
+    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\transcripts\\transcript_2026_03_02_database_scaling_crisis.md": {
+      "mtime": 1779366104619.9363,
       "size": 1449,
       "chunks": [
         {
@@ -409,8 +409,8 @@
         }
       ]
     },
-    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_03_19_gridpulse_pricing.md": {
-      "mtime": 1779325740000,
+    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\transcripts\\transcript_2026_03_19_gridpulse_pricing.md": {
+      "mtime": 1779366104619.9363,
       "size": 1503,
       "chunks": [
         {
@@ -427,7 +427,7 @@
           ],
           "date": "2026-03-19",
           "domain": "Project Quantum",
-          "priority": "High"
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_03_19_gridpulse_pricing.md_chunk_1",
@@ -443,7 +443,7 @@
           ],
           "date": "2026-03-19",
           "domain": "Project Quantum",
-          "priority": "High"
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_03_19_gridpulse_pricing.md_chunk_2",
@@ -459,7 +459,7 @@
           ],
           "date": "2026-03-19",
           "domain": "Project Quantum",
-          "priority": "High"
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_03_19_gridpulse_pricing.md_chunk_3",
@@ -475,7 +475,7 @@
           ],
           "date": "2026-03-19",
           "domain": "Project Quantum",
-          "priority": "High"
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_03_19_gridpulse_pricing.md_chunk_4",
@@ -491,7 +491,7 @@
           ],
           "date": "2026-03-19",
           "domain": "Project Quantum",
-          "priority": "High"
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_03_19_gridpulse_pricing.md_chunk_5",
@@ -507,12 +507,12 @@
           ],
           "date": "2026-03-19",
           "domain": "Project Quantum",
-          "priority": "High"
+          "priority": "Medium"
         }
       ]
     },
-    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_04_05_substation_safety_audit.md": {
-      "mtime": 1779325740000,
+    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\transcripts\\transcript_2026_04_05_substation_safety_audit.md": {
+      "mtime": 1779366104620.936,
       "size": 1242,
       "chunks": [
         {
@@ -529,7 +529,7 @@
           ],
           "date": "2026-04-05",
           "domain": "Project Helium",
-          "priority": "High"
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_04_05_substation_safety_audit.md_chunk_1",
@@ -545,7 +545,7 @@
           ],
           "date": "2026-04-05",
           "domain": "Project Helium",
-          "priority": "High"
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_04_05_substation_safety_audit.md_chunk_2",
@@ -561,7 +561,7 @@
           ],
           "date": "2026-04-05",
           "domain": "Project Helium",
-          "priority": "High"
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_04_05_substation_safety_audit.md_chunk_3",
@@ -577,7 +577,7 @@
           ],
           "date": "2026-04-05",
           "domain": "Project Helium",
-          "priority": "High"
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_04_05_substation_safety_audit.md_chunk_4",
@@ -593,12 +593,12 @@
           ],
           "date": "2026-04-05",
           "domain": "Project Helium",
-          "priority": "High"
+          "priority": "Medium"
         }
       ]
     },
-    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_04_20_quantum_training_gaps.md": {
-      "mtime": 1779325740000,
+    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\transcripts\\transcript_2026_04_20_quantum_training_gaps.md": {
+      "mtime": 1779366104621.9375,
       "size": 1322,
       "chunks": [
         {
@@ -699,8 +699,8 @@
         }
       ]
     },
-    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_05_01_helium_antenna_planning.md": {
-      "mtime": 1779325740000,
+    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\transcripts\\transcript_2026_05_01_helium_antenna_planning.md": {
+      "mtime": 1779366104621.9375,
       "size": 1196,
       "chunks": [
         {
@@ -717,7 +717,7 @@
           ],
           "date": "2026-05-01",
           "domain": "Project Helium",
-          "priority": "High"
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_05_01_helium_antenna_planning.md_chunk_1",
@@ -733,7 +733,7 @@
           ],
           "date": "2026-05-01",
           "domain": "Project Helium",
-          "priority": "High"
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_05_01_helium_antenna_planning.md_chunk_2",
@@ -749,7 +749,7 @@
           ],
           "date": "2026-05-01",
           "domain": "Project Helium",
-          "priority": "High"
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_05_01_helium_antenna_planning.md_chunk_3",
@@ -765,7 +765,7 @@
           ],
           "date": "2026-05-01",
           "domain": "Project Helium",
-          "priority": "High"
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_05_01_helium_antenna_planning.md_chunk_4",
@@ -781,12 +781,12 @@
           ],
           "date": "2026-05-01",
           "domain": "Project Helium",
-          "priority": "High"
+          "priority": "Medium"
         }
       ]
     },
-    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_05_10_horizon_microgrid_rules.md": {
-      "mtime": 1779325740000,
+    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\transcripts\\transcript_2026_05_10_horizon_microgrid_rules.md": {
+      "mtime": 1779366104622.9363,
       "size": 1170,
       "chunks": [
         {
@@ -802,7 +802,7 @@
             "Marcus Vance"
           ],
           "date": "2026-05-10",
-          "domain": "Project Helium",
+          "domain": "Project Horizon",
           "priority": "High"
         },
         {
@@ -818,7 +818,7 @@
             "Marcus Vance"
           ],
           "date": "2026-05-10",
-          "domain": "Project Helium",
+          "domain": "Project Horizon",
           "priority": "High"
         },
         {
@@ -834,7 +834,7 @@
             "Marcus Vance"
           ],
           "date": "2026-05-10",
-          "domain": "Project Helium",
+          "domain": "Project Horizon",
           "priority": "High"
         },
         {
@@ -850,7 +850,7 @@
             "Marcus Vance"
           ],
           "date": "2026-05-10",
-          "domain": "Project Helium",
+          "domain": "Project Horizon",
           "priority": "High"
         },
         {
@@ -866,13 +866,13 @@
             "Marcus Vance"
           ],
           "date": "2026-05-10",
-          "domain": "Project Helium",
+          "domain": "Project Horizon",
           "priority": "High"
         }
       ]
     },
-    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_05_15_quarterly_roadmap_review.md": {
-      "mtime": 1779325740000,
+    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\transcripts\\transcript_2026_05_15_quarterly_roadmap_review.md": {
+      "mtime": 1779366104622.9363,
       "size": 1075,
       "chunks": [
         {
@@ -890,7 +890,7 @@
           ],
           "date": "2026-05-15",
           "domain": "Project Quantum",
-          "priority": "High"
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_05_15_quarterly_roadmap_review.md_chunk_1",
@@ -907,7 +907,7 @@
           ],
           "date": "2026-05-15",
           "domain": "Project Quantum",
-          "priority": "High"
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_05_15_quarterly_roadmap_review.md_chunk_2",
@@ -924,7 +924,7 @@
           ],
           "date": "2026-05-15",
           "domain": "Project Quantum",
-          "priority": "High"
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_05_15_quarterly_roadmap_review.md_chunk_3",
@@ -941,7 +941,7 @@
           ],
           "date": "2026-05-15",
           "domain": "Project Quantum",
-          "priority": "High"
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_05_15_quarterly_roadmap_review.md_chunk_4",
@@ -958,12 +958,12 @@
           ],
           "date": "2026-05-15",
           "domain": "Project Quantum",
-          "priority": "High"
+          "priority": "Medium"
         }
       ]
     },
-    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_05_18_devops_kubernetes_edge.md": {
-      "mtime": 1779325740000,
+    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\transcripts\\transcript_2026_05_18_devops_kubernetes_edge.md": {
+      "mtime": 1779366104623.9387,
       "size": 1142,
       "chunks": [
         {
@@ -980,7 +980,7 @@
           ],
           "date": "2026-05-18",
           "domain": "Project Helium",
-          "priority": "High"
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_05_18_devops_kubernetes_edge.md_chunk_1",
@@ -996,7 +996,7 @@
           ],
           "date": "2026-05-18",
           "domain": "Project Helium",
-          "priority": "High"
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_05_18_devops_kubernetes_edge.md_chunk_2",
@@ -1012,7 +1012,7 @@
           ],
           "date": "2026-05-18",
           "domain": "Project Helium",
-          "priority": "High"
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_05_18_devops_kubernetes_edge.md_chunk_3",
@@ -1028,7 +1028,7 @@
           ],
           "date": "2026-05-18",
           "domain": "Project Helium",
-          "priority": "High"
+          "priority": "Medium"
         },
         {
           "id": "transcript_2026_05_18_devops_kubernetes_edge.md_chunk_4",
@@ -1044,12 +1044,12 @@
           ],
           "date": "2026-05-18",
           "domain": "Project Helium",
-          "priority": "High"
+          "priority": "Medium"
         }
       ]
     },
-    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\transcripts\\transcript_2026_05_19_emergency_load_simulation.md": {
-      "mtime": 1779325740000,
+    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\transcripts\\transcript_2026_05_19_emergency_load_simulation.md": {
+      "mtime": 1779366104624.341,
       "size": 1169,
       "chunks": [
         {
@@ -1066,7 +1066,7 @@
           ],
           "date": "2026-05-19",
           "domain": "Project Horizon",
-          "priority": "Medium"
+          "priority": "High"
         },
         {
           "id": "transcript_2026_05_19_emergency_load_simulation.md_chunk_1",
@@ -1082,7 +1082,7 @@
           ],
           "date": "2026-05-19",
           "domain": "Project Horizon",
-          "priority": "Medium"
+          "priority": "High"
         },
         {
           "id": "transcript_2026_05_19_emergency_load_simulation.md_chunk_2",
@@ -1098,7 +1098,7 @@
           ],
           "date": "2026-05-19",
           "domain": "Project Horizon",
-          "priority": "Medium"
+          "priority": "High"
         },
         {
           "id": "transcript_2026_05_19_emergency_load_simulation.md_chunk_3",
@@ -1114,7 +1114,7 @@
           ],
           "date": "2026-05-19",
           "domain": "Project Horizon",
-          "priority": "Medium"
+          "priority": "High"
         },
         {
           "id": "transcript_2026_05_19_emergency_load_simulation.md_chunk_4",
@@ -1130,12 +1130,12 @@
           ],
           "date": "2026-05-19",
           "domain": "Project Horizon",
-          "priority": "Medium"
+          "priority": "High"
         }
       ]
     },
-    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\documents\\devops_edge_infrastructure_scaling.docx": {
-      "mtime": 1779325740000,
+    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\documents\\devops_edge_infrastructure_scaling.docx": {
+      "mtime": 1779366104608.9382,
       "size": 37271,
       "chunks": [
         {
@@ -1147,8 +1147,8 @@
           "author": "David Kross",
           "attendees": [],
           "date": "2026-05-02",
-          "domain": "Project Quantum",
-          "priority": "High"
+          "domain": "DevOps / Infrastructure",
+          "priority": "Medium"
         },
         {
           "id": "devops_edge_infrastructure_scaling.docx_chunk_1",
@@ -1159,8 +1159,8 @@
           "author": "David Kross",
           "attendees": [],
           "date": "2026-05-02",
-          "domain": "Project Quantum",
-          "priority": "High"
+          "domain": "DevOps / Infrastructure",
+          "priority": "Medium"
         },
         {
           "id": "devops_edge_infrastructure_scaling.docx_chunk_2",
@@ -1171,8 +1171,8 @@
           "author": "David Kross",
           "attendees": [],
           "date": "2026-05-02",
-          "domain": "Project Quantum",
-          "priority": "High"
+          "domain": "DevOps / Infrastructure",
+          "priority": "Medium"
         },
         {
           "id": "devops_edge_infrastructure_scaling.docx_chunk_3",
@@ -1183,8 +1183,8 @@
           "author": "David Kross",
           "attendees": [],
           "date": "2026-05-02",
-          "domain": "Project Quantum",
-          "priority": "High"
+          "domain": "DevOps / Infrastructure",
+          "priority": "Medium"
         },
         {
           "id": "devops_edge_infrastructure_scaling.docx_chunk_4",
@@ -1195,8 +1195,8 @@
           "author": "David Kross",
           "attendees": [],
           "date": "2026-05-02",
-          "domain": "Project Quantum",
-          "priority": "High"
+          "domain": "DevOps / Infrastructure",
+          "priority": "Medium"
         },
         {
           "id": "devops_edge_infrastructure_scaling.docx_chunk_5",
@@ -1207,8 +1207,8 @@
           "author": "David Kross",
           "attendees": [],
           "date": "2026-05-02",
-          "domain": "Project Quantum",
-          "priority": "High"
+          "domain": "DevOps / Infrastructure",
+          "priority": "Medium"
         },
         {
           "id": "devops_edge_infrastructure_scaling.docx_chunk_6",
@@ -1219,13 +1219,13 @@
           "author": "David Kross",
           "attendees": [],
           "date": "2026-05-02",
-          "domain": "Project Quantum",
-          "priority": "High"
+          "domain": "DevOps / Infrastructure",
+          "priority": "Medium"
         }
       ]
     },
-    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\documents\\gridpulse_licensing_pricing_matrix.xlsx": {
-      "mtime": 1779325740000,
+    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\documents\\gridpulse_licensing_pricing_matrix.xlsx": {
+      "mtime": 1779366104609.937,
       "size": 5338,
       "chunks": [
         {
@@ -1237,13 +1237,13 @@
           "author": "Sarah Chen",
           "attendees": [],
           "date": "2026-03-24",
-          "domain": "Project Quantum",
-          "priority": "High"
+          "domain": "Product Commercials",
+          "priority": "Medium"
         }
       ]
     },
-    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\documents\\gridpulse_product_roadmap_q2_2026.pptx": {
-      "mtime": 1779325740000,
+    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\documents\\gridpulse_product_roadmap_q2_2026.pptx": {
+      "mtime": 1779366104610.936,
       "size": 30334,
       "chunks": [
         {
@@ -1255,13 +1255,13 @@
           "author": "Sarah Chen",
           "attendees": [],
           "date": "2026-05-01",
-          "domain": "Project Quantum",
-          "priority": "High"
+          "domain": "Product Commercials",
+          "priority": "Medium"
         }
       ]
     },
-    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\documents\\helium_edge_node_hardware_v2.docx": {
-      "mtime": 1779325740000,
+    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\documents\\helium_edge_node_hardware_v2.docx": {
+      "mtime": 1779366104610.936,
       "size": 37418,
       "chunks": [
         {
@@ -1362,8 +1362,8 @@
         }
       ]
     },
-    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\documents\\helium_hardware_thermal_tests.xlsx": {
-      "mtime": 1779325740000,
+    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\documents\\helium_hardware_thermal_tests.xlsx": {
+      "mtime": 1779366104611.9363,
       "size": 5353,
       "chunks": [
         {
@@ -1380,8 +1380,8 @@
         }
       ]
     },
-    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\documents\\helium_substation_deployment_plan.pptx": {
-      "mtime": 1779325740000,
+    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\documents\\helium_substation_deployment_plan.pptx": {
+      "mtime": 1779366104612.9363,
       "size": 30289,
       "chunks": [
         {
@@ -1398,8 +1398,8 @@
         }
       ]
     },
-    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\documents\\horizon_decentralized_microgrid_pitch.pptx": {
-      "mtime": 1779325740000,
+    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\documents\\horizon_decentralized_microgrid_pitch.pptx": {
+      "mtime": 1779366104612.9363,
       "size": 30297,
       "chunks": [
         {
@@ -1411,13 +1411,13 @@
           "author": "Amira Patel",
           "attendees": [],
           "date": "2026-05-01",
-          "domain": "Project Helium",
-          "priority": "High"
+          "domain": "Project Horizon",
+          "priority": "Medium"
         }
       ]
     },
-    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\documents\\infrastructure_node_capacity_allocations.xlsx": {
-      "mtime": 1779325740000,
+    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\documents\\infrastructure_node_capacity_allocations.xlsx": {
+      "mtime": 1779366104613.936,
       "size": 5288,
       "chunks": [
         {
@@ -1429,13 +1429,13 @@
           "author": "David Kross",
           "attendees": [],
           "date": "2026-05-18",
-          "domain": "Project Helium",
-          "priority": "High"
+          "domain": "DevOps / Infrastructure",
+          "priority": "Medium"
         }
       ]
     },
-    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\documents\\quantum_load_prediction_demo.pptx": {
-      "mtime": 1779325740000,
+    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\documents\\quantum_load_prediction_demo.pptx": {
+      "mtime": 1779366104614.937,
       "size": 30278,
       "chunks": [
         {
@@ -1452,8 +1452,8 @@
         }
       ]
     },
-    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\documents\\quantum_ml_forecasting_spec.docx": {
-      "mtime": 1779325740000,
+    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\documents\\quantum_ml_forecasting_spec.docx": {
+      "mtime": 1779366104615.937,
       "size": 37419,
       "chunks": [
         {
@@ -1566,8 +1566,8 @@
         }
       ]
     },
-    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\documents\\quantum_model_benchmarks_v1.xlsx": {
-      "mtime": 1779325740000,
+    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\documents\\quantum_model_benchmarks_v1.xlsx": {
+      "mtime": 1779366104616.9363,
       "size": 5276,
       "chunks": [
         {
@@ -1584,8 +1584,8 @@
         }
       ]
     },
-    "D:\\Antigravity Projects\\TER Take Home Exercise\\data\\documents\\substation_operations_compliance_sop.docx": {
-      "mtime": 1779325740000,
+    "C:\\Users\\ksvar\\.gemini\\antigravity\\worktrees\\TER Take Home Exercise\\plan-next-steps\\data\\documents\\substation_operations_compliance_sop.docx": {
+      "mtime": 1779366104616.9363,
       "size": 37198,
       "chunks": [
         {
@@ -1597,8 +1597,8 @@
           "author": "Amira Patel",
           "attendees": [],
           "date": "2026-03-10",
-          "domain": "Project Helium",
-          "priority": "High"
+          "domain": "Safety & Compliance",
+          "priority": "Medium"
         },
         {
           "id": "substation_operations_compliance_sop.docx_chunk_1",
@@ -1609,8 +1609,8 @@
           "author": "Amira Patel",
           "attendees": [],
           "date": "2026-03-10",
-          "domain": "Project Helium",
-          "priority": "High"
+          "domain": "Safety & Compliance",
+          "priority": "Medium"
         },
         {
           "id": "substation_operations_compliance_sop.docx_chunk_2",
@@ -1621,8 +1621,8 @@
           "author": "Amira Patel",
           "attendees": [],
           "date": "2026-03-10",
-          "domain": "Project Helium",
-          "priority": "High"
+          "domain": "Safety & Compliance",
+          "priority": "Medium"
         },
         {
           "id": "substation_operations_compliance_sop.docx_chunk_3",
@@ -1633,8 +1633,8 @@
           "author": "Amira Patel",
           "attendees": [],
           "date": "2026-03-10",
-          "domain": "Project Helium",
-          "priority": "High"
+          "domain": "Safety & Compliance",
+          "priority": "Medium"
         },
         {
           "id": "substation_operations_compliance_sop.docx_chunk_4",
@@ -1645,8 +1645,8 @@
           "author": "Amira Patel",
           "attendees": [],
           "date": "2026-03-10",
-          "domain": "Project Helium",
-          "priority": "High"
+          "domain": "Safety & Compliance",
+          "priority": "Medium"
         },
         {
           "id": "substation_operations_compliance_sop.docx_chunk_5",
@@ -1657,8 +1657,8 @@
           "author": "Amira Patel",
           "attendees": [],
           "date": "2026-03-10",
-          "domain": "Project Helium",
-          "priority": "High"
+          "domain": "Safety & Compliance",
+          "priority": "Medium"
         },
         {
           "id": "substation_operations_compliance_sop.docx_chunk_6",
@@ -1669,8 +1669,8 @@
           "author": "Amira Patel",
           "attendees": [],
           "date": "2026-03-10",
-          "domain": "Project Helium",
-          "priority": "High"
+          "domain": "Safety & Compliance",
+          "priority": "Medium"
         }
       ]
     }

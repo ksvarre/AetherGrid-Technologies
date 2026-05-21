@@ -1,5 +1,7 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
@@ -27,9 +29,85 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Enable CORS and JSON parsing
-app.use(cors());
-app.use(express.json());
+// ─── Security Hardening ────────────────────────────────────────────────────────
+// Helmet: Sets secure HTTP headers (X-Content-Type-Options, X-Frame-Options,
+// X-XSS-Protection, Referrer-Policy, Strict-Transport-Security, etc.)
+app.use(helmet());
+
+// CORS: Restrict to known frontend origins instead of wildcard
+app.use(cors({
+  origin: [
+    'http://localhost:5173',  // Vite dev server
+    'http://localhost:3000',  // Alternative dev port
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:3000'
+  ],
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type', 'x-api-key', 'x-cloud-provider', 'x-gemini-api-key', 'x-azure-api-key', 'x-azure-endpoint', 'x-azure-deployment']
+}));
+
+// Body parser with explicit size limit to prevent oversized payloads
+app.use(express.json({ limit: '100kb' }));
+
+// Rate Limiters: Prevent abuse and DoS on expensive endpoints
+const generalLimiter = rateLimit({
+  windowMs: 60 * 1000,   // 1 minute window
+  max: 60,               // 60 requests per minute per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests. Please try again later.' }
+});
+
+const queryLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,               // 30 queries/min — NLP ops are expensive
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Query rate limit exceeded. Please wait before sending more queries.' }
+});
+
+const adminLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 5,                // 5 admin actions/min — ingest, resolve
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Admin action rate limit exceeded. Please wait before retrying.' }
+});
+
+app.use('/api', generalLimiter);
+
+// Optional API Key Authentication Middleware
+// Set API_AUTH_KEY in .env to enable. If unset, all requests are allowed (dev mode).
+const API_AUTH_KEY = process.env.API_AUTH_KEY;
+const requireAuth = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (API_AUTH_KEY && API_AUTH_KEY.trim() !== '') {
+    const providedKey = req.headers['x-api-key'];
+    if (providedKey !== API_AUTH_KEY) {
+      return res.status(401).json({ error: 'Unauthorized. Provide a valid x-api-key header.' });
+    }
+  }
+  next();
+};
+
+// Security helper: Sanitize error messages to prevent internal detail leakage
+const sanitizeError = (err: any): string => {
+  const msg = err?.message || String(err);
+  // Strip file paths, stack traces, and internal identifiers
+  if (msg.includes('ENOENT') || msg.includes('EACCES') || msg.includes('EPERM')) {
+    return 'A file system error occurred. Please contact an administrator.';
+  }
+  if (msg.includes('ECONNREFUSED') || msg.includes('ETIMEDOUT') || msg.includes('fetch failed')) {
+    return 'An external service connection error occurred. Please try again later.';
+  }
+  // Cap length and strip anything that looks like a file path
+  return msg.replace(/[A-Z]:\\[^\s]*/gi, '[path]').replace(/\/[^\s]*\/[^\s]*/g, '[path]').substring(0, 200);
+};
+
+// Maximum query length to prevent DoS via oversized NLP tokenization
+const MAX_QUERY_LENGTH = 500;
+
+// Valid feedback status values (runtime enum enforcement)
+const VALID_FEEDBACK_STATUSES = new Set(['correct', 'incorrect', 'correction', 'rejection']);
 
 // Document memory index
 let documentIndex: DocumentChunk[] = [];
@@ -145,7 +223,7 @@ app.get('/api/status', (req, res) => {
 /**
  * POST /api/ingest - Manual re-trigger of filesystem scanning
  */
-app.post('/api/ingest', async (req, res) => {
+app.post('/api/ingest', requireAuth, adminLimiter, async (req, res) => {
   const activeEngine = resolveEngineFromHeaders(req.headers);
   const errorContainer: { cloudError?: any } = {};
 
@@ -183,7 +261,7 @@ app.post('/api/ingest', async (req, res) => {
         cloudError
       });
     } catch (fallbackErr: any) {
-      res.status(500).json({ success: false, error: fallbackErr.message });
+      res.status(500).json({ success: false, error: sanitizeError(fallbackErr) });
     }
   }
 });
@@ -191,10 +269,13 @@ app.post('/api/ingest', async (req, res) => {
 /**
  * POST /api/query - Natural language semantic search with self-healing cloud fallback gate
  */
-app.post('/api/query', async (req, res) => {
+app.post('/api/query', requireAuth, queryLimiter, async (req, res) => {
   const { query } = req.body;
   if (!query || typeof query !== 'string' || query.trim() === '') {
     return res.status(400).json({ error: "Query parameter is required and must be a string." });
+  }
+  if (query.length > MAX_QUERY_LENGTH) {
+    return res.status(400).json({ error: `Query exceeds maximum length of ${MAX_QUERY_LENGTH} characters.` });
   }
 
   const activeEngine = resolveEngineFromHeaders(req.headers);
@@ -247,7 +328,7 @@ app.post('/api/query', async (req, res) => {
       });
     } catch (offlineErr: any) {
       console.error("❌ Critical: Offline fallback query failed:", offlineErr);
-      res.status(500).json({ error: offlineErr.message });
+      res.status(500).json({ error: sanitizeError(offlineErr) });
     }
   }
 });
@@ -255,10 +336,16 @@ app.post('/api/query', async (req, res) => {
 /**
  * POST /api/feedback - Submits user corrections or query rejections
  */
-app.post('/api/feedback', async (req, res) => {
+app.post('/api/feedback', requireAuth, async (req, res) => {
   const { query, answer, confidenceScore, status, correctedAnswer, domain } = req.body;
   if (!query || !status) {
     return res.status(400).json({ error: "Query and status fields are required." });
+  }
+  if (!VALID_FEEDBACK_STATUSES.has(status)) {
+    return res.status(400).json({ error: `Invalid status. Must be one of: ${[...VALID_FEEDBACK_STATUSES].join(', ')}` });
+  }
+  if (typeof query !== 'string' || query.length > MAX_QUERY_LENGTH) {
+    return res.status(400).json({ error: 'Invalid query field.' });
   }
 
   try {
@@ -273,7 +360,7 @@ app.post('/api/feedback', async (req, res) => {
     console.log(`📝 Captured user gap feedback (${status}): ${feedbackId}`);
     res.json({ success: true, feedbackId });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+    res.status(500).json({ success: false, error: sanitizeError(err) });
   }
 });
 
@@ -285,17 +372,17 @@ app.get('/api/feedback', async (req, res) => {
     const list = await dbService.getFeedback();
     res.json(list);
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: sanitizeError(err) });
   }
 });
 
 /**
  * POST /api/feedback/resolve - Marks a gap feedback as resolved (Exercise 3 Lead Action)
  */
-app.post('/api/feedback/resolve', async (req, res) => {
+app.post('/api/feedback/resolve', requireAuth, adminLimiter, async (req, res) => {
   const { feedbackId } = req.body;
-  if (!feedbackId) {
-    return res.status(400).json({ error: "feedbackId is required." });
+  if (!feedbackId || typeof feedbackId !== 'string') {
+    return res.status(400).json({ error: "feedbackId is required and must be a string." });
   }
 
   try {
@@ -332,7 +419,7 @@ app.post('/api/feedback/resolve', async (req, res) => {
 
     res.json({ success: true });
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: sanitizeError(err) });
   }
 });
 
@@ -344,7 +431,7 @@ app.get('/api/metrics', async (req, res) => {
     const metrics = await dbService.getMetricsSummary();
     res.json(metrics);
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: sanitizeError(err) });
   }
 });
 
@@ -367,7 +454,7 @@ app.get('/api/reformulations', async (req, res) => {
       }));
     res.json(reformulations);
   } catch (err: any) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: sanitizeError(err) });
   }
 });
 
@@ -409,7 +496,7 @@ app.get('/api/documents/download/:filename', (req, res) => {
     res.download(resolvedPath, filename);
   } catch (err: any) {
     console.error("Download endpoint execution error:", err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: sanitizeError(err) });
   }
 });
 

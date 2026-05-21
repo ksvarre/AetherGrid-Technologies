@@ -10,9 +10,12 @@
   },
   "dependencies": {
     "@google/genai": "^2.5.0",
+    "@types/helmet": "^0.0.48",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "express-rate-limit": "^8.5.2",
+    "helmet": "^8.1.0",
     "mammoth": "^1.7.2",
     "officeparser": "^4.1.1",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz"

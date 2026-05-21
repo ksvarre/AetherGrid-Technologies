@@ -37,6 +37,24 @@ const DB_DIR = getDir('data/db');
 const FEEDBACK_PATH = path.join(DB_DIR, 'feedback.json');
 const QUERIES_LOG_PATH = path.join(DB_DIR, 'queries_log.json');
 
+// Security & Robustness Helpers
+function escapeHtml(text: string): string {
+  if (!text) return text;
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .replace(/\//g, '&#x2F;');
+}
+
+async function safeWriteJson(filePath: string, data: any): Promise<void> {
+  const tempPath = filePath + '.tmp';
+  await fs.promises.writeFile(tempPath, JSON.stringify(data, null, 2), 'utf-8');
+  await fs.promises.rename(tempPath, filePath);
+}
+
 export class DatabaseService {
   constructor() {
     this.ensureDatabaseFiles();
@@ -71,13 +89,17 @@ export class DatabaseService {
     const id = 'fb_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
     const newItem: FeedbackItem = {
       ...feedback,
+      query: escapeHtml(feedback.query),
+      answer: escapeHtml(feedback.answer),
+      correctedAnswer: feedback.correctedAnswer ? escapeHtml(feedback.correctedAnswer) : undefined,
+      domain: escapeHtml(feedback.domain),
       id,
       timestamp: new Date().toISOString(),
       resolved: false
     };
 
     feedbackList.push(newItem);
-    await fs.promises.writeFile(FEEDBACK_PATH, JSON.stringify(feedbackList, null, 2), 'utf-8');
+    await safeWriteJson(FEEDBACK_PATH, feedbackList);
     return id;
   }
 
@@ -87,7 +109,7 @@ export class DatabaseService {
     if (!item) return false;
 
     item.resolved = true;
-    await fs.promises.writeFile(FEEDBACK_PATH, JSON.stringify(feedbackList, null, 2), 'utf-8');
+    await safeWriteJson(FEEDBACK_PATH, feedbackList);
     return true;
   }
 
@@ -98,12 +120,12 @@ export class DatabaseService {
       const data = await fs.promises.readFile(QUERIES_LOG_PATH, 'utf-8');
       const log = JSON.parse(data);
       log.push({
-        query,
+        query: escapeHtml(query),
         confidenceScore,
-        domain,
+        domain: escapeHtml(domain),
         timestamp: new Date().toISOString()
       });
-      await fs.promises.writeFile(QUERIES_LOG_PATH, JSON.stringify(log, null, 2), 'utf-8');
+      await safeWriteJson(QUERIES_LOG_PATH, log);
     } catch (err) {
       console.error("Error logging query metrics:", err);
     }

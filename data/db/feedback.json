@@ -1,0 +1,101 @@
+[
+  {
+    "query": "How do you bake a chocolate chip cookie at home?",
+    "answer": "I couldn't find any relevant documents or meeting records in our database matching those search parameters.",
+    "confidenceScore": 0.05,
+    "status": "rejection",
+    "correctedAnswer": "Need to consult commercial and operations ledgers manually.",
+    "domain": "General",
+    "id": "fb_1779317383356_554",
+    "timestamp": "2026-05-20T22:49:43.356Z",
+    "resolved": true
+  },
+  {
+    "query": "How do you bake a chocolate chip cookie at home?",
+    "answer": "I couldn't find any relevant documents or meeting records in our database matching those search parameters.",
+    "confidenceScore": 0.05,
+    "status": "rejection",
+    "correctedAnswer": "Need to consult commercial and operations ledgers manually.",
+    "domain": "General",
+    "id": "fb_1779320690381_185",
+    "timestamp": "2026-05-20T23:44:50.381Z",
+    "resolved": true
+  },
+  {
+    "query": "How do you bake a chocolate chip cookie at home?",
+    "answer": "I couldn't find any relevant documents or meeting records in our database matching those search parameters.",
+    "confidenceScore": 0.05,
+    "status": "rejection",
+    "correctedAnswer": "Need to consult commercial and operations ledgers manually.",
+    "domain": "General",
+    "id": "fb_1779321317517_961",
+    "timestamp": "2026-05-20T23:55:17.517Z",
+    "resolved": true
+  },
+  {
+    "query": "How do you bake a chocolate chip cookie at home?",
+    "answer": "I couldn't find any relevant documents or meeting records in our database matching those search parameters.",
+    "confidenceScore": 0.05,
+    "status": "rejection",
+    "correctedAnswer": "Need to consult commercial and operations ledgers manually.",
+    "domain": "General",
+    "id": "fb_1779321347499_678",
+    "timestamp": "2026-05-20T23:55:47.499Z",
+    "resolved": true
+  },
+  {
+    "query": "How do you bake a chocolate chip cookie at home?",
+    "answer": "I couldn't find any relevant documents or meeting records in our database matching those search parameters.",
+    "confidenceScore": 0.05,
+    "status": "rejection",
+    "correctedAnswer": "Need to consult commercial and operations ledgers manually.",
+    "domain": "General",
+    "id": "fb_1779321655677_291",
+    "timestamp": "2026-05-21T00:00:55.677Z",
+    "resolved": true
+  },
+  {
+    "query": "How do you bake a chocolate chip cookie at home?",
+    "answer": "I couldn't find any relevant documents or meeting records in our database matching those search parameters.",
+    "confidenceScore": 0.05,
+    "status": "rejection",
+    "correctedAnswer": "Need to consult commercial and operations ledgers manually.",
+    "domain": "General",
+    "id": "fb_1779321666470_416",
+    "timestamp": "2026-05-21T00:01:06.470Z",
+    "resolved": true
+  },
+  {
+    "query": "How do you bake a chocolate chip cookie at home?",
+    "answer": "I couldn&#x27;t find any relevant documents or meeting records in our database matching those search parameters.",
+    "confidenceScore": 0.05,
+    "status": "rejection",
+    "correctedAnswer": "Need to consult commercial and operations ledgers manually.",
+    "domain": "General",
+    "id": "fb_1779321693544_791",
+    "timestamp": "2026-05-21T00:01:33.544Z",
+    "resolved": true
+  },
+  {
+    "query": "How do you bake a chocolate chip cookie at home?",
+    "answer": "I couldn&#x27;t find any relevant documents or meeting records in our database matching those search parameters.",
+    "confidenceScore": 0.05,
+    "status": "rejection",
+    "correctedAnswer": "Need to consult commercial and operations ledgers manually.",
+    "domain": "General",
+    "id": "fb_1779321698526_77",
+    "timestamp": "2026-05-21T00:01:38.526Z",
+    "resolved": true
+  },
+  {
+    "query": "How do you bake a chocolate chip cookie at home?",
+    "answer": "I couldn&#x27;t find any relevant documents or meeting records in our database matching those search parameters.",
+    "confidenceScore": 0.05,
+    "status": "rejection",
+    "correctedAnswer": "Need to consult commercial and operations ledgers manually.",
+    "domain": "General",
+    "id": "fb_1779322022127_966",
+    "timestamp": "2026-05-21T00:07:02.127Z",
+    "resolved": true
+  }
+]

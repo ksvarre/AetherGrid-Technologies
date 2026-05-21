@@ -18,12 +18,59 @@ const getDir = (sub: string) => {
 const TRANSCRIPTS_DIR = getDir('data/transcripts');
 const DOCUMENTS_DIR = getDir('data/documents');
 
+const virtualizePath = (filePath: string): string => {
+  return path.relative(process.cwd(), filePath).replace(/\\/g, '/');
+};
+
+interface CacheEntry {
+  mtime: number;
+  size: number;
+  chunks: DocumentChunk[];
+}
+
+interface IngestionCache {
+  version: string;
+  files: Record<string, CacheEntry>;
+}
+
+const DB_DIR = getDir('data/db');
+const CACHE_PATH = path.join(DB_DIR, 'indexed_chunks.json');
+
+async function safeWriteJson(filePath: string, data: any): Promise<void> {
+  const tempPath = filePath + '.tmp';
+  await fs.promises.writeFile(tempPath, JSON.stringify(data, null, 2), 'utf-8');
+  await fs.promises.rename(tempPath, filePath);
+}
+
 export class ParserService {
   /**
    * Main entry point: Scans directories, parses files, and returns semantic chunks.
    */
   public async ingestAll(): Promise<DocumentChunk[]> {
+    const startTime = Date.now();
     const allChunks: DocumentChunk[] = [];
+    const seenPaths = new Set<string>();
+    let hitCount = 0;
+    let missCount = 0;
+
+    // Ensure db folder exists
+    if (!fs.existsSync(DB_DIR)) {
+      fs.mkdirSync(DB_DIR, { recursive: true });
+    }
+
+    // Try to load ingestion cache
+    let cache: IngestionCache = { version: '1.0', files: {} };
+    try {
+      if (fs.existsSync(CACHE_PATH)) {
+        const cacheData = await fs.promises.readFile(CACHE_PATH, 'utf-8');
+        cache = JSON.parse(cacheData);
+        if (!cache.files) cache.files = {};
+      }
+    } catch (err) {
+      console.warn("⚠️ Failed to load ingestion cache, starting fresh:", err);
+    }
+
+    let cacheDirty = false;
 
     // 1. Ingest Transcripts (.md)
     if (fs.existsSync(TRANSCRIPTS_DIR)) {
@@ -31,8 +78,26 @@ export class ParserService {
       for (const file of files) {
         if (file.endsWith('.md')) {
           const filePath = path.join(TRANSCRIPTS_DIR, file);
-          const chunks = await this.parseTranscript(filePath, file);
-          allChunks.push(...chunks);
+          seenPaths.add(filePath);
+          try {
+            const stat = await fs.promises.stat(filePath);
+            const mtime = stat.mtimeMs;
+            const size = stat.size;
+
+            const cached = cache.files[filePath];
+            if (cached && cached.mtime === mtime && cached.size === size) {
+              allChunks.push(...cached.chunks);
+              hitCount++;
+            } else {
+              const chunks = await this.parseTranscript(filePath, file);
+              cache.files[filePath] = { mtime, size, chunks };
+              cacheDirty = true;
+              allChunks.push(...chunks);
+              missCount++;
+            }
+          } catch (err) {
+            console.error(`❌ Error processing transcript file ${file}:`, err);
+          }
         }
       }
     }
@@ -42,18 +107,58 @@ export class ParserService {
       const files = await fs.promises.readdir(DOCUMENTS_DIR);
       for (const file of files) {
         const filePath = path.join(DOCUMENTS_DIR, file);
-        if (file.endsWith('.docx')) {
-          const chunks = await this.parseDocx(filePath, file);
-          allChunks.push(...chunks);
-        } else if (file.endsWith('.pptx')) {
-          const chunks = await this.parsePptx(filePath, file);
-          allChunks.push(...chunks);
-        } else if (file.endsWith('.xlsx')) {
-          const chunks = await this.parseXlsx(filePath, file);
-          allChunks.push(...chunks);
+        if (file.endsWith('.docx') || file.endsWith('.pptx') || file.endsWith('.xlsx')) {
+          seenPaths.add(filePath);
+          try {
+            const stat = await fs.promises.stat(filePath);
+            const mtime = stat.mtimeMs;
+            const size = stat.size;
+
+            const cached = cache.files[filePath];
+            if (cached && cached.mtime === mtime && cached.size === size) {
+              allChunks.push(...cached.chunks);
+              hitCount++;
+            } else {
+              let chunks: DocumentChunk[] = [];
+              if (file.endsWith('.docx')) {
+                chunks = await this.parseDocx(filePath, file);
+              } else if (file.endsWith('.pptx')) {
+                chunks = await this.parsePptx(filePath, file);
+              } else if (file.endsWith('.xlsx')) {
+                chunks = await this.parseXlsx(filePath, file);
+              }
+              cache.files[filePath] = { mtime, size, chunks };
+              cacheDirty = true;
+              allChunks.push(...chunks);
+              missCount++;
+            }
+          } catch (err) {
+            console.error(`❌ Error processing office file ${file}:`, err);
+          }
         }
       }
     }
+
+    // Prune deleted files from the cache
+    for (const cachedPath of Object.keys(cache.files)) {
+      if (!seenPaths.has(cachedPath)) {
+        delete cache.files[cachedPath];
+        cacheDirty = true;
+      }
+    }
+
+    // Write updated cache if dirty
+    if (cacheDirty) {
+      try {
+        await safeWriteJson(CACHE_PATH, cache);
+        console.log(`💾 Ingestion cache updated at: ${CACHE_PATH}`);
+      } catch (err) {
+        console.error("❌ Failed to write ingestion cache:", err);
+      }
+    }
+
+    const duration = Date.now() - startTime;
+    console.log(`🚀 Ingestion complete: loaded ${allChunks.length} chunks. (Total Time: ${duration}ms | Cache Hits: ${hitCount} | Cache Misses/Parsed: ${missCount})`);
 
     return allChunks;
   }
@@ -99,7 +204,7 @@ export class ParserService {
     
     return paragraphs.map((para, index) => ({
       id: `${fileName}_chunk_${index}`,
-      filePath,
+      filePath: virtualizePath(filePath),
       fileName,
       fileType: 'transcript',
       content: para.trim(),
@@ -151,7 +256,7 @@ export class ParserService {
       const sections = text.split(/\r?\n\r?\n/).filter(s => s.trim().length > 20);
       return sections.map((sect, index) => ({
         id: `${fileName}_chunk_${index}`,
-        filePath,
+        filePath: virtualizePath(filePath),
         fileName,
         fileType: 'docx',
         content: sect.trim(),
@@ -204,7 +309,7 @@ export class ParserService {
         
         const chunks = slides.map((slideText, index) => ({
           id: `${fileName}_chunk_${index}`,
-          filePath,
+          filePath: virtualizePath(filePath),
           fileName,
           fileType: 'pptx' as const,
           content: slideText.trim(),
@@ -300,7 +405,7 @@ export class ParserService {
         if (sheetLines.length > 0) {
           chunks.push({
             id: `${fileName}_${sheetName}_chunk`,
-            filePath,
+            filePath: virtualizePath(filePath),
             fileName,
             fileType: 'xlsx',
             content: `Sheet: "${sheetName}" | Tabular Data:\n` + sheetLines.join(';\n'),

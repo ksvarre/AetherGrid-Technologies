@@ -34,10 +34,48 @@ if (apiKey && apiKey.trim() !== '' && apiKey !== 'your_gemini_api_key_here') {
 /**
  * Perform initial ingestion upon booting, ensuring the database is instantly ready.
  */
+async function injectResolvedCorrections() {
+  try {
+    const feedbackList = await dbService.getFeedback();
+    const resolvedCorrections = feedbackList.filter(f => f.resolved && f.correctedAnswer && f.correctedAnswer.trim() !== '');
+    
+    let injectCount = 0;
+    resolvedCorrections.forEach(item => {
+      const chunkId = `virtual_fb_${item.id}`;
+      const newChunk: DocumentChunk = {
+        id: chunkId,
+        filePath: `virtual/correction/${item.id}`,
+        fileName: `virtual_correction_${item.id}`,
+        fileType: 'transcript',
+        content: item.correctedAnswer!.trim(),
+        author: 'System Operator (Approved)',
+        attendees: [],
+        date: item.timestamp ? item.timestamp.split('T')[0] : new Date().toISOString().split('T')[0],
+        domain: item.domain || 'General',
+        priority: 'High'
+      };
+
+      const existingIdx = documentIndex.findIndex(c => c.id === chunkId);
+      if (existingIdx > -1) {
+        documentIndex[existingIdx] = newChunk;
+      } else {
+        documentIndex.push(newChunk);
+      }
+      injectCount++;
+    });
+    if (injectCount > 0) {
+      console.log(`⚡ Self-healing: Re-injected ${injectCount} resolved corrections into memory index.`);
+    }
+  } catch (err) {
+    console.error("❌ Failed to inject resolved corrections:", err);
+  }
+}
+
 async function bootstrapIndex() {
   try {
     console.log("🔍 Scanning and ingesting local synthetic corpus...");
     documentIndex = await parserService.ingestAll();
+    await injectResolvedCorrections();
     console.log(`✅ Ingestion complete. Indexed ${documentIndex.length} semantic text chunks across all transcripts and office documents.`);
   } catch (err) {
     console.error("❌ Failed initial bootstrap ingestion:", err);
@@ -67,6 +105,7 @@ app.post('/api/ingest', async (req, res) => {
   try {
     console.log("🔄 Re-scanning data folders by operator request...");
     documentIndex = await parserService.ingestAll();
+    await injectResolvedCorrections();
     res.json({
       success: true,
       message: `Re-indexed workspace successfully.`,
@@ -162,6 +201,34 @@ app.post('/api/feedback/resolve', async (req, res) => {
   try {
     const success = await dbService.resolveFeedback(feedbackId);
     if (!success) return res.status(404).json({ error: "Feedback item not found." });
+
+    // Dynamic Self-Healing Index Sync
+    const feedbackList = await dbService.getFeedback();
+    const item = feedbackList.find(f => f.id === feedbackId);
+    if (item && item.correctedAnswer && item.correctedAnswer.trim() !== '') {
+      const chunkId = `virtual_fb_${feedbackId}`;
+      const newChunk: DocumentChunk = {
+        id: chunkId,
+        filePath: `virtual/correction/${feedbackId}`,
+        fileName: `virtual_correction_${feedbackId}`,
+        fileType: 'transcript',
+        content: item.correctedAnswer.trim(),
+        author: 'System Operator (Approved)',
+        attendees: [],
+        date: new Date().toISOString().split('T')[0],
+        domain: item.domain || 'General',
+        priority: 'High'
+      };
+
+      const existingIdx = documentIndex.findIndex(c => c.id === chunkId);
+      if (existingIdx > -1) {
+        documentIndex[existingIdx] = newChunk;
+      } else {
+        documentIndex.push(newChunk);
+      }
+      console.log(`⚡ Self-healing Sync: Injected virtual correction chunk ${chunkId} into search index.`);
+    }
+
     res.json({ success: true });
   } catch (err: any) {
     res.status(500).json({ error: err.message });

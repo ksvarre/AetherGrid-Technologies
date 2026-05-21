@@ -786,6 +786,35 @@ export const AetherPulseAnalytics: React.FC = () => {
             <circle cx="1460" cy="120" r="4" fill="var(--color-warning)" filter="drop-shadow(0 0 3px var(--color-warning))" />
           </svg>
         </div>
+
+        {/* 📊 Telemetry Simulation Alert & Exercise 3 Planning Context */}
+        <div 
+          style={{ 
+            marginTop: '1.25rem', 
+            padding: '1.1rem 1.25rem', 
+            borderRadius: '8px', 
+            background: 'rgba(0, 242, 254, 0.03)', 
+            border: '1px solid rgba(0, 242, 254, 0.12)',
+            fontSize: '0.85rem',
+            lineHeight: '1.5',
+            color: 'var(--text-primary)'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: 'var(--accent-cyan)', fontWeight: 700, fontFamily: 'Outfit', textTransform: 'uppercase', letterSpacing: '0.04em', fontSize: '0.85rem' }}>
+            <span>📊 Telemetry Simulation Preview (Exercise 3 Planning)</span>
+          </div>
+          <p style={{ margin: '0 0 0.5rem 0', color: 'rgba(255, 255, 255, 0.85)' }}>
+            Because this deployment starts with a pristine clean-slate database, this graph shows a <strong>30-Day Simulated Telemetry Preview</strong>. This rolling timeline is the core deliverable of <strong>Exercise 3: System Performance &amp; Telemetry</strong>. In production, this maps continuous system degradation over the first 30 days using three critical signals:
+          </p>
+          <ul style={{ margin: '0 0 0.5rem 1.25rem', padding: 0, color: 'rgba(255, 255, 255, 0.85)', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+            <li><strong>Health Index (Cyan)</strong>: Rolling composite metric (<code style={{ fontSize: '0.75rem' }}>Confidence &times; (1 - Rejection Rate)</code>) measuring long-term user satisfaction.</li>
+            <li><strong>Confidence (Purple)</strong>: Mean cosine similarity score of search results, showing whether search precision is drifting over time.</li>
+            <li><strong>Rejection Rate (Yellow)</strong>: Percentage of search matches rejected/corrected by users, showing active knowledge gaps.</li>
+          </ul>
+          <p style={{ margin: 0, color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.78rem', fontStyle: 'italic' }}>
+            *Once searches span multiple calendar days on this reviewer machine, the simulation dynamically fades and overrides with your live database history.
+          </p>
+        </div>
       </div>
       
     </div>

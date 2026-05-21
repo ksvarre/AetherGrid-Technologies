@@ -787,7 +787,7 @@ export const AetherPulseAnalytics: React.FC = () => {
           </svg>
         </div>
 
-        {/* 📊 Telemetry Simulation Alert & Exercise 3 Planning Context */}
+        {/* 📊 Simulated Graph Overview & Exercise 3 Core Metric Strategy */}
         <div 
           style={{ 
             marginTop: '1.25rem', 
@@ -796,23 +796,29 @@ export const AetherPulseAnalytics: React.FC = () => {
             background: 'rgba(0, 242, 254, 0.03)', 
             border: '1px solid rgba(0, 242, 254, 0.12)',
             fontSize: '0.85rem',
-            lineHeight: '1.5',
+            lineHeight: '1.6',
             color: 'var(--text-primary)'
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', color: 'var(--accent-cyan)', fontWeight: 700, fontFamily: 'Outfit', textTransform: 'uppercase', letterSpacing: '0.04em', fontSize: '0.85rem' }}>
-            <span>📊 Telemetry Simulation Preview (Exercise 3 Planning)</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', color: 'var(--accent-cyan)', fontWeight: 700, fontFamily: 'Outfit', textTransform: 'uppercase', letterSpacing: '0.04em', fontSize: '0.85rem' }}>
+            <span>📊 Operational Success Strategy (Exercise 3 Performance Metric)</span>
           </div>
-          <p style={{ margin: '0 0 0.5rem 0', color: 'rgba(255, 255, 255, 0.85)' }}>
-            Because this deployment starts with a pristine clean-slate database, this graph shows a <strong>30-Day Simulated Telemetry Preview</strong>. This rolling timeline is the core deliverable of <strong>Exercise 3: System Performance &amp; Telemetry</strong>. In production, this maps continuous system degradation over the first 30 days using three critical signals:
+          <p style={{ margin: '0 0 0.85rem 0', color: 'rgba(255, 255, 255, 0.9)' }}>
+            Since the application starts fresh with a completely empty database, this graph displays a <strong>30-Day Simulated Preview</strong>. Monitoring these three trends for the first month is essential because it reveals whether our search tool is slowly losing its effectiveness as new company documents are uploaded or as user search habits change.
           </p>
-          <ul style={{ margin: '0 0 0.5rem 1.25rem', padding: 0, color: 'rgba(255, 255, 255, 0.85)', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-            <li><strong>Health Index (Cyan)</strong>: Rolling composite metric (<code style={{ fontSize: '0.75rem' }}>Confidence &times; (1 - Rejection Rate)</code>) measuring long-term user satisfaction.</li>
-            <li><strong>Confidence (Purple)</strong>: Mean cosine similarity score of search results, showing whether search precision is drifting over time.</li>
-            <li><strong>Rejection Rate (Yellow)</strong>: Percentage of search matches rejected/corrected by users, showing active knowledge gaps.</li>
+          <p style={{ margin: '0 0 0.85rem 0', color: 'rgba(255, 255, 255, 0.9)' }}>
+            To measure actual operational success during this launch phase, our core success strategy centers on a single metric: <strong>User Correction Resolution Velocity</strong>. Simply put, this measures **how fast a team manager approves a user's correction and updates the search library** so that the tool does not make the same mistake twice. We measure this by tracking the exact time between a user submitting a correction and a manager reviewing and saving it, and then taking the middle (median) time across all items. Our target is to resolve every gap within <strong>48 hours</strong>. If this time gets longer, it means we are failing to keep up with updates, leaving the search tool with unresolved mistakes.
+          </p>
+          <div style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.4rem', fontSize: '0.82rem' }}>
+            Here is what we track on this graph and why:
+          </div>
+          <ul style={{ margin: '0 0 0.85rem 1.25rem', padding: 0, color: 'rgba(255, 255, 255, 0.85)', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+            <li><strong style={{ color: 'var(--accent-cyan)' }}>System Health (Cyan Line)</strong>: This is our overall performance score. It combines the search tool's confidence with user satisfaction. If this line falls below 65%, it warns us that the search tool has degraded and needs support.</li>
+            <li><strong style={{ color: 'var(--accent-purple)' }}>Search Confidence (Purple Line)</strong>: This shows how sure the search tool is that it found the correct match for a question. A downward trend shows that the tool is struggling to find clear matches in the uploaded files.</li>
+            <li><strong style={{ color: 'var(--color-warning)' }}>User Rejection Rate (Yellow Line)</strong>: This tracks how often team members give thumbs-down or correct a search result. A rising line shows that users are finding errors or spotting areas where company documents are missing.</li>
           </ul>
-          <p style={{ margin: 0, color: 'rgba(255, 255, 255, 0.6)', fontSize: '0.78rem', fontStyle: 'italic' }}>
-            *Once searches span multiple calendar days on this reviewer machine, the simulation dynamically fades and overrides with your live database history.
+          <p style={{ margin: 0, color: 'rgba(255, 255, 255, 0.55)', fontSize: '0.78rem', fontStyle: 'italic' }}>
+            *Once you run searches and submit corrections over multiple calendar days, this simulated preview will automatically fade and be replaced by your real, live database history.
           </p>
         </div>
       </div>

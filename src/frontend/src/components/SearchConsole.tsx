@@ -325,8 +325,50 @@ export const SearchConsole: React.FC<SearchConsoleProps> = ({ onSearchResult, on
                 <span className="drawer-meta-value">{activeCitation.fileName}</span>
                 
                 <span className="drawer-meta-label">Workspace Path:</span>
-                <span className="drawer-meta-value" style={{ wordBreak: 'break-all', fontSize: '0.8rem', color: 'var(--accent-blue)' }}>
-                  {activeCitation.filePath}
+                <span className="drawer-meta-value" style={{ wordBreak: 'break-all', fontSize: '0.85rem', color: 'var(--accent-blue)', display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                  <span>{activeCitation.filePath}</span>
+                  {!activeCitation.filePath.startsWith('virtual') && (
+                    <button
+                      className="download-document-btn"
+                      onClick={() => window.open(`http://localhost:5000/api/documents/download/${encodeURIComponent(activeCitation.fileName)}`)}
+                      title="Download original document"
+                      style={{
+                        background: 'rgba(0, 242, 254, 0.1)',
+                        border: '1px solid rgba(0, 242, 254, 0.3)',
+                        borderRadius: '6px',
+                        color: 'var(--accent-cyan)',
+                        padding: '4px 10px',
+                        fontSize: '0.75rem',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.35rem',
+                        transition: 'all 0.2s ease',
+                        fontFamily: 'Outfit',
+                        fontWeight: 600,
+                        boxShadow: '0 0 10px rgba(0, 242, 254, 0.05)'
+                      }}
+                      onMouseOver={(e) => {
+                        e.currentTarget.style.background = 'var(--accent-cyan)';
+                        e.currentTarget.style.color = '#080c14';
+                        e.currentTarget.style.boxShadow = 'var(--box-shadow-glow)';
+                        e.currentTarget.style.transform = 'translateY(-1px)';
+                      }}
+                      onMouseOut={(e) => {
+                        e.currentTarget.style.background = 'rgba(0, 242, 254, 0.1)';
+                        e.currentTarget.style.color = 'var(--accent-cyan)';
+                        e.currentTarget.style.boxShadow = '0 0 10px rgba(0, 242, 254, 0.05)';
+                        e.currentTarget.style.transform = 'translateY(0)';
+                      }}
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                      </svg>
+                      <span>Download File</span>
+                    </button>
+                  )}
                 </span>
 
                 <span className="drawer-meta-label">Author/Publisher:</span>

@@ -88,3 +88,23 @@ This document records the key architectural decisions, rationale, trade-offs, an
 *   **Rationale**: Boot latency drops from 387ms to under 3ms (a 99.2% speedup) for unchanged files. Approved corrections immediately update search query results without downtime or restarts.
 *   **Trade-offs**: In-memory updates are volatile and will be lost on server crash or restart unless also recorded in a persistent feedback database (which we do in `feedback.json`). The system re-ingests these on boot, maintaining long-term integrity.
 
+---
+
+## Decision 9: Grammatical Stemming for Query Matching
+*   **Status**: Accepted
+*   **Context**: Users searching the knowledge tracer frequently query words in singular or plural forms (e.g. "nodes" vs "node", "forecasting" vs "forecast"), which caused traditional exact token matching to miss highly relevant context segments.
+*   **Decision**: Implement a **Porter-style suffix stemming filter** within `nlp.ts` and integrate it into the `tokenize()` function. The filter strips common grammatical suffixes like `"s"`, `"es"`, `"ing"`, and `"ed"`, while using heuristic rule exceptions to preserve proper abbreviations (like `"us"` or `"as"`) and regular bases.
+*   **Rationale**: Normalized tokens allow search vectors (TF-IDF/BM25) to map different morphological inflections of the same root word onto a single token index, dramatically increasing search recall in offline execution.
+*   **Trade-offs**: A custom stemming filter is simpler than full library-based lemmatization (like natural or compromise) but keeps the codebase extremely lightweight, high-performance, and has zero external npm dependencies or native binaries.
+
+---
+
+## Decision 10: Secure Path-Traversal-Guarded Document Download Bridge
+*   **Status**: Accepted
+*   **Context**: Operators reviewing corpus citations in the Search Console citation drawer need to access and download the original raw source document or transcript files, but exposing arbitrary file paths creates high risk of directory traversal attacks.
+*   **Decision**: Implement a secure backend endpoint `GET /api/documents/download/:filename` paired with a premium glassmorphic download button in the React UI drawer. The backend:
+    1. Neutralizes directory prefixes using `path.basename()`.
+    2. Validates that the resolved absolute target path starts with the absolute workspace root (`process.cwd()`), rejecting any traversal breaches with a `403 Forbidden` response.
+*   **Rationale**: Fully mitigates STRIDE Information Disclosure and Security Misconfiguration threats, while providing a seamless, visual, and highly integrated UX for operators.
+*   **Trade-offs**: Only physical assets matching files in standard transcripts or document directories can be downloaded, which is appropriate for operational compliance.
+

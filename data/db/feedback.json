@@ -97,5 +97,27 @@
     "id": "fb_1779322022127_966",
     "timestamp": "2026-05-21T00:07:02.127Z",
     "resolved": true
+  },
+  {
+    "query": "How do you bake a chocolate chip cookie at home?",
+    "answer": "I couldn&#x27;t find any relevant documents or meeting records in our database matching those search parameters.",
+    "confidenceScore": 0.05,
+    "status": "rejection",
+    "correctedAnswer": "Need to consult commercial and operations ledgers manually.",
+    "domain": "General",
+    "id": "fb_1779322252873_785",
+    "timestamp": "2026-05-21T00:10:52.873Z",
+    "resolved": true
+  },
+  {
+    "query": "How do you bake a chocolate chip cookie at home?",
+    "answer": "I couldn&#x27;t find any relevant documents or meeting records in our database matching those search parameters.",
+    "confidenceScore": 0.05,
+    "status": "rejection",
+    "correctedAnswer": "Need to consult commercial and operations ledgers manually.",
+    "domain": "General",
+    "id": "fb_1779322388448_605",
+    "timestamp": "2026-05-21T00:13:08.448Z",
+    "resolved": true
   }
 ]

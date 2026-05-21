@@ -19,8 +19,8 @@ export const AuditQueue: React.FC = () => {
   const [showResolved, setShowResolved] = useState<boolean>(false);
   const [successMsg, setSuccessMsg] = useState<string>('');
 
-  const fetchFeedback = async () => {
-    setLoading(true);
+  const fetchFeedback = async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const response = await fetch('http://localhost:5000/api/feedback');
       if (response.ok) {
@@ -30,12 +30,19 @@ export const AuditQueue: React.FC = () => {
     } catch (err) {
       console.error("Failed to fetch feedback logs:", err);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchFeedback();
+
+    // Silent periodic background polling every 10 seconds to auto-refresh the ledger
+    const interval = setInterval(() => {
+      fetchFeedback(true);
+    }, 10000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const handleResolve = async (feedbackId: string, action: 'approved' | 'dismissed') => {
@@ -118,7 +125,7 @@ export const AuditQueue: React.FC = () => {
           </div>
 
           <button 
-            onClick={fetchFeedback}
+            onClick={() => fetchFeedback()}
             style={{
               marginLeft: 'auto',
               background: 'rgba(255,255,255,0.05)',

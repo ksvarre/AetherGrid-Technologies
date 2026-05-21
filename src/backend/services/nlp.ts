@@ -61,13 +61,59 @@ const STOP_WORDS = new Set([
   'your', 'yours', 'yourself', 'yourselves'
 ]);
 
+/**
+ * Simple Porter-style suffix stemming algorithm to normalize suffixes: "s", "es", "ing", "ed".
+ */
+function stem(word: string): string {
+  if (word.length <= 2) return word;
+
+  if (word.endsWith('sses')) {
+    return word.slice(0, -2); // classes -> class
+  }
+  if (word.endsWith('ies')) {
+    return word.slice(0, -3) + 'i'; // families -> famili
+  }
+  if (word.endsWith('es')) {
+    const stemCandidate = word.slice(0, -2);
+    if (/[xsz]|(ch)|(sh)$/.test(stemCandidate)) {
+      return stemCandidate; // boxes -> box, beaches -> beach
+    }
+  }
+  if (word.endsWith('ss')) {
+    return word; // bypass
+  }
+  if (word.endsWith('s') && !word.endsWith('us') && !word.endsWith('is') && !word.endsWith('as')) {
+    return word.slice(0, -1); // grids -> grid, nodes -> node
+  }
+  if (word.endsWith('eed')) {
+    return word.slice(0, -1); // agreed -> agree
+  }
+  if (word.endsWith('ing')) {
+    let stemCandidate = word.slice(0, -3);
+    if (stemCandidate.length > 3 && stemCandidate.endsWith('n') && stemCandidate[stemCandidate.length - 2] === 'n') {
+      stemCandidate = stemCandidate.slice(0, -1); // running -> run
+    }
+    return stemCandidate;
+  }
+  if (word.endsWith('ed')) {
+    let stemCandidate = word.slice(0, -2);
+    if (stemCandidate.length > 3 && stemCandidate[stemCandidate.length - 1] === stemCandidate[stemCandidate.length - 2]) {
+      stemCandidate = stemCandidate.slice(0, -1); // tapped -> tap
+    }
+    return stemCandidate;
+  }
+  return word;
+}
+
 function tokenize(text: string): string[] {
   return text
     .toLowerCase()
     .replace(/[^\w\s-]/g, '')
     .split(/\s+/)
-    .filter(word => word.length > 2 && !STOP_WORDS.has(word));
+    .filter(word => word.length > 2 && !STOP_WORDS.has(word))
+    .map(word => stem(word));
 }
+
 
 /**
  * ---------------------------------------------------------------------

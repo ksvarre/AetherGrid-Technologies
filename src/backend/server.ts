@@ -2,10 +2,25 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 import { parserService } from './services/parser';
 import { INLPEngine, OfflineNLPEngine, GeminiNLPEngine, DocumentChunk } from './services/nlp';
 import { routingService } from './services/routing';
 import { dbService } from './services/database';
+
+const getDir = (sub: string) => {
+  let p = path.resolve(__dirname, `../../${sub}`);
+  if (fs.existsSync(p)) return p;
+  p = path.resolve(__dirname, `../../../${sub}`);
+  if (fs.existsSync(p)) return p;
+  p = path.resolve(process.cwd(), sub);
+  if (fs.existsSync(p)) return p;
+  return path.resolve(__dirname, `../../${sub}`); // Default fallback
+};
+
+const TRANSCRIPTS_DIR = getDir('data/transcripts');
+const DOCUMENTS_DIR = getDir('data/documents');
+
 
 // Load environmental variables
 dotenv.config();
@@ -243,6 +258,48 @@ app.get('/api/metrics', async (req, res) => {
     const metrics = await dbService.getMetricsSummary();
     res.json(metrics);
   } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * GET /api/documents/download/:filename - Secure document download bridge with strict path traversal guards
+ */
+app.get('/api/documents/download/:filename', (req, res) => {
+  try {
+    const rawFilename = req.params.filename;
+    if (!rawFilename || typeof rawFilename !== 'string') {
+      return res.status(400).json({ error: "Filename parameter is required." });
+    }
+
+    // Neutralize directory traversal sequences using path.basename
+    const filename = path.basename(rawFilename);
+
+    // Resolve candidates
+    const docPath = path.join(DOCUMENTS_DIR, filename);
+    const transPath = path.join(TRANSCRIPTS_DIR, filename);
+
+    let targetPath = '';
+    if (fs.existsSync(docPath)) {
+      targetPath = docPath;
+    } else if (fs.existsSync(transPath)) {
+      targetPath = transPath;
+    }
+
+    if (!targetPath) {
+      return res.status(404).json({ error: "Document not found in knowledge database." });
+    }
+
+    // Strict security assertion: Verify resolved path begins with the absolute workspace root
+    const resolvedPath = path.resolve(targetPath);
+    const workspaceRoot = path.resolve(process.cwd());
+    if (!resolvedPath.startsWith(workspaceRoot)) {
+      return res.status(403).json({ error: "Access denied. Path traversal violation detected." });
+    }
+
+    res.download(resolvedPath, filename);
+  } catch (err: any) {
+    console.error("Download endpoint execution error:", err);
     res.status(500).json({ error: err.message });
   }
 });

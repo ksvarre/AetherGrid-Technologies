@@ -121,7 +121,17 @@ This document describes the structure, endpoints, parsing modules, and database 
     }
     ```
 
-### 4. Instrumentation Metrics Endpoint
+### 4. Secure Document Download Bridge
+*   **`GET /api/documents/download/:filename`**
+*   **Description**: Securely downloads a physical source document or transcript from the database by its filename.
+*   **Parameters**:
+    *   `:filename` (string, path parameter): The filename of the physical asset (e.g. `helium_hardware_thermal_tests.xlsx`).
+*   **Security Controls**:
+    *   Neutralizes directory traversal inputs via `path.basename`.
+    *   Asserts that the resolved absolute path starts with the absolute workspace root (`process.cwd()`), rejecting illegal access attempts with a `403 Forbidden` status.
+*   **Response**: Binary file stream of the requested document, or JSON error details.
+
+### 5. Instrumentation Metrics Endpoint
 *   **`GET /api/metrics`**
 *   **Description**: Calculates the running system diagnostics, aggregated health levels, and query logs over the past 30 days to check for performance degradation.
 *   **Response**:
@@ -144,7 +154,7 @@ This document describes the structure, endpoints, parsing modules, and database 
 
 ## 🔍 Offline Search Retrieval Logic (The Local Engine)
 When executing in local **Offline Mode**, the backend processes queries through a custom-built, lightweight retrieval engine:
-1.  **Tokenization & Lowercasing**: Queries and document chunks are split into words and stripped of punctuation. Common English stop words ("the", "is", "at", "which", etc.) are removed.
+1.  **Tokenization, Suffix Stemming & Lowercasing**: Queries and document chunks are split into words, stripped of punctuation, and filtered to remove common English stop words ("the", "is", "at", "which", etc.). A Porter-style stemming filter is then applied to normalize common trailing suffix endings (`"s"`, `"es"`, `"ing"`, `"ed"`), ensuring robust singular/plural query matches.
 2.  **TF-IDF Weighting**: 
     *   **Term Frequency (TF)**: Frequency of terms in a chunk divided by total words in that chunk.
     *   **Inverse Document Frequency (IDF)**: $\log(1 + N / (1 + n_t))$, where $N$ is total chunks, and $n_t$ is count of chunks containing term $t$.

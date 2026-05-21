@@ -208,4 +208,14 @@ This document records the key architectural decisions, rationale, trade-offs, an
 *   **Trade-offs**: Rate limiting may need tuning for production load. `sanitizeForLLM()` is a blocklist approach (can be bypassed by novel injection patterns) — a more robust defense would use a separate classifier model, but the current approach handles known attack vectors. CSP `'unsafe-inline'` for styles is required by the current CSS architecture.
 *   **Verification**: All 13 security integration tests pass (normal query, length cap, empty query, invalid feedback status, valid feedback, feedbackId type check, helmet headers, body size limit, CORS restriction, CORS allowed, metrics, feedback list, rate limiter).
 
+---
+
+## Decision 20: Automated Live Application Screenshot Capture & Programmatic Verification
+*   **Status**: Accepted
+*   **Context**: The user required a comprehensive User Guide featuring actual screenshots of the running React application (port 5173/5174) rather than synthetic mockups, placeholders, or static designs.
+*   **Decision**: Configure and run Playwright in a headless environment via a dedicated Node.js automation script (`scripts/take_screenshots.js`). The script connects to the active frontend development server, automatically handles state (bypassing onboarding welcome tours, typing custom natural language searches, opening citation drawers, closing drawer overlays, and navigating across sidebar workspace panels), and captures high-fidelity screenshots.
+*   **Rationale**: Using a programmatic screenshot tool ensures that the images are exact, real representations of the active React client. This completely eliminates manual screenshot fatigue, ensures consistency in resolution/layout (1440x900 viewport), and provides a repeatable mechanism to re-generate the screenshots if UI styles or data schemas change in the future.
+*   **Trade-offs**: Requires the local frontend/backend server to be active when running the script, which is already handled by our concurrent `npm run dev` workspace setup.
+
+
 

@@ -127,7 +127,7 @@ This starts a colorful, interactive ANSI-styled terminal application where you c
 
 ## 🔮 Future Features & Development Roadmap
 
-To scale AetherGrid Knowledge Tracer into an enterprise-grade corporate portal, we have established a 7-point future feature backlog:
+To scale AetherGrid Knowledge Tracer into an enterprise-grade corporate portal, we have established an 8-point future feature backlog:
 
 ### 1. Admin Resolution Workflow for Reformulation Issues
 *   **Objective**: Transition search query friction from passive detection to active resolution by operators.
@@ -161,6 +161,17 @@ To scale AetherGrid Knowledge Tracer into an enterprise-grade corporate portal, 
 *   **Proposed Solution**:
     *   **Configurable Time-Frames**: Add a time-period selector toggle (e.g., `24h`, `7d`, `30d`, `All Time`) on the System Health dashboard to filter metrics aggregates and trend lines dynamically.
     *   **Reviewer Sandbox Simulation**: Introduce a "Simulator Mode" that allows reviewers to generate mock user search spikes, gaps, and lead resolution workflows compressed into a 5-minute interactive timeline. This enables instant visualization of system recovery metrics and proves the responsive telemetry tracking system works in real time under simulated evaluation scenarios.
+
+### 8. Secure Role-Based Access Control (RBAC) & User Authentication Gateway
+*   **Objective**: Guard administrative configurations and prevent unauthorized gap overrides by enforcing strict identity boundaries between standard users and team leads.
+*   **Proposed Solution**: 
+    *   **User Authentication**: Implement standard JWT-based authentication integrated with a secure enterprise Identity Provider (e.g. Auth0, Microsoft Entra ID / Azure AD, or Supabase Auth).
+    *   **Role-Based Gating**: Define two key roles:
+        *   `Operator / Reader`: Can execute natural language searches, view provenance citations, rate responses, submit corrections, and copy expert routing cards.
+        *   `Team Lead / Admin`: Can access the Audit Queue (to approve or disregard corrections), view detailed AetherPulse system health statistics, and customize BYOK model strategies in the Cloud Settings panel.
+    *   **Backend Gating Middleware**: Add a server-side `requireRole(['Admin'])` middleware to secure endpoints like `POST /api/feedback/resolve`, `GET /api/feedback`, `GET /api/metrics`, and `POST /api/ingest`.
+    *   **Frontend UI Hiding**: Enforce React-based routing guards and role checks to hide administrative tabs and disable unauthorized state changes for standard Operator logins.
+
 
 
 

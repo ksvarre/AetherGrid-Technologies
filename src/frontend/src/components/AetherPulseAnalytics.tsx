@@ -87,6 +87,45 @@ export const AetherPulseAnalytics: React.FC = () => {
 
   const isDegraded = metrics ? metrics.systemHealthIndex < 0.65 : false;
 
+  // Calculate UCRV (User Correction Resolution Velocity)
+  const resolvedFeedback = feedbackItems.filter(item => item.resolved && item.resolvedTimestamp && item.timestamp);
+  let measuredUcrvText = "No resolutions yet";
+  let ucrvColor = "var(--text-secondary)";
+
+  if (resolvedFeedback.length > 0) {
+    const durations = resolvedFeedback.map(item => {
+      const start = new Date(item.timestamp).getTime();
+      const end = new Date(item.resolvedTimestamp!).getTime();
+      return Math.max(0, end - start);
+    });
+
+    durations.sort((a, b) => a - b);
+    const mid = Math.floor(durations.length / 2);
+    const medianMs = durations.length % 2 !== 0 
+      ? durations[mid] 
+      : (durations[mid - 1] + durations[mid]) / 2;
+
+    const medianHours = medianMs / (1000 * 60 * 60);
+
+    if (medianHours < 1) {
+      const medianSeconds = Math.round(medianMs / 1000);
+      if (medianSeconds < 60) {
+        measuredUcrvText = `${medianSeconds} second${medianSeconds === 1 ? '' : 's'}`;
+      } else {
+        const medianMinutes = Math.round(medianMs / (1000 * 60));
+        measuredUcrvText = `${medianMinutes} minute${medianMinutes === 1 ? '' : 's'}`;
+      }
+    } else {
+      measuredUcrvText = `${medianHours.toFixed(1)} hour${medianHours.toFixed(1) === '1.0' ? '' : 's'}`;
+    }
+
+    if (medianHours <= 48) {
+      ucrvColor = "var(--color-success)";
+    } else {
+      ucrvColor = "var(--color-danger)";
+    }
+  }
+
   // Let's generate points for a beautiful SVG line chart showing simulated 30-day metrics history
   // Width: 1500 (widescreen), Height: 140
   const pointsHealth = "20,120 180,110 340,115 500,95 660,105 820,80 980,85 1140,75 1300,82 1460,90";
@@ -807,7 +846,10 @@ export const AetherPulseAnalytics: React.FC = () => {
             Since the application starts fresh with a completely empty database, this graph displays a <strong>30-Day Simulated Preview</strong>. Monitoring these three trends for the first month is essential because it reveals whether our search tool is slowly losing its effectiveness as new company documents are uploaded or as user search habits change.
           </p>
           <p style={{ margin: '0 0 0.85rem 0', color: 'rgba(255, 255, 255, 0.9)' }}>
-            To measure actual operational success during this launch phase, our core success strategy centers on a single metric: <strong>User Correction Resolution Velocity</strong>. Simply put, this measures **how fast a team manager approves a user's correction and updates the search library** so that the tool does not make the same mistake twice. We measure this by tracking the exact time between a user submitting a correction and a manager reviewing and saving it, and then taking the middle (median) time across all items. Our target is to resolve every gap within <strong>48 hours</strong>. If this time gets longer, it means we are failing to keep up with updates, leaving the search tool with unresolved mistakes.
+            To measure actual operational success during this launch phase, our core success strategy centers on a single metric: <strong>User Correction Resolution Velocity</strong>. Simply put, this measures **how fast a team manager approves a user's correction and updates the search library** so that the tool does not make the same mistake twice. We measure this by tracking the exact time between a user submitting a correction and a manager reviewing and saving it, and then taking the middle (median) time across all items. Our target is to resolve every gap within <strong>48 hours</strong>. If this time gets longer, it means we are failing to keep up with updates, leaving the search tool with unresolved mistakes. <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(255,255,255,0.05)', padding: '0.2rem 0.5rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.1)', marginLeft: '0.2rem', verticalAlign: 'middle', fontSize: '0.8rem' }}>
+              <span style={{ color: 'var(--text-secondary)' }}>Measured UCRV:</span>
+              <strong style={{ color: ucrvColor }}>{measuredUcrvText}</strong>
+            </span>
           </p>
           <div style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.4rem', fontSize: '0.82rem' }}>
             Here is what we track on this graph and why:

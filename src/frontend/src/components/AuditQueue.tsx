@@ -10,6 +10,7 @@ interface FeedbackItem {
   domain: string;
   resolved: boolean;
   timestamp: string;
+  resolvedTimestamp?: string;
 }
 
 export const AuditQueue: React.FC = () => {
@@ -71,6 +72,45 @@ export const AuditQueue: React.FC = () => {
     return matchesDomain && matchesResolved;
   });
 
+  // Calculate UCRV (User Correction Resolution Velocity)
+  const resolvedItems = feedback.filter(item => item.resolved && item.resolvedTimestamp && item.timestamp);
+  let ucrvText = "No resolutions yet";
+  let ucrvStatusColor = "var(--text-secondary)";
+
+  if (resolvedItems.length > 0) {
+    const durations = resolvedItems.map(item => {
+      const start = new Date(item.timestamp).getTime();
+      const end = new Date(item.resolvedTimestamp!).getTime();
+      return Math.max(0, end - start);
+    });
+
+    durations.sort((a, b) => a - b);
+    const mid = Math.floor(durations.length / 2);
+    const medianMs = durations.length % 2 !== 0 
+      ? durations[mid] 
+      : (durations[mid - 1] + durations[mid]) / 2;
+
+    const medianHours = medianMs / (1000 * 60 * 60);
+
+    if (medianHours < 1) {
+      const medianSeconds = Math.round(medianMs / 1000);
+      if (medianSeconds < 60) {
+        ucrvText = `${medianSeconds} second${medianSeconds === 1 ? '' : 's'}`;
+      } else {
+        const medianMinutes = Math.round(medianMs / (1000 * 60));
+        ucrvText = `${medianMinutes} minute${medianMinutes === 1 ? '' : 's'}`;
+      }
+    } else {
+      ucrvText = `${medianHours.toFixed(1)} hour${medianHours.toFixed(1) === '1.0' ? '' : 's'}`;
+    }
+
+    if (medianHours <= 48) {
+      ucrvStatusColor = "var(--color-success)";
+    } else {
+      ucrvStatusColor = "var(--color-danger)";
+    }
+  }
+
   return (
     <div className="audit-container">
       <div className="glass-panel">
@@ -81,6 +121,46 @@ export const AuditQueue: React.FC = () => {
           This control ledger captures queries where users reported low confidence, inaccuracies, or provided active corrections. 
           Team Leads use this portal to review knowledge gaps and approve training inputs.
         </p>
+
+        {/* 📊 Exercise 3: User Correction Resolution Velocity (UCRV) Metric Card */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1.5rem',
+          background: 'rgba(255, 255, 255, 0.02)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          borderRadius: '8px',
+          padding: '1rem 1.25rem',
+          marginBottom: '1.5rem',
+          flexWrap: 'wrap'
+        }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', minWidth: '220px' }}>
+            <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-dim)', fontWeight: 700 }}>
+              Exercise 3 Operational Success Metric:
+            </span>
+            <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+              User Correction Resolution Velocity (UCRV)
+            </span>
+          </div>
+          
+          <div style={{ height: '30px', width: '1px', background: 'rgba(255, 255, 255, 0.1)', display: 'none' }} className="hide-mobile"></div>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', minWidth: '150px' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>Measured Median Speed:</span>
+            <span style={{ fontSize: '1.3rem', fontWeight: 800, color: ucrvStatusColor, fontFamily: 'Outfit' }}>
+              {ucrvText}
+            </span>
+          </div>
+
+          <div style={{ height: '30px', width: '1px', background: 'rgba(255, 255, 255, 0.1)' }}></div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', maxWidth: '380px' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>Operational Target:</span>
+            <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
+              <strong>UCRV ≤ 48 Hours</strong> (median speed to approve user corrections and update the search library).
+            </span>
+          </div>
+        </div>
 
         {successMsg && (
           <div className="alert-banner success animate-slide-up" style={{ marginBottom: '1.5rem' }}>
